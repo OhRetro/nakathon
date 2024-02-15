@@ -1,4 +1,6 @@
-﻿namespace NakaScript.Components
+﻿using static NakaScript.Components.DebugUtils;
+
+namespace NakaScript.Components
 {
     internal class Tokens
     {
@@ -40,15 +42,13 @@
                 {
                     this.posEnd = posEnd.Copy();
                 }
+
+                DebugMessage($"Created Token {this}");
             }
 
             public override string ToString()
             {
-                if (value != null)
-                {
-                    return string.Format("{0}:{1}", type, value);
-                }
-                return type.ToString();
+                return $"<{type}{(value != null ? $":{value}" : "")}>";
             }
         }
     }

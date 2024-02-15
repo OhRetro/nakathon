@@ -1,6 +1,8 @@
 ﻿using static NakaScript.Components.Errors;
 using static NakaScript.Components.Tokens;
+using static NakaScript.Components.ThereIsAn;
 using static NakaScript.Components.Constants;
+using static NakaScript.Components.DebugUtils;
 using NakaScript.Components;
 
 namespace NakaScript
@@ -15,12 +17,14 @@ namespace NakaScript
                 var text = Console.ReadLine();
                 (dynamic tokens, Error error) = Run("shell", text);
 
-                if (error != NO_ERROR)
+                if (ThereIsAnError(error))
                 {
+                    DebugMessage("Showing Error");
                     error.ShowError();
                 }
                 else
                 {
+                    DebugMessage("Showing Results");
                     Console.WriteLine(tokens);
                 }
             }
@@ -33,7 +37,7 @@ namespace NakaScript
 
             (Token[] tokens, Error error) = lexer.MakeTokens();
 
-            if (error != NO_ERROR)
+            if (ThereIsAnError(error))
             {
                 return (tokens, error);
             }
@@ -42,12 +46,12 @@ namespace NakaScript
 
             var ast = parser.Parse();
 
-            if (ast.error != NO_ERROR)
+            if (ThereIsAnError(error))
             {
                 return (tokens, ast.error);
             }
 
-            Interpreter interpreter = new Interpreter();
+            Interpreter interpreter = new();
             interpreter.Visit(ast.node);
 
             return (ast.node, ast.error);

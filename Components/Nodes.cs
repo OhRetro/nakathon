@@ -1,4 +1,5 @@
 ﻿using static NakaScript.Components.Tokens;
+using static NakaScript.Components.DebugUtils;
 
 namespace NakaScript.Components
 {
@@ -14,10 +15,20 @@ namespace NakaScript.Components
             UnaryOperation
         }
 
-        public class Node(NodeType type, Token token)
+        public class Node
         {
-            public NodeType type = type;
-            public Token token = token;
+            public NodeType type;
+            public Token token;
+            public string name;
+
+            public Node(NodeType type, Token token)
+            {
+                this.type = type;
+                this.token = token; 
+                name = GetType().Name;
+
+                DebugMessage($"Created {name} {this}");
+            }
 
             public override string ToString()
             {
@@ -34,9 +45,8 @@ namespace NakaScript.Components
 
             public override string ToString()
             {
-                return $"({leftNode}, {opToken}, {rightNode})";
+                return $"({leftNode}, {opToken.type}:{opToken}, {rightNode})";
             }
-
         }
 
         public class UnaryOperationNode(Token token, Node node) : Node(NodeType.UnaryOperation, token) 

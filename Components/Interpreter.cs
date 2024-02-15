@@ -7,12 +7,9 @@ namespace NakaScript.Components
     {
         public object? Visit(dynamic node)
         {
-            Console.WriteLine(node.ToString());
-            string methodName = $"Visit{node}Node";
-            Console.WriteLine(methodName);
-            Type thisType = this.GetType();
-            MethodInfo theMethod = thisType.GetMethod(methodName);
-            return theMethod.Invoke(this, node);
+            string methodName = $"Visit{node.name}";
+            MethodInfo theMethod = GetType().GetMethod(methodName);
+            return theMethod.Invoke(this, [node]);
         }
 
         public void VisitNumberNode(Node node)

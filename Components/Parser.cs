@@ -2,6 +2,7 @@
 using static NakaScript.Components.Nodes;
 using static NakaScript.Components.Constants;
 using static NakaScript.Components.Errors;
+using static NakaScript.Components.ThereIsAn;
 
 namespace NakaScript.Components
 {
@@ -19,9 +20,9 @@ namespace NakaScript.Components
         {
             if (result is ParseResult)
             {
-                if (result.error != NO_ERROR)
+                if (ThereIsAnError(result.error))
                 {
-                    this.error = result.error;
+                    error = result.error;
                     return result.node;
                 }
             }
@@ -42,8 +43,8 @@ namespace NakaScript.Components
     }
     internal class Parser
     {
-        Token[] tokens;
-        Token currentToken = NO_TOKEN;
+        readonly Token[] tokens;
+        Token currentToken;
         int tokenIndex = -1;
 
         public Parser(Token[] tokens)
@@ -56,7 +57,7 @@ namespace NakaScript.Components
         {
             var result = Expr();
 
-            if (result.error == NO_ERROR && currentToken.type != TokenType.EOF)
+            if (!ThereIsAnError(result.error) && currentToken.type != TokenType.EOF)
             {
                 return result.Failure(new InvalidSyntaxError(
                         currentToken.posStart, currentToken.posEnd,
@@ -79,7 +80,7 @@ namespace NakaScript.Components
             return currentToken;
         }
 
-        public dynamic? Factor() { 
+        public dynamic Factor() { 
             var result = new ParseResult();
             var token = currentToken;
 
@@ -91,7 +92,7 @@ namespace NakaScript.Components
                 result.Register(Advance());
                 var factor = result.Register(Factor());
 
-                if (result.error != NO_ERROR)
+                if (ThereIsAnError(result.error))
                 {
                     return result;
                 }
@@ -108,7 +109,7 @@ namespace NakaScript.Components
                 result.Register(Advance());
                 var expr = result.Register(Expr());
 
-                if (result.error != NO_ERROR)
+                if (ThereIsAnError(result.error))
                 {
                     return result;
                 }
@@ -144,9 +145,12 @@ namespace NakaScript.Components
         public dynamic BineryOperation(Func<dynamic> function, TokenType[] operations)
         {
             var result = new ParseResult();
-            dynamic? leftNode = result.Register(function());
+            
+            var leftNode = result.Register(function());
+            var nullBinOp = new BineryOperationNode(NO_TOKEN, NO_NODE, NO_NODE);
+            var leftNodeAsBinOp = nullBinOp;
 
-            if (result.error != NO_ERROR)
+            if (ThereIsAnError(result.error))
             {
                 return result;
             }
@@ -154,17 +158,29 @@ namespace NakaScript.Components
             while (operations.Contains(currentToken.type))
             {
                 var opToken = currentToken;
+                
                 result.Register(Advance());
+                
                 var rightNode = result.Register(function());
-                if (result.error != NO_ERROR)
+
+                if (ThereIsAnError(result.error))
                 {
                     return result;
                 }
-
-                leftNode = new BineryOperationNode(opToken, leftNode, rightNode);
+                Console.WriteLine("aaaaa");
+                if (leftNodeAsBinOp == nullBinOp)
+                {
+                    Console.WriteLine("aaaaa1");
+                    leftNodeAsBinOp = new BineryOperationNode(opToken, leftNode, rightNode);
+                } else
+                {
+                    Console.WriteLine("aaaaa2");
+                    leftNodeAsBinOp = new BineryOperationNode(opToken, leftNodeAsBinOp, rightNode);
+                }
+                Console.WriteLine("bbbbb");
             }
-            Console.WriteLine("a");
-            return result.Success(leftNode);
+
+            return result.Success(leftNodeAsBinOp);
         }
     }
 }
