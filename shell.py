@@ -1,8 +1,10 @@
-import basic
+import run
 
 while True:
-		text = input("NKT Shell > ")
-		result, error = basic.run("<stdin>", text)
+    text = input("NakaThon Shell > ")
+    result, error = run.run("<stdin>", text)
 
-		if error: print(error.as_string())
-		else: print(result)
+    if error:
+        print(error.as_string())
+    else:
+        print(result)
