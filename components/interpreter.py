@@ -31,7 +31,8 @@ class Interpreter:
                 f"'{var_name} is not defined",
                 context
             ))
-            
+        
+        value = value.copy().set_pos(node.pos_start, node.pos_end)
         return res.success(value)
     
     def visit_VarAssignNode(self, node: VarAssignNode, context: Context):
@@ -49,8 +50,6 @@ class Interpreter:
         if res.error: return res
         right: Number = res.register(self.visit(node.right_node, context))
         if res.error: return res
-
-        error = None
 
         if node.op_tok.type == TokenType.PLUS:
             result, error = left.added_to(right)
@@ -74,8 +73,6 @@ class Interpreter:
         res = RunTimeResult()
         number = res.register(self.visit(node.node, context))
         if res.error: return res
-
-        error = None
         
         if node.op_tok.type == TokenType.MINUS:
             number, error = number.multed_by(Number(-1))

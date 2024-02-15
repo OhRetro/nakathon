@@ -18,12 +18,11 @@ def run(fn, text):
     # Generate AST
     parser = Parser(tokens)
     ast = parser.parse()
-    if ast.error: return None, error
+    if ast.error: return None, ast.error
     
     # Run Program
     interpreter = Interpreter()
     context = Context("<Program>")
     context.symbol_table = global_symbol_table
     result = interpreter.visit(ast.node, context)
-
     return result.value, result.error

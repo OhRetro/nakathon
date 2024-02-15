@@ -6,7 +6,7 @@ class NumberNode:
         self.pos_end = self.tok.pos_end
 
     def __repr__(self):
-        return f"[NumberNode:{self.tok}]"
+        return f"<NumberNode:{self.tok}>"
 
 class VarAccessNode:
     def __init__(self, var_name_tok):
@@ -14,7 +14,10 @@ class VarAccessNode:
         
         self.pos_start = self.var_name_tok.pos_start
         self.pos_end = self.var_name_tok.pos_end
-        
+
+    def __repr__(self):
+        return f"<VarAccessNode:{self.var_name_tok}>"
+     
 class VarAssignNode:
     def __init__(self, var_name_tok, value_node):
         self.var_name_tok = var_name_tok
@@ -22,6 +25,9 @@ class VarAssignNode:
         
         self.pos_start = self.var_name_tok.pos_start
         self.pos_end = self.value_node.pos_end
+        
+    def __repr__(self):
+        return f"<VarAssignNode:{self.var_name_tok}:{self.value_node}>"
          
 
 class BinOpNode:
@@ -34,7 +40,7 @@ class BinOpNode:
         self.pos_end = self.right_node.pos_end
 
     def __repr__(self):
-        return f"[BinOpNode:({self.left_node}, {self.op_tok}, {self.right_node})]"
+        return f"<BinOpNode:({self.left_node}, {self.op_tok}, {self.right_node})>"
 
 
 class UnaryOpNode:
@@ -46,4 +52,4 @@ class UnaryOpNode:
         self.pos_end = self.node.pos_end
         
     def __repr__(self):
-        return f"[UnaryOpNode:({self.op_tok}, {self.node})]"
+        return f"<UnaryOpNode:({self.op_tok}, {self.node})>"

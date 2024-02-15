@@ -14,3 +14,6 @@ class RunTimeResult:
     def failure(self, error):
         self.error = error
         return self
+    
+    def __repr__(self) -> str:
+        return f"<RunTimeResult:{self.value}:{self.error}>"

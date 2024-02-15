@@ -17,17 +17,23 @@ class Error:
                                self.pos_start, self.pos_end)
         return result
 
+    def __repr__(self) -> str:
+        return f"<Error:{self.error_name}:\"{self.details}>\""
 
+
+# Happens at Lexer Process
 class IllegalCharError(Error):
     def __init__(self, pos_start, pos_end, details):
         super().__init__(pos_start, pos_end, "Illegal Character", details)
 
 
+# Happens at AST Process
 class InvalidSyntaxError(Error):
     def __init__(self, pos_start, pos_end, details):
         super().__init__(pos_start, pos_end, "Invalid Syntax", details)
 
 
+# Happens at Interpreter Process
 class RunTimeError(Error):
     def __init__(self, pos_start, pos_end, details, context: Context):
         super().__init__(pos_start, pos_end, "Runtime Error", details)
