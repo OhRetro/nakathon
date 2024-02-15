@@ -1,27 +1,56 @@
-﻿namespace NakaScript
+﻿using static NakaScript.Components.Errors;
+using static NakaScript.Components.Tokens;
+using static NakaScript.Components.Constants;
+using NakaScript.Components;
+
+namespace NakaScript
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            Console.Write(">");
-            var text = Console.ReadLine();
-            (List<Token> result, dynamic? error) returned = Run(text); 
-
-            if (returned.error != null) {
-                Console.WriteLine(returned.error.ToString());
-            } 
-            else
+            while (true)
             {
-                Console.WriteLine(returned.result.ToString());
-            }
-        }
+                Console.Write("ns shell > ");
+                var text = Console.ReadLine();
+                (dynamic tokens, Error error) = Run("shell", text);
 
-        static (List<Token>, dynamic?) Run(string text)
+                if (error != NO_ERROR)
+                {
+                    error.ShowError();
+                }
+                else
+                {
+                    Console.WriteLine(tokens);
+                }
+            }
+
+        }
+      
+        static (dynamic, Error) Run(string filename, string text)
         {
-            var lexer = new Lexer(text);
-            
-            return lexer.MakeTokens();
+            Lexer lexer = new(filename, text);
+
+            (Token[] tokens, Error error) = lexer.MakeTokens();
+
+            if (error != NO_ERROR)
+            {
+                return (tokens, error);
+            }
+
+            Parser parser = new(tokens);
+
+            var ast = parser.Parse();
+
+            if (ast.error != NO_ERROR)
+            {
+                return (tokens, ast.error);
+            }
+
+            Interpreter interpreter = new Interpreter();
+            interpreter.Visit(ast.node);
+
+            return (ast.node, ast.error);
         }
     }
 }

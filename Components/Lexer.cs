@@ -1,32 +1,46 @@
-﻿using static NakaScript.Constants;
+﻿using static NakaScript.Components.Constants;
+using static NakaScript.Components.Errors;
+using static NakaScript.Components.Tokens;
 
-namespace NakaScript
+namespace NakaScript.Components
 {
-    internal class Lexer(string text)
+    internal class Lexer
     {
-        public string text = text;
-        private int pos = -1;
-        private char currentChar = '\0';
+        public string filename;
+        public string text;
+
+        private Position pos;
+        private char currentChar;
+
+        public Lexer(string filename, string text)
+        {
+            this.filename = filename;
+            this.text = text;
+
+            pos = new(-1, 0, -1, filename, text);
+            currentChar = NULL_CHAR;
+
+            Advance();
+        }
 
         public void Advance()
         {
-            pos++;
-            if (pos < text.Length)
+            pos = pos.Advance(currentChar);
+            if (pos.index < text.Length)
             {
-                currentChar = text[pos];
+                currentChar = text[pos.index];
             }
             else
             {
-                currentChar = '\0';
+                currentChar = NULL_CHAR;
             }
-
         }
 
-        public (List<Token>, dynamic?) MakeTokens()
+        public (Token[], Error) MakeTokens()
         {
             var tokens = new List<Token>();
 
-            while (currentChar != '\0')
+            while (currentChar != NULL_CHAR)
             {
                 if (char.IsWhiteSpace(currentChar))
                 {
@@ -35,55 +49,58 @@ namespace NakaScript
                 else if (DIGITS.Contains(currentChar))
                 {
                     tokens.Add(MakeNumber());
-                    Advance();
                 }
                 else if (currentChar == '+')
                 {
-                    tokens.Add(new Token(TokenType.PLUS));
+                    tokens.Add(new Token(TokenType.PLUS, null, pos));
                     Advance();
                 }
                 else if (currentChar == '-')
                 {
-                    tokens.Add(new Token(TokenType.MINUS));
+                    tokens.Add(new Token(TokenType.MINUS, null, pos));
                     Advance();
                 }
                 else if (currentChar == '*')
                 {
-                    tokens.Add(new Token(TokenType.MUL));
+                    tokens.Add(new Token(TokenType.MUL, null, pos));
                     Advance();
                 }
                 else if (currentChar == '/')
                 {
-                    tokens.Add(new Token(TokenType.DIV));
+                    tokens.Add(new Token(TokenType.DIV, null, pos));
                     Advance();
                 }
                 else if (currentChar == '(')
                 {
-                    tokens.Add(new Token(TokenType.LPAREN));
+                    tokens.Add(new Token(TokenType.LPAREN, null, pos));
                     Advance();
                 }
                 else if (currentChar == ')')
                 {
-                    tokens.Add(new Token(TokenType.RPAREN));
+                    tokens.Add(new Token(TokenType.RPAREN, null, pos));
                     Advance();
                 }
                 else
                 {
+                    var illegalPosStart = pos.Copy();
                     var illegalChar = currentChar;
                     Advance();
-                    return ([], new IllegalCharError(illegalChar.ToString()));
+                    return ([], new IllegalCharError(illegalPosStart, pos, illegalChar.ToString()));
                 }
             }
 
-            return (tokens, null);
+            tokens.Add(new Token(TokenType.EOF, null, pos));
+
+            return (tokens.ToArray(), NO_ERROR);
         }
 
         public Token MakeNumber()
         {
             var numStr = "";
             var dotCount = 0;
+            var posStart = pos.Copy();
 
-            while (currentChar != '\0' && string.Concat(DIGITS, ".").Contains(currentChar))
+            while (currentChar != NULL_CHAR && DIGITS.Concat(".").Contains(currentChar))
             {
                 if (currentChar == '.')
                 {
@@ -93,19 +110,13 @@ namespace NakaScript
                 }
                 else
                 {
-                    numStr += currentChar;
+                    numStr += currentChar.ToString();
                 }
                 Advance();
             }
 
-            if (dotCount == 0)
-            {
-                return new Token(TokenType.INT, int.Parse(numStr));
-            }
-            else
-            {
-                return new Token(TokenType.FLOAT, float.Parse(numStr));
-            }
+            if (dotCount == 0) { return new Token(TokenType.INT, int.Parse(numStr), posStart, pos); }
+            else { return new Token(TokenType.FLOAT, float.Parse(numStr), posStart, pos); }
         }
     }
 }
