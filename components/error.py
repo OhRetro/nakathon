@@ -19,7 +19,7 @@ class Error:
         return result
 
     def __repr__(self) -> str:
-        return f"<Error:{self.error_name}:\"{self.details}>\""
+        return f"<Error:{self.error_name}:\"{self.details}\">"
 
 
 # Happens at Lexer Process

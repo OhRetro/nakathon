@@ -25,18 +25,19 @@ class Lexer:
         tokens = []
         basic_tokens = {
             TokenType.PLUS.value: TokenType.PLUS,
-            TokenType.MINUS.value: TokenType.MINUS,
             TokenType.DIV.value: TokenType.DIV,
             TokenType.DIVREST.value: TokenType.DIVREST,
             TokenType.LPAREN.value: TokenType.LPAREN,
-            TokenType.RPAREN.value: TokenType.RPAREN
+            TokenType.RPAREN.value: TokenType.RPAREN,
+            TokenType.COMMA.value: TokenType.COMMA
         }
         
         advanced_tokens = {
-            TokenType.MUL.value: self.make_multiplier, # Also checks for power operation
-            TokenType.EQUALS.value: self.make_equals,
-            TokenType.LT.value: self.make_less_than,
-            TokenType.GT.value: self.make_greater_than
+            TokenType.MINUS.value: self.make_minus, # Also checks for '->'
+            TokenType.MUL.value: self.make_multiplier, # Also checks for '**' 
+            TokenType.EQUALS.value: self.make_equals, # Also checks for '=='
+            TokenType.LT.value: self.make_less_than, # Also checks for '<='
+            TokenType.GT.value: self.make_greater_than # Also checks for '>='
         }
         
         while self.current_char != None:
@@ -70,6 +71,17 @@ class Lexer:
         tokens.append(Token(TokenType.EOF, pos_start=self.pos))
         return tokens, None
 
+    def make_minus(self):
+        tok_type = TokenType.MINUS
+        pos_start = self.pos.copy()
+        self.advance()
+        
+        if self.current_char == TokenType.ARROW.value[-1]:
+            self.advance()
+            tok_type = TokenType.ARROW
+            
+        return Token(tok_type, pos_start=pos_start, pos_end=self.pos)
+    
     def make_multiplier(self):
         tok_type = TokenType.MUL
         pos_start = self.pos.copy()

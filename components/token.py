@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Any
 from .position import Position
+from .utils.debug import DebugMessage
 
 class Keyword(Enum):
     # Variables
@@ -20,17 +21,20 @@ class Keyword(Enum):
     TO = "TO"
     STEP = "STEP"
     WHILE = "WHILE"
+    
+    # Other
+    SETFUNCTION = "FUN"
 
 
 class TokenType(Enum):
     # General types
-    KEYWORD = "KEYWORD"
-    IDENTIFIER = "IDENTIFIER"
+    KEYWORD = "keyword"
+    IDENTIFIER = "identifier"
     EQUALS = "="
     
     # Data types
-    INT = "INT"
-    FLOAT = "FLOAT"
+    INT = "int"
+    FLOAT = "float"
     
     # Mathmatic types
     PLUS = "+"
@@ -53,6 +57,8 @@ class TokenType(Enum):
     GTE = ">="   
     
     # Other
+    COMMA = ","
+    ARROW = "->"
     EOF = "EOF"
 
 
@@ -68,6 +74,8 @@ class Token:
 
         if pos_end:
             self.pos_end = pos_end
+            
+        DebugMessage(f"Created {self}").display()
 
     def matches(self, type_: TokenType, value: Any = None):
         return self.type == type_ and self.value == value

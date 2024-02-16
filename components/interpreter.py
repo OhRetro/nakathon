@@ -1,4 +1,6 @@
-from .number import Number
+from .values.number import Number
+from .values.function import Function
+
 from .context import Context
 from .node import *
 from .token import *
@@ -19,7 +21,7 @@ class Interpreter:
         return RunTimeResult().success(
             Number(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
-        
+                
     def visit_VarAccessNode(self, node: VarAccessNode, context: Context):
         res = RunTimeResult()
         var_name = node.var_name_tok.value
@@ -171,3 +173,38 @@ class Interpreter:
             if res.error: return res
 
         return res.success(None)
+    
+    def visit_FuncDefNode(self, node: FuncDefNode, context: Context):
+        res = RunTimeResult()
+        
+        func_name = node.var_name_tok.value if node.var_name_tok else None
+        body_node = node.body_node
+        args_names = [arg_name.value for arg_name in node.arg_name_toks]
+        func_value = Function(func_name, body_node, args_names).set_context(context).set_pos(node.pos_start, node.pos_end)
+        
+        if node.var_name_tok:
+            success = context.symbol_table.set(func_name, func_value)
+
+            if not success: return res.failure(RunTimeError(
+                node.pos_start, node.pos_end,
+                f"Cannot overwrite the immutable var '{func_name}'",
+                context
+            ))
+            
+        return res.success(func_value)
+    
+    def visit_CallNode(self, node: CallNode, context: Context):
+        res = RunTimeResult()
+        args = []
+        
+        value_to_call = res.register(self.visit(node.node_to_call, context))
+        if res.error: return res
+        value_to_call = value_to_call.copy().set_pos(node.pos_start, node.pos_end)
+        
+        for arg_node in node.arg_nodes:
+            args.append(res.register(self.visit(arg_node, context)))
+            if res.error: return res
+            
+        return_value = res.register(value_to_call.execute(args))
+        if res.error: return res
+        return res.success(return_value)

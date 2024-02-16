@@ -1,8 +1,9 @@
-from .error import *
-from .context import Context
+from ..error import *
+from ..context import Context
+from .value import Value 
 
-class Number:
-    def __init__(self, value):
+class Number(Value):
+    def __init__(self, value: int|float):
         self.value = value
         self.set_pos()
         self.set_context()
@@ -19,6 +20,8 @@ class Number:
     def added_to(self, other):
         if isinstance(other, Number):
             return Number(self.value + other.value).set_context(self.context), None
+        else:
+            return None, self.illegal_operation(self.pos_start, self.pos_end)
 
     def subbed_by(self, other):
         if isinstance(other, Number):

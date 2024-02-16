@@ -1,8 +1,8 @@
 class SymbolTable:
-    def __init__(self, immutable_symbols: dict = {}):
+    def __init__(self, parent = None, immutable_symbols: dict = {}):
         self.symbols = {}
         self.immutable_symbols = immutable_symbols
-        self.parent: SymbolTable = None
+        self.parent: SymbolTable = parent
         
     def get(self, name):
         value = self.symbols.get(name, None)

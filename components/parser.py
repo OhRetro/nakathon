@@ -58,9 +58,10 @@ class Parser:
             ]
 
             return res.failure(
-                InvalidSyntaxError(self.current_tok.pos_start,
-                                   self.current_tok.pos_end,
-                                   expected_symbols(expected_symbols_list)))
+                InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    expected_symbols(expected_symbols_list))
+                )
             
         return res
 
@@ -234,6 +235,56 @@ class Parser:
 
         return res.success(WhileNode(condition, body))
 
+    def call(self):
+        res = ParseResult()
+        atom = res.register(self.atom())
+        if res.error: return res
+        
+        if self.current_tok.type == TokenType.LPAREN:
+            res.register_advancement()
+            self.advance()
+            arg_nodes = []
+            
+            if self.current_tok.type == TokenType.RPAREN:
+                res.register_advancement()
+                self.advance()
+            else:
+                arg_nodes.append(res.register(self.expr()))
+                if res.error:
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_tok.pos_start, self.current_tok.pos_end,
+                            expected_symbols([
+                                TokenType.RPAREN, Keyword.SETVAR, Keyword.IF, Keyword.FOR, Keyword.WHILE, Keyword.SETFUNCTION,
+                                TokenType.INT, TokenType.FLOAT, TokenType.IDENTIFIER, 
+                                TokenType.PLUS, TokenType.MINUS, TokenType.LPAREN,
+                                Keyword.NOT
+                                ])
+                            ))
+                
+                while self.current_tok.type != TokenType.COMMA:
+                    res.register_advancement()
+                    self.advance()
+                    
+                    arg_nodes.append(res.register(self.expr()))
+                    if res.error: return res
+                    
+                if self.current_tok.type != TokenType.RPAREN:
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_tok.pos_start, self.current_tok.pos_end,
+                            expected_symbols([TokenType.COMMA, TokenType.RPAREN])
+                            ))
+                
+                res.register_advancement()
+                self.advance()
+            
+            return res.success(CallNode(atom, arg_nodes))
+        return res.success(atom)
+                        
+    def power(self):
+        return self.bin_op(self.call, (TokenType.POWER, TokenType.DIVREST), self.factor)
+      
     def atom(self):
         res = ParseResult()
         tok = self.current_tok
@@ -281,6 +332,12 @@ class Parser:
             if res.error:
                 return res
             return res.success(while_expr)
+        
+        elif tok.matches(TokenType.KEYWORD, Keyword.SETFUNCTION):
+            func_def = res.register(self.func_def())
+            if res.error:
+                return res
+            return res.success(func_def)
 
         return res.failure(
             InvalidSyntaxError(
@@ -292,8 +349,6 @@ class Parser:
                 )
         )
 
-    def power(self):
-        return self.bin_op(self.atom, (TokenType.POWER, ), self.factor)
 
     def factor(self):
         res = ParseResult()
@@ -386,7 +441,7 @@ class Parser:
                 InvalidSyntaxError(
                     self.current_tok.pos_start, self.current_tok.pos_end,
                     expected_symbols([
-                        Keyword.SETVAR,
+                        TokenType.RPAREN, Keyword.SETVAR, Keyword.IF, Keyword.FOR, Keyword.WHILE, Keyword.SETFUNCTION,
                         TokenType.INT, TokenType.FLOAT, TokenType.IDENTIFIER, 
                         TokenType.PLUS, TokenType.MINUS, TokenType.LPAREN,
                         Keyword.NOT
@@ -396,6 +451,101 @@ class Parser:
 
         return res.success(node)
 
+    def func_def(self):
+        res = ParseResult()
+        
+        if not self.current_tok.matches(TokenType.KEYWORD, Keyword.SETFUNCTION):
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    expected_symbols([Keyword.SETFUNCTION]))
+                )
+            
+        res.register_advancement()
+        self.advance()
+        
+        if self.current_tok.type == TokenType.IDENTIFIER:
+            var_name_tok = self.current_tok
+            res.register_advancement()
+            self.advance()
+            
+            if self.current_tok.type != TokenType.LPAREN:
+                return res.failure(
+                    InvalidSyntaxError(
+                        self.current_tok.pos_start, self.current_tok.pos_end,
+                        expected_symbols([TokenType.LPAREN]))
+                    )
+        else:
+            var_name_tok = None
+            if self.current_tok.type != TokenType.LPAREN:
+                return res.failure(
+                    InvalidSyntaxError(
+                        self.current_tok.pos_start, self.current_tok.pos_end,
+                        expected_symbols([TokenType.IDENTIFIER, TokenType.LPAREN]))
+                    )
+        
+        res.register_advancement()
+        self.advance()
+
+        arg_name_toks = []
+        
+        if self.current_tok.type == TokenType.IDENTIFIER:
+            arg_name_toks.append(self.current_tok)
+            res.register_advancement()
+            self.advance()
+            
+            while self.current_tok.type == TokenType.COMMA:
+                res.register_advancement()
+                self.advance()
+                
+                if self.current_tok.type != TokenType.LPAREN:
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_tok.pos_start, self.current_tok.pos_end,
+                            expected_symbols([TokenType.IDENTIFIER]))
+                        )
+                    
+                arg_name_toks.append(self.current_tok)
+                res.register_advancement()
+                self.advance()
+            
+                if self.current_tok.type != TokenType.RPAREN:
+                    return res.failure(
+                        InvalidSyntaxError(
+                            self.current_tok.pos_start, self.current_tok.pos_end,
+                            expected_symbols([TokenType.COMMA, TokenType.RPAREN]))
+                        )
+        else:
+            if self.current_tok.type != TokenType.RPAREN:
+                return res.failure(
+                    InvalidSyntaxError(
+                        self.current_tok.pos_start, self.current_tok.pos_end,
+                        expected_symbols([TokenType.IDENTIFIER, TokenType.RPAREN]))
+                    )
+                
+        res.register_advancement()
+        self.advance()
+        
+        if self.current_tok.type != TokenType.ARROW:
+            return res.failure(
+                InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    expected_symbols([TokenType.ARROW]))
+                )
+
+        res.register_advancement()
+        self.advance()
+        
+        node_to_return = res.register(self.expr())
+        if res.error: return res
+        
+        return res.success(FuncDefNode(
+            var_name_tok,
+            arg_name_toks,
+            node_to_return
+        ))
+        
+                
     ###################################
 
     def bin_op(self, func_a, ops, func_b=None):
