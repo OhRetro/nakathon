@@ -35,6 +35,7 @@ class TokenType(Enum):
     # Data types
     INT = "int"
     FLOAT = "float"
+    STRING = '"'
     
     # Mathmatic types
     PLUS = "+"

@@ -9,7 +9,8 @@ class ValueType(Enum):
     FUNCTION = "function"
 
 class Value:
-    def __init__(self):
+    def __init__(self, value = None):
+        self.value = value
         self.set_pos()
         self.set_context()
         
@@ -84,4 +85,4 @@ class Value:
         )
         
     def __repr__(self):
-        return f"<Value:{self.__class__.__name__}>"
+        return f"<{self.__class__.__name__}:{self.value}>"

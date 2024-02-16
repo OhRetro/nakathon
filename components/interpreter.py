@@ -1,5 +1,6 @@
 from .values.number import Number
 from .values.function import Function
+from .values.string import String
 
 from .context import Context
 from .node import *
@@ -21,7 +22,12 @@ class Interpreter:
         return RunTimeResult().success(
             Number(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
-                
+
+    def visit_StringNode(self, node: StringNode, context: Context):
+        return RunTimeResult().success(
+            String(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
+        )
+                        
     def visit_VarAccessNode(self, node: VarAccessNode, context: Context):
         res = RunTimeResult()
         var_name = node.var_name_tok.value

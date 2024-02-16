@@ -1,4 +1,3 @@
-from enum import Enum
 from .token import Token
 from .utils.debug import DebugMessage
 
@@ -15,10 +14,15 @@ class Node:
         DebugMessage(f"Created {self}").display()
 
     def __repr__(self):
-        return f"<Node:{self.__class__.__name__}:{self.display}>"
+        return f"<{self.__class__.__name__}:{self.display}>"
 
 
 class NumberNode(Node):
+    def __init__(self, tok: Token):
+        super().__init__(tok)
+        
+        
+class StringNode(Node):
     def __init__(self, tok: Token):
         super().__init__(tok)
         

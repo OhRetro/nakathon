@@ -4,6 +4,10 @@ from components.interpreter import Interpreter
 from components.context import Context
 from components.symbol_table import SymbolTable
 from components.values.number import Number
+from components.values.function import Function
+from components.position import Position
+from components.node import *
+
 from components.utils.debug import DebugMessage
 
 global_symbol_table = SymbolTable(None, {
@@ -14,7 +18,7 @@ global_symbol_table = SymbolTable(None, {
 })
 
 
-def run(fn, text):
+def run(fn: str, text: str):
     debug_message = DebugMessage("")
     
     # Generate tokens

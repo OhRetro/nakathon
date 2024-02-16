@@ -37,7 +37,8 @@ class Lexer:
             TokenType.MUL.value: self.make_multiplier, # Also checks for '**' 
             TokenType.EQUALS.value: self.make_equals, # Also checks for '=='
             TokenType.LT.value: self.make_less_than, # Also checks for '<='
-            TokenType.GT.value: self.make_greater_than # Also checks for '>='
+            TokenType.GT.value: self.make_greater_than, # Also checks for '>='
+            TokenType.STRING.value: self.make_string
         }
         
         while self.current_char != None:
@@ -112,6 +113,31 @@ class Lexer:
             return Token(TokenType.INT, int(num_str), pos_start, self.pos)
         else:
             return Token(TokenType.FLOAT, float(num_str), pos_start, self.pos)
+
+    def make_string(self):
+        string = ""
+        pos_start = self.pos.copy()
+        escape_char = False
+        self.advance()
+
+        escape_chars = {
+            "n": "\n",
+            "t": "\t"
+        }
+
+        while self.current_char != None and (self.current_char != TokenType.STRING.value or escape_char):
+            if escape_char:
+                string += escape_chars.get(self.current_char, self.current_char)
+            else:
+                if self.current_char == "\\":
+                    escape_char = True
+                else:
+                    string += self.current_char
+            self.advance()
+            escape_char = False
+
+        self.advance()
+        return Token(TokenType.STRING, string, pos_start, self.pos)
 
     def make_identifier(self):
         id_str = ""

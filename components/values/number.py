@@ -4,9 +4,7 @@ from .value import Value
 
 class Number(Value):
     def __init__(self, value: int|float):
-        self.value = value
-        self.set_pos()
-        self.set_context()
+        super().__init__(value)
 
     def set_pos(self, pos_start=None, pos_end=None):
         self.pos_start = pos_start
@@ -21,7 +19,7 @@ class Number(Value):
         if isinstance(other, Number):
             return Number(self.value + other.value).set_context(self.context), None
         else:
-            return None, self.illegal_operation(self.pos_start, self.pos_end)
+            return None, Value.illegal_operation(self.pos_start, self.pos_end)
 
     def subbed_by(self, other):
         if isinstance(other, Number):

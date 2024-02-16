@@ -3,14 +3,15 @@ from ..runtime import RunTimeResult
 from ..error import RunTimeError
 from ..context import Context
 from ..symbol_table import SymbolTable
+from ..node import Node
 
 class Function(Value):
-    def __init__(self, name, body_node, arg_names):
+    def __init__(self, name: str, body_node: Node, arg_names: list[str] = []):
         self.name = name or "<anonymous>"
         self.body_node = body_node
         self.arg_names = arg_names
         
-        super().__init__()
+        super().__init__(name)
         
     def execute(self, args):
         from ..interpreter import Interpreter
