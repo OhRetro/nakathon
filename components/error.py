@@ -1,9 +1,10 @@
-from .strings_with_arrows import *
+from .utils.strings_with_arrows import *
 from .context import Context
+from .position import Position
 
 
 class Error:
-    def __init__(self, pos_start, pos_end, error_name, details):
+    def __init__(self, pos_start: Position, pos_end: Position, error_name: str, details: str):
         self.pos_start = pos_start
         self.pos_end = pos_end
         self.error_name = error_name
@@ -27,6 +28,11 @@ class IllegalCharError(Error):
         super().__init__(pos_start, pos_end, "Illegal Character", details)
 
 
+class ExpectedCharError(Error):
+    def __init__(self, pos_start, pos_end, details):
+        super().__init__(pos_start, pos_end, "Expected Character", details)
+        
+        
 # Happens at AST Process
 class InvalidSyntaxError(Error):
     def __init__(self, pos_start, pos_end, details):
@@ -49,7 +55,7 @@ class RunTimeError(Error):
 
     def generate_traceback(self):
         result = ""
-        pos = self.pos_start
+        pos: Position = self.pos_start
         ctx = self.context
 
         while ctx:

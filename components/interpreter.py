@@ -41,8 +41,14 @@ class Interpreter:
         value = res.register(self.visit(node.value_node, context))
         if res.error: return res
 
-        context.symbol_table.set(var_name, value)
-        return res.success(value)
+        success = context.symbol_table.set(var_name, value)
+        
+        if success: return res.success(value)
+        else: return res.failure(RunTimeError(
+            node.pos_start, node.pos_end,
+            f"Cannot overwrite the immutable var '{var_name}'",
+            context
+        ))
 
     def visit_BinOpNode(self, node: BinOpNode, context: Context):
         res = RunTimeResult()
@@ -63,7 +69,23 @@ class Interpreter:
             result, error = left.powered_by(right)
         elif node.op_tok.type == TokenType.DIVREST:
             result, error = left.rest_of_dived_by(right)
-            
+        elif node.op_tok.type == TokenType.EE:
+            result, error = left.get_comparison_eq(right)
+        elif node.op_tok.type == TokenType.NE:
+            result, error = left.get_comparison_ne(right)
+        elif node.op_tok.type == TokenType.LT:
+            result, error = left.get_comparison_lt(right)
+        elif node.op_tok.type == TokenType.GT:
+            result, error = left.get_comparison_gt(right)
+        elif node.op_tok.type == TokenType.LTE:
+            result, error = left.get_comparison_lte(right)
+        elif node.op_tok.type == TokenType.GTE:
+            result, error = left.get_comparison_gte(right)
+        elif node.op_tok.matches(TokenType.KEYWORD, Keyword.AND):
+            result, error = left.anded_by(right)
+        elif node.op_tok.matches(TokenType.KEYWORD, Keyword.OR):
+            result, error = left.ored_by(right)
+   
         if error:
             return res.failure(error)
         else:
@@ -74,10 +96,78 @@ class Interpreter:
         number = res.register(self.visit(node.node, context))
         if res.error: return res
         
+        error = None
+        
         if node.op_tok.type == TokenType.MINUS:
             number, error = number.multed_by(Number(-1))
+        elif node.op_tok.matches(TokenType.KEYWORD, Keyword.NOT):
+            number, error = number.notted()
 
         if error:
             return res.failure(error)
         else:
             return res.success(number.set_pos(node.pos_start, node.pos_end))
+
+    def visit_IfNode(self, node: IfNode, context: Context):
+        res = RunTimeResult()
+
+        for condition, expr in node.cases:
+            condition_value = res.register(self.visit(condition, context))
+            if res.error: return res
+
+            if condition_value.is_true():
+                expr_value = res.register(self.visit(expr, context))
+                if res.error: return res
+                return res.success(expr_value)
+
+        if node.else_case:
+            else_value = res.register(self.visit(node.else_case, context))
+            if res.error: return res
+            return res.success(else_value)
+
+        return res.success(None)
+
+    def visit_ForNode(self, node: ForNode, context: Context):
+        res = RunTimeResult()
+
+        start_value = res.register(self.visit(node.start_value_node, context))
+        if res.error: return res
+
+        end_value = res.register(self.visit(node.end_value_node, context))
+        if res.error: return res
+
+        if node.step_value_node:
+            step_value = res.register(self.visit(node.step_value_node, context))
+            if res.error: return res
+        else:
+            step_value = Number(1)
+
+        i = start_value.value
+
+        if step_value.value >= 0:
+            condition = lambda: i < end_value.value
+        else:
+            condition = lambda: i > end_value.value
+        
+        while condition():
+            context.symbol_table.set(node.var_name_tok.value, Number(i))
+            i += step_value.value
+
+            res.register(self.visit(node.body_node, context))
+            if res.error: return res
+
+        return res.success(None)
+
+    def visit_WhileNode(self, node: WhileNode, context: Context):
+        res = RunTimeResult()
+
+        while True:
+            condition = res.register(self.visit(node.condition_node, context))
+            if res.error: return res
+
+            if not condition.is_true(): break
+
+            res.register(self.visit(node.body_node, context))
+            if res.error: return res
+
+        return res.success(None)

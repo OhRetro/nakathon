@@ -2,31 +2,55 @@ from enum import Enum
 from typing import Any
 from .position import Position
 
-KEYWORDS = [
-    "VAR"
-]
+class Keyword(Enum):
+    # Variables
+    SETVAR = "VAR"
+    
+    # Conditional
+    AND = "AND"
+    OR = "OR"
+    NOT = "NOT"
+    IF = "IF"
+    THEN = "THEN"
+    ELSE = "ELSE"
+    ELIF = "ELIF"
+    
+    # Loops
+    FOR = "FOR"
+    TO = "TO"
+    STEP = "STEP"
+    WHILE = "WHILE"
+
 
 class TokenType(Enum):
     # General types
     KEYWORD = "KEYWORD"
     IDENTIFIER = "IDENTIFIER"
-    EQUALS = "EQUALS"
+    EQUALS = "="
     
     # Data types
     INT = "INT"
     FLOAT = "FLOAT"
     
     # Mathmatic types
-    PLUS = "PLUS"
-    MINUS = "MINUS"
-    MUL = "MUL"
-    DIV = "DIV"
-    POWER = "POWER"
-    DIVREST = "DIVREST"
+    PLUS = "+"
+    MINUS = "-"
+    MUL = "*"
+    POWER = "**"
+    DIV = "/"
+    DIVREST = "%"
     
     # Parenthesis
-    LPAREN = "LPAREN"
-    RPAREN = "RPAREN"
+    LPAREN = "("
+    RPAREN = ")"
+    
+    # Conditional types
+    EE = "=="
+    NE = "!="
+    LT = "<"
+    GT = ">"
+    LTE = "<="
+    GTE = ">="   
     
     # Other
     EOF = "EOF"

@@ -1,5 +1,5 @@
 class Position:
-    def __init__(self, idx, ln, col, fn, ftxt):
+    def __init__(self, idx: int, ln: int, col: int, fn: str, ftxt: str):
         self.idx = idx
         self.ln = ln
         self.col = col

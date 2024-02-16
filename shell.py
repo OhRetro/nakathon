@@ -2,10 +2,8 @@ import wrapper
 
 
 while True:
-    text = input("NakaThon Shell > ")
+    text = input("Nakathon Shell > ")
     result, error = wrapper.run("<stdin>", text)
-    
-    if error:
-        print(error.as_string())
-    else:
-        print(result)
+        
+    if error: print(error.as_string())
+    elif result: print(result)

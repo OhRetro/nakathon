@@ -6,8 +6,13 @@ from components.symbol_table import SymbolTable
 from components.number import Number
 
 
-global_symbol_table = SymbolTable()
-global_symbol_table.set("zero", Number(0))
+global_symbol_table = SymbolTable({
+    "PI": Number(3.14),
+    "NULL": Number(-1),
+    "FALSE": Number(0),
+    "TRUE": Number(1)
+})
+
 
 def run(fn, text):
     # Generate tokens
