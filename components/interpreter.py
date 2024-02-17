@@ -1,6 +1,7 @@
 from .values.number import Number
 from .values.function import Function
 from .values.string import String
+from .values.list import List
 
 from .context import Context
 from .node import *
@@ -27,7 +28,19 @@ class Interpreter:
         return RunTimeResult().success(
             String(node.tok.value).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
-                        
+        
+    def visit_ListNode(self, node: ListNode, context: Context):
+        res = RunTimeResult()
+        elements = []
+        
+        for element_node in node.element_nodes:
+            elements.append(res.register(self.visit(element_node, context)))
+            if res.error: return res
+        
+        return res.success(
+            List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+        )
+                       
     def visit_VarAccessNode(self, node: VarAccessNode, context: Context):
         res = RunTimeResult()
         var_name = node.var_name_tok.value
@@ -137,6 +150,7 @@ class Interpreter:
 
     def visit_ForNode(self, node: ForNode, context: Context):
         res = RunTimeResult()
+        elements = []
 
         start_value = res.register(self.visit(node.start_value_node, context))
         if res.error: return res
@@ -161,13 +175,16 @@ class Interpreter:
             context.symbol_table.set(node.var_name_tok.value, Number(i))
             i += step_value.value
 
-            res.register(self.visit(node.body_node, context))
+            elements.append(res.register(self.visit(node.body_node, context)))
             if res.error: return res
 
-        return res.success(None)
+        return res.success(
+            List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+        )
 
     def visit_WhileNode(self, node: WhileNode, context: Context):
         res = RunTimeResult()
+        elements = []
 
         while True:
             condition = res.register(self.visit(node.condition_node, context))
@@ -175,10 +192,12 @@ class Interpreter:
 
             if not condition.is_true(): break
 
-            res.register(self.visit(node.body_node, context))
+            elements.append(res.register(self.visit(node.body_node, context)))
             if res.error: return res
 
-        return res.success(None)
+        return res.success(
+            List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+        )
     
     def visit_FuncDefNode(self, node: FuncDefNode, context: Context):
         res = RunTimeResult()

@@ -45,9 +45,12 @@ class TokenType(Enum):
     DIV = "/"
     DIVREST = "%"
     
-    # Parenthesis
+    # Parenthesis, Square
     LPAREN = "("
     RPAREN = ")"
+    
+    LSQUARE = "["
+    RSQUARE = "]"
     
     # Conditional types
     EE = "=="

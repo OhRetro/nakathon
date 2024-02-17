@@ -1,5 +1,6 @@
 from .value import Value
 from .number import Number
+from ..token import TokenType
 
 class String(Value):
     def __init__(self, value: str):
@@ -27,4 +28,4 @@ class String(Value):
         return copy
 
     def __repr__(self):
-        return f"\"{self.value}\""
+        return f"{TokenType.STRING.value}{self.value}{TokenType.STRING.value}"

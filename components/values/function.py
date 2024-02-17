@@ -50,3 +50,6 @@ class Function(Value):
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy
+    
+    def __repr__(self):
+        return f"<Function:{self.name}({", ".join(self.arg_names)})>"

@@ -29,6 +29,8 @@ class Lexer:
             TokenType.DIVREST.value: TokenType.DIVREST,
             TokenType.LPAREN.value: TokenType.LPAREN,
             TokenType.RPAREN.value: TokenType.RPAREN,
+            TokenType.LSQUARE.value: TokenType.LSQUARE,
+            TokenType.RSQUARE.value: TokenType.RSQUARE,
             TokenType.COMMA.value: TokenType.COMMA
         }
         
