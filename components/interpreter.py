@@ -1,22 +1,21 @@
-from .values.number import Number
-from .values.function import Function
-from .values.string import String
-from .values.list import List
-
+from .value.number import Number
+from .value.function import Function
+from .value.string import String
+from .value.list import List
 from .context import Context
-from .node import *
-from .token import *
-from .runtime import *
-from .error import *
-from .symbol_table import *
+from .node import Node, NumberNode, StringNode, ListNode, VarAccessNode, VarAssignNode, BinOpNode, UnaryOpNode, IfNode, ForNode, WhileNode, FuncDefNode, CallNode
+from .token import TokenType, Keyword
+from .runtime import RunTimeResult
+from .error import RunTimeError
+
 
 class Interpreter:
-    def visit(self, node, context: Context):
+    def visit(self, node: Node, context: Context):
         method_name = f"visit_{type(node).__name__}"
         method = getattr(self, method_name, self.no_visit_method)
         return method(node, context)
 
-    def no_visit_method(self, node, context: Context):
+    def no_visit_method(self, node: Node, context: Context):
         raise Exception(f"No visit_{type(node).__name__} method defined")
 
     def visit_NumberNode(self, node: NumberNode, context: Context):
@@ -53,7 +52,7 @@ class Interpreter:
                 context
             ))
         
-        value = value.copy().set_pos(node.pos_start, node.pos_end)
+        value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
     
     def visit_VarAssignNode(self, node: VarAssignNode, context: Context):
@@ -232,4 +231,5 @@ class Interpreter:
             
         return_value = res.register(value_to_call.execute(args))
         if res.error: return res
+        return_value = return_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(return_value)

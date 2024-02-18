@@ -4,26 +4,26 @@ from .position import Position
 from .utils.debug import DebugMessage
 
 class Keyword(Enum):
-    # Variables
-    SETVAR = "VAR"
-    
+    # Variables and Methods/Functions
+    SETVAR = "var"
+    SETIMMUTABLEVAR = "const"
+    SETTEMPVAR = "temp"
+    SETFUNCTION = "func"
+      
     # Conditional
-    AND = "AND"
-    OR = "OR"
-    NOT = "NOT"
-    IF = "IF"
-    THEN = "THEN"
-    ELSE = "ELSE"
-    ELIF = "ELIF"
+    AND = "&&"
+    OR = "||"
+    NOT = "not"
+    IF = "if"
+    THEN = "then"
+    ELSEIF = "else if"
+    ELSE = "else"
     
     # Loops
-    FOR = "FOR"
-    TO = "TO"
-    STEP = "STEP"
-    WHILE = "WHILE"
-    
-    # Other
-    SETFUNCTION = "FUN"
+    FOR = "for"
+    TO = "to"
+    STEP = "step"
+    WHILE = "while"
 
 
 class TokenType(Enum):
@@ -87,7 +87,7 @@ class Token:
     def __repr__(self):
         strRepr = f"<Token:{self.type.name}"
         if self.value:
-            strRepr += f":{self.value}>"
+            strRepr += f":{self.value}>" if not isinstance(self.value, Enum) else f":{self.value.name}>"
         else:
             strRepr += ">"
         return strRepr

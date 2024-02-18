@@ -1,7 +1,8 @@
 from .value import Value
 from .number import Number
-from ..error import RunTimeError
 from ..token import TokenType
+from ..error import RunTimeError
+
 
 class List(Value):
     def __init__(self, elements: list):
@@ -26,16 +27,16 @@ class List(Value):
                     "Out of bounds",
                     self.context
                 )
-        else:
-            return None, Value.illegal_operation(self, other)
+
+        return self.illegal_operation(other)
         
     def multed_by(self, other):
         if isinstance(other, List):
             new_list = self.copy()
             new_list.elements.extend(other.elements)
             return new_list, None
-        else:
-            return None, Value.illegal_operation(self, other)
+        
+        return self.illegal_operation(other)
       
     def dived_by(self, other):
         if isinstance(other, Number):            
@@ -47,14 +48,17 @@ class List(Value):
                     "Out of bounds",
                     self.context
                 )
-        else:
-            return None, Value.illegal_operation(self, other)
+        
+        return self.illegal_operation(other)
     
     def copy(self):
-        copy = List(self.elements[:])
+        copy = List(self.elements)
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy
 
+    def __repr__(self):
+        return f"{', '.join([str(x) for x in self.elements])}"
+    
     def __repr__(self):
         return f"{TokenType.LSQUARE.value}{', '.join([str(x) for x in self.elements])}{TokenType.RSQUARE.value}"

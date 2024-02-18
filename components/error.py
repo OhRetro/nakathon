@@ -1,6 +1,6 @@
-from .utils.strings_with_arrows import *
+from .utils.strings_with_arrows import string_with_arrows
 from .context import Context
-from .position import Position
+from .position import Position 
 
 
 class Error:

@@ -3,20 +3,26 @@ from components.parser import Parser
 from components.interpreter import Interpreter
 from components.context import Context
 from components.symbol_table import SymbolTable
-from components.values.number import Number
-from components.values.function import Function
-from components.position import Position
-from components.node import *
-
+from components.value.number import Number
+from components.value.function import BuiltInFunction
 from components.utils.debug import DebugMessage
 
-global_symbol_table = SymbolTable(None, {
-    "PI": Number(3.14),
-    "NULL": Number(-1),
-    "FALSE": Number(0),
-    "TRUE": Number(1)
-})
-
+global_symbol_table = SymbolTable()
+global_symbol_table.set_as_immutable("null", Number.NULL)
+global_symbol_table.set_as_immutable("false", Number.FALSE)
+global_symbol_table.set_as_immutable("true", Number.TRUE)
+global_symbol_table.set_as_immutable("Print", BuiltInFunction.print)
+global_symbol_table.set_as_immutable("PRINT_RET", BuiltInFunction.print_ret)
+global_symbol_table.set_as_immutable("InputText", BuiltInFunction.input)
+global_symbol_table.set_as_immutable("InputNumber", BuiltInFunction.input_int)
+global_symbol_table.set_as_immutable("Clear", BuiltInFunction.clear)
+global_symbol_table.set_as_immutable("IS_NUM", BuiltInFunction.is_number)
+global_symbol_table.set_as_immutable("IS_STR", BuiltInFunction.is_string)
+global_symbol_table.set_as_immutable("IS_LIST", BuiltInFunction.is_list)
+global_symbol_table.set_as_immutable("IS_FUN", BuiltInFunction.is_function)
+global_symbol_table.set_as_immutable("ListAppend", BuiltInFunction.append)
+global_symbol_table.set_as_immutable("ListPop", BuiltInFunction.pop)
+global_symbol_table.set_as_immutable("ListExtend", BuiltInFunction.extend)
 
 def run(fn: str, text: str):
     debug_message = DebugMessage("")

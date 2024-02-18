@@ -1,5 +1,4 @@
 from typing import Callable
-
 from .error import Error, InvalidSyntaxError
 from .token import Token, TokenType, Keyword
 from .node import Node, NumberNode, StringNode, BinOpNode, UnaryOpNode, VarAccessNode, VarAssignNode, CallNode, ForNode, FuncDefNode, IfNode, WhileNode, ListNode
@@ -341,7 +340,7 @@ class Parser:
         if res.error: return res
         cases.append((condition, expr))
 
-        while self.current_tok.matches(TokenType.KEYWORD, Keyword.ELIF):
+        while self.current_tok.matches(TokenType.KEYWORD, Keyword.ELSEIF):
             res.register_advancement()
             self.advance()
 

@@ -1,6 +1,6 @@
-from .error import *
-from .token import *
-from .position import *
+from .error import IllegalCharError, ExpectedCharError
+from .token import TokenType, Token, Keyword
+from .position import Position
 from string import ascii_letters
 
 DIGITS = "0123456789"
@@ -47,7 +47,7 @@ class Lexer:
             if self.current_char in " \t":
                 self.advance()
                 
-            elif self.current_char in LETTERS:
+            elif self.current_char in LETTERS or self.current_char in SPECIAL_CHARACTERS:
                 tokens.append(self.make_identifier())
                 
             elif self.current_char in DIGITS:
@@ -147,7 +147,7 @@ class Lexer:
         
         reversed_keyword_dict = Keyword._value2member_map_
         
-        while self.current_char != None and self.current_char in LETTERS_DIGITS + "_":
+        while self.current_char != None and self.current_char in LETTERS_DIGITS + "_" + SPECIAL_CHARACTERS:
             id_str += self.current_char
             self.advance()
             
