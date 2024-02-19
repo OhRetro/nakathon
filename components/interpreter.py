@@ -2,11 +2,13 @@ from .value.number import Number
 from .value.function import Function
 from .value.string import String
 from .value.list import List
+from .value.null import Null
 from .context import Context
-from .node import Node, NumberNode, StringNode, ListNode, VarAccessNode, VarAssignNode, BinOpNode, UnaryOpNode, IfNode, ForNode, WhileNode, FuncDefNode, CallNode
+from .node import Node, NumberNode, StringNode, ListNode, VarAccessNode, VarAssignNode, ImmutableVarAssignNode, TempVarAssignNode, BinOpNode, UnaryOpNode, IfNode, ForNode, WhileNode, FuncDefNode, CallNode
 from .token import TokenType, Keyword
 from .runtime import RunTimeResult
 from .error import RunTimeError
+from .utils.error_messages import is_not_defined, cannot_overwrite_immutable_var, cannot_overwrite_builtin_func, no_method_defined
 
 
 class Interpreter:
@@ -16,7 +18,7 @@ class Interpreter:
         return method(node, context)
 
     def no_visit_method(self, node: Node, context: Context):
-        raise Exception(f"No visit_{type(node).__name__} method defined")
+        raise Exception(no_method_defined.format(f"visit_{type(node).__name__}"))
 
     def visit_NumberNode(self, node: NumberNode, context: Context):
         return RunTimeResult().success(
@@ -45,10 +47,10 @@ class Interpreter:
         var_name = node.var_name_tok.value
         value = context.symbol_table.get(var_name)
         
-        if not value:
+        if not context.symbol_table.exists(var_name):
             return res.failure(RunTimeError(
                 node.pos_start, node.pos_end,
-                f"'{var_name} is not defined",
+                is_not_defined.format(var_name),
                 context
             ))
         
@@ -66,10 +68,41 @@ class Interpreter:
         if success: return res.success(value)
         else: return res.failure(RunTimeError(
             node.pos_start, node.pos_end,
-            f"Cannot overwrite the immutable var '{var_name}'",
+            cannot_overwrite_immutable_var.format(var_name),
             context
         ))
 
+    def visit_ImmutableVarAssignNode(self, node: ImmutableVarAssignNode, context: Context):
+        res = RunTimeResult()
+        immutable_name = node.var_name_tok.value
+        value = res.register(self.visit(node.value_node, context))
+        if res.error: return res
+
+        success = context.symbol_table.set_as_immutable(immutable_name, value)
+        
+        if success: return res.success(value)
+        else: return res.failure(RunTimeError(
+            node.pos_start, node.pos_end,
+            cannot_overwrite_immutable_var.format(immutable_name),
+            context
+        ))
+ 
+    def visit_TempVarAssignNode(self, node: TempVarAssignNode, context: Context):
+        res = RunTimeResult()
+        temp_name = node.var_name_tok.value
+        value = res.register(self.visit(node.value_node, context))
+        if res.error: return res
+        
+        temp_lifetime = node.lifetime_tok.value
+        success = context.symbol_table.set_as_temp(temp_name, value, temp_lifetime)
+        
+        if success: return res.success(value)
+        else: return res.failure(RunTimeError(
+            node.pos_start, node.pos_end,
+            cannot_overwrite_immutable_var.format(temp_name),
+            context
+        ))
+               
     def visit_BinOpNode(self, node: BinOpNode, context: Context):
         res = RunTimeResult()
         left: Number = res.register(self.visit(node.left_node, context))
@@ -131,21 +164,23 @@ class Interpreter:
     def visit_IfNode(self, node: IfNode, context: Context):
         res = RunTimeResult()
 
-        for condition, expr in node.cases:
+        for condition, expr, should_return_null in node.cases:
             condition_value = res.register(self.visit(condition, context))
             if res.error: return res
-
+            
             if condition_value.is_true():
                 expr_value = res.register(self.visit(expr, context))
                 if res.error: return res
-                return res.success(expr_value)
+                return res.success(Null.null if should_return_null else expr_value)
 
         if node.else_case:
-            else_value = res.register(self.visit(node.else_case, context))
+            
+            expr, should_return_null = node.else_case
+            expr_value = res.register(self.visit(expr, context))
             if res.error: return res
-            return res.success(else_value)
+            return res.success(Null.null if should_return_null else expr_value)
 
-        return res.success(None)
+        return res.success(Null.null)
 
     def visit_ForNode(self, node: ForNode, context: Context):
         res = RunTimeResult()
@@ -178,6 +213,7 @@ class Interpreter:
             if res.error: return res
 
         return res.success(
+            Null.null if node.should_return_null else 
             List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
 
@@ -195,6 +231,7 @@ class Interpreter:
             if res.error: return res
 
         return res.success(
+            Null.null if node.should_return_null else
             List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
     
@@ -204,14 +241,14 @@ class Interpreter:
         func_name = node.var_name_tok.value if node.var_name_tok else None
         body_node = node.body_node
         args_names = [arg_name.value for arg_name in node.arg_name_toks]
-        func_value = Function(func_name, body_node, args_names).set_context(context).set_pos(node.pos_start, node.pos_end)
+        func_value = Function(func_name, body_node, args_names, node.should_return_null).set_context(context).set_pos(node.pos_start, node.pos_end)
         
         if node.var_name_tok:
             success = context.symbol_table.set(func_name, func_value)
 
             if not success: return res.failure(RunTimeError(
                 node.pos_start, node.pos_end,
-                f"Cannot overwrite the immutable var '{func_name}'",
+                cannot_overwrite_builtin_func.format(func_name),
                 context
             ))
             

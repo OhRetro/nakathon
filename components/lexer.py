@@ -31,7 +31,8 @@ class Lexer:
             TokenType.RPAREN.value: TokenType.RPAREN,
             TokenType.LSQUARE.value: TokenType.LSQUARE,
             TokenType.RSQUARE.value: TokenType.RSQUARE,
-            TokenType.COMMA.value: TokenType.COMMA
+            TokenType.COMMA.value: TokenType.COMMA,
+            TokenType.NEWLINE.value: TokenType.NEWLINE,
         }
         
         advanced_tokens = {

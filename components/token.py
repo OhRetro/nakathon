@@ -8,6 +8,7 @@ class Keyword(Enum):
     SETVAR = "var"
     SETIMMUTABLEVAR = "const"
     SETTEMPVAR = "temp"
+    SETSCOPEDVAR = "local"
     SETFUNCTION = "func"
       
     # Conditional
@@ -24,6 +25,9 @@ class Keyword(Enum):
     TO = "to"
     STEP = "step"
     WHILE = "while"
+    
+    # Other
+    END = "end"
 
 
 class TokenType(Enum):
@@ -45,12 +49,15 @@ class TokenType(Enum):
     DIV = "/"
     DIVREST = "%"
     
-    # Parenthesis, Square
+    # Parenthesis, Square and Brace
     LPAREN = "("
     RPAREN = ")"
     
     LSQUARE = "["
     RSQUARE = "]"
+    
+    LBRACE = "{"
+    RBRACE = "}"
     
     # Conditional types
     EE = "=="
@@ -63,6 +70,9 @@ class TokenType(Enum):
     # Other
     COMMA = ","
     ARROW = "->"
+    NEWLINE = ";"
+    
+    #ENDLINE = ""
     EOF = "EOF"
 
 

@@ -2,7 +2,7 @@ from .value import Value
 from .number import Number
 from ..token import TokenType
 from ..error import RunTimeError
-
+from ..utils.error_messages import out_of_bounds
 
 class List(Value):
     def __init__(self, elements: list):
@@ -24,7 +24,7 @@ class List(Value):
             except:
                 return None, RunTimeError(
                     other.pos_start, other.pos_end,
-                    "Out of bounds",
+                    out_of_bounds,
                     self.context
                 )
 
@@ -45,7 +45,7 @@ class List(Value):
             except:
                 return None, RunTimeError(
                     other.pos_start, other.pos_end,
-                    "Out of bounds",
+                    out_of_bounds,
                     self.context
                 )
         
@@ -57,7 +57,7 @@ class List(Value):
         copy.set_context(self.context)
         return copy
 
-    def __repr__(self):
+    def __str__(self):
         return f"{', '.join([str(x) for x in self.elements])}"
     
     def __repr__(self):

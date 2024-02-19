@@ -1,6 +1,8 @@
 from .value import Value
+from .boolean import Boolean
 from ..context import Context
 from ..error import RunTimeError
+from ..utils.error_messages import division_by_zero
 
 
 class Number(Value):
@@ -39,7 +41,7 @@ class Number(Value):
             if other.value == 0:
                 return None, RunTimeError(
                     other.pos_start, other.pos_end,
-                    "Division by zero",
+                    division_by_zero,
                     self.context
                 )
             return Number(self.value / other.value).set_context(self.context), None
@@ -57,7 +59,7 @@ class Number(Value):
             if other.value == 0:
                 return None, RunTimeError(
                     other.pos_start, other.pos_end,
-                    "Division by zero",
+                    division_by_zero,
                     self.context
                 )
             return Number(self.value % other.value).set_context(self.context), None
@@ -66,54 +68,54 @@ class Number(Value):
 
     def get_comparison_eq(self, other):
         if isinstance(other, Number):
-            return Number(int(self.value == other.value)).set_context(self.context), None
+            return Boolean(self.value == other.value).set_context(self.context), None
         
         return self.illegal_operation(other)
 
     def get_comparison_ne(self, other):
         if isinstance(other, Number):
-            return Number(int(self.value != other.value)).set_context(self.context), None
+            return Boolean(self.value != other.value).set_context(self.context), None
         
         return self.illegal_operation(other)
 
     def get_comparison_lt(self, other):
         if isinstance(other, Number):
-            return Number(int(self.value < other.value)).set_context(self.context), None
+            return Boolean(self.value < other.value).set_context(self.context), None
         
         return self.illegal_operation(other)
 
     def get_comparison_gt(self, other):
         if isinstance(other, Number):
-            return Number(int(self.value > other.value)).set_context(self.context), None
+            return Boolean(self.value > other.value).set_context(self.context), None
         
         return self.illegal_operation(other)
 
     def get_comparison_lte(self, other):
         if isinstance(other, Number):
-            return Number(int(self.value <= other.value)).set_context(self.context), None
+            return Boolean(self.value <= other.value).set_context(self.context), None
         
         return self.illegal_operation(other)
 
     def get_comparison_gte(self, other):
         if isinstance(other, Number):
-            return Number(int(self.value >= other.value)).set_context(self.context), None
+            return Boolean(self.value >= other.value).set_context(self.context), None
         
         return self.illegal_operation(other)
 
     def anded_by(self, other):
         if isinstance(other, Number):
-            return Number(int(self.value and other.value)).set_context(self.context), None
+            return Boolean(self.value and other.value).set_context(self.context), None
         
         return self.illegal_operation(other)
 
     def ored_by(self, other):
         if isinstance(other, Number):
-            return Number(int(self.value or other.value)).set_context(self.context), None
+            return Boolean(self.value or other.value).set_context(self.context), None
         
         return self.illegal_operation(other)
 
     def notted(self):
-        return Number(1 if self.value == 0 else 0).set_context(self.context), None
+        return Boolean(True if self.value == 0 else False).set_context(self.context), None
 
     def copy(self):
         copy = Number(self.value)
@@ -127,6 +129,3 @@ class Number(Value):
     def __repr__(self):
         return str(self.value)
 
-Number.NULL = Number(None)
-Number.FALSE = Number(False)
-Number.TRUE = Number(True)

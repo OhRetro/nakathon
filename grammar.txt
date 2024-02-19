@@ -1,4 +1,6 @@
-expr    	: KEYWORD:SETVAR IDENTIFIER EQUALS expr
+statements	: NEWLINE* expr (NEWLINE+ expr)*
+
+expr    	: (KEYWORD:SETVAR|KEYWORD:SETIMMUTABLEVAR|KEYWORD:SETTEMPVAR) IDENTIFIER EQUALS expr
 			: comp-expr ((KEYWORD:AND|KEYWORD:OR) comp-expr)*
 
 comp-expr	: NOT comp-expr
@@ -25,27 +27,30 @@ atom 		: INT|FLOAT|STRING|IDENTIFIER
 
 list-expr 	: LSQUARE (expr (COMMA expr)*) RSQUARE
 
-if-expr		: KEYWORD:IF expr KEYWORD:THEN expr
-			  (KEYWORD:ELIF expr KEYWORD:THEN expr)*
-			  (KEYWORD:ELSE expr)?
+if-expr		: KEYWORD:IF expr KEYWORD:THEN 
+			  (expr elseif-expr|else-expr?)
+			  | (NEWLINE statements KEYWORD:END|elseif-expr|else-expr)
 
-for-expr	: KEYWORD:FOR IDENTIFIER EQ expr KEYWORD:TO expr 
-			  (KEYWORD:STEP expr)? KEYWORD:THEN expr
+elseif-expr	: KEYWORD:ELSEIF expr KEYWORD:THEN 
+			  (expr elseif-expr|else-expr?)
+			  | (NEWLINE statements KEYWORD:END|elseif-expr|else-expr)
 
-while-expr	: KEYWORD:WHILE expr KEYWORD:THEN expr
+else-expr	: KEYWORD:ELSE 
+			  expr 
+			  (NEWLINE statements KEYWORD:END)
+
+
+for-expr	: KEYWORD:FOR IDENTIFIER EQUALS expr KEYWORD:TO expr 
+			  (KEYWORD:STEP expr)? KEYWORD:THEN 
+			  expr
+			  (NEWLINE statements KEYWORD:END)
+
+while-expr	: KEYWORD:WHILE expr KEYWORD:THEN 
+			  expr
+			  (NEWLINE statements KEYWORD:END)
 
 func-def	: KEYWORD:SETFUNCTION IDENTIFIER?
 			  LPAREN (IDENTIFIER (COMMA IDENTIFIER)*)? RPAREN
-			  ARROW expr
+			  (ARROW expr)
+			  (NEWLINE statements KEYWORD:END)
 
-5 + 5 == 2 + 8
-O: (5 + 5) == (2 + 8) 
-X: 5 + (5 == 2) + 8 
-
-ALIAS is_equal = 5 == 5
-O: ALIAS is_equal = (5 == 5)
-X: (ALIAS is_equal = 5) == 5
-
-5 == 5 && 6 == 6
-O: (5 == 5) && (6 == 6)
-X: 5 == (5 && 6) == 6

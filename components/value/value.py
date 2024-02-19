@@ -1,9 +1,10 @@
 from ..utils.debug import DebugMessage
-
+from ..utils.error_messages import illegal_operation, no_method_defined
+from typing import Any
 
 class Value:
    
-    def __init__(self, value = None):
+    def __init__(self, value: Any = None):
         self.value = value
         self.set_pos()
         self.set_context()
@@ -66,7 +67,7 @@ class Value:
         return RunTimeResult().failure(self.illegal_operation())
 
     def copy(self):
-        raise Exception("No copy method defined")
+        raise Exception(no_method_defined.format("copy"))
 
     def is_true(self):
         return False
@@ -76,13 +77,13 @@ class Value:
         if not other: other = self
         return RunTimeError(
             self.pos_start, other.pos_end,
-            "Illegal operation",
+            illegal_operation,
             self.context
         )
     
     def illegal_operation(self, other = None):
         if not other: other = self
         return None, self.illegal_operation_error(other)
-        
+
     def __repr__(self):
         return f"<{self.__class__.__name__}:{self.value}>"

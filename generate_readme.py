@@ -1,4 +1,14 @@
+from components.token import TokenType, Keyword
 
+def generate_md_file(content):
+    try:
+        with open("README.md", "w", encoding="utf-8") as file:
+            file.write(content)
+        print(f"README.md generated")
+    except Exception as e:
+        print(f"Error: {e}")
+
+content = f'''
 # Nakathon (WIP)
 
 An Interpreted Programming Language made with Python;  
@@ -16,11 +26,11 @@ note: the only way to execute the expression at the moment is by the shell.py
 ```py
 # int
 1
--1
+{TokenType.MINUS.value}1
 
 # float
 1.0
--1.0
+{TokenType.MINUS.value}1.0
 
 # string
 "Hello, World!"
@@ -36,14 +46,14 @@ The Variable/Function name can be in ``snake_case``, ``camelCase`` or ``PascalCa
 
 ```py
 # To set & refer a variable follow the syntax below
-var var_name = <value> # -> <value>
+{Keyword.SETVAR.value} var_name = <value> # -> <value>
 var_name # -> <value>
 
 # You can also set a immutable, also known as a constant, variable using the 'const' keyword
-const pi = 3.14
+{Keyword.SETIMMUTABLEVAR.value} pi = 3.14
 
 # There's also temporary variable using the 'temp' keyword
-temp temp_var 2 = "I'm going stop to exist once I'm referenced 2 times"
+{Keyword.SETTEMPVAR.value} temp_var 2 = "I'm going stop to exist once I'm referenced 2 times"
 temp_var # -> "I'm going stop to exist once I'm referenced 2 times"
 temp_var # -> "I'm going stop to exist once I'm referenced 2 times"
 temp_var # -> Error: temp_var not defined
@@ -52,15 +62,15 @@ temp_var # -> Error: temp_var not defined
 # which is while initializing the variable
 
 # To define & execute a function follow the syntax below
-func FuncName() -> <expression> # -> Function
+{Keyword.SETFUNCTION.value} FuncName() -> <expression> # -> Function
 FuncName() # -> <value>
 
 # To define & execute a function with args follow the syntax below
-func FuncName(arg) -> <expression> # -> Function
+{Keyword.SETFUNCTION.value} FuncName(arg) -> <expression> # -> Function
 FuncName(<value>) # -> <value>
 
 # To set & execute a variable function follow the syntax below
-var varFunc = func () -> <expression> # -> Variable Function
+{Keyword.SETVAR.value} varFunc = func () -> <expression> # -> Variable Function
 varFunc() # -> <value>
 
 ```
@@ -97,25 +107,25 @@ ListExtend()
 
 ```py
 # Addition
-5 + 5 # -> 10
+5 {TokenType.PLUS.value} 5 # -> 10
 
 # Subtraction
-10 - 0.5 # -> 9.5
+10 {TokenType.MINUS.value} 0.5 # -> 9.5
 
 # Multiplication
-2 * 10 # -> 20
+2 {TokenType.MUL.value} 10 # -> 20
 
 # Division
-10 / 2 # -> 5
+10 {TokenType.DIV.value} 2 # -> 5
 
 # Power
-2 ** 10 # -> 1024
+2 {TokenType.POWER.value} 10 # -> 1024
 
 # Rest of Division
-11 % 2 # -> 1
+11 {TokenType.DIVREST.value} 2 # -> 1
 
 # Parentheses
-(4 + 1) * 2 # -> 10
+(4 {TokenType.PLUS.value} 1) {TokenType.MUL.value} 2 # -> 10
 
 ```
 
@@ -123,10 +133,10 @@ ListExtend()
 
 ```py
 # string concat
-"Hello, " + "World!" # -> "Hello, World!"
+"Hello, " {TokenType.PLUS.value} "World!" # -> "Hello, World!"
 
 # string repeat
-"Hello, World!" * 2 # -> "Hello, World!Hello, World!"
+"Hello, World!" {TokenType.MUL.value} 2 # -> "Hello, World!Hello, World!"
 
 ```
 
@@ -134,28 +144,28 @@ ListExtend()
 
 ```py
 # list pushing a new item
-[] + 1 # -> [1]
+[] {TokenType.PLUS.value} 1 # -> [1]
 # or
-var list = []
+{Keyword.SETVAR.value} list = []
 ListAppend(list, 1) # -> [1]
 list # -> [1]
 
 # list removing item by it's index
-["Hello!", 43, -20, 3.14] - 2 # -> ["Hello!", 43, 3.14]
+["Hello!", 43, {TokenType.MINUS.value}20, 3.14] {TokenType.MINUS.value} 2 # -> ["Hello!", 43, 3.14]
 # or
-var list = ["Hello!", 43, -20, 3.14]
-ListPop(list, 2) # -> -20
+{Keyword.SETVAR.value} list = ["Hello!", 43, {TokenType.MINUS.value}20, 3.14]
+ListPop(list, 2) # -> {TokenType.MINUS.value}20
 list # -> ["Hello!", 43, 3.14]
 
 # list merge with another list
-[1 , 2, 3] * [4, 5, 6] # -> [1, 2, 3, 4, 5, 6]
+[1 , 2, 3] {TokenType.MUL.value} [4, 5, 6] # -> [1, 2, 3, 4, 5, 6]
 # or
-var list = [1, 2, 3]
+{Keyword.SETVAR.value} list = [1, 2, 3]
 ListExtend(list, [4, 5, 6]) # -> [1, 2, 3, 4, 5, 6]
 list # -> [1, 2, 3, 4, 5, 6]
 
 # list returning a item by it's index
-["Hello!", "this", "is", "a", "list"] / 1 # -> "this"
+["Hello!", "this", "is", "a", "list"] {TokenType.DIV.value} 1 # -> "this"
 
 ```
 
@@ -163,31 +173,31 @@ list # -> [1, 2, 3, 4, 5, 6]
 
 ```py
 # is equals
-1 == 1 # -> 1
+1 {TokenType.EE.value} 1 # -> 1
 
 # is not equals
-1 != 1 # -> 0
+1 {TokenType.NE.value} 1 # -> 0
 
 # is less than
-1 < 2 # -> 1
+1 {TokenType.LT.value} 2 # -> 1
 
 # is greater than
-1 > 0 # -> 1
+1 {TokenType.GT.value} 0 # -> 1
 
 # is less than or equals
--1 <= 1 # -> 1
+{TokenType.MINUS.value}1 {TokenType.LTE.value} 1 # -> 1
 
 # is greater than or equals
-1 >= 10 # -> 0
+1 {TokenType.GTE.value} 10 # -> 0
 
 # and
-1 == 1 && 10 != 10 # -> 0
+1 {TokenType.EE.value} 1 {Keyword.AND.value} 10 {TokenType.NE.value} 10 # -> 0
 
 # or
-2 == 3 || 10 != 9 # -> 1
+2 {TokenType.EE.value} 3 {Keyword.OR.value} 10 {TokenType.NE.value} 9 # -> 1
 
 # if, else if and else
-if <condition> then <expression> else if <condition> then <expression> else <expression>
+{Keyword.IF.value} <condition> {Keyword.THEN.value} <expression> {Keyword.ELSEIF.value} <condition> {Keyword.THEN.value} <expression> {Keyword.ELSE.value} <expression>
 
 ```
 
@@ -195,22 +205,25 @@ if <condition> then <expression> else if <condition> then <expression> else <exp
 
 ```py
 # To use the While Loop follow the syntax below
-while <condition> then <expression>
+{Keyword.WHILE.value} <condition> {Keyword.THEN.value} <expression>
 
 # Example of While Loop
-var i = 0
-var numbers = while i < 100 then var i = i + 1 # -> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+{Keyword.SETVAR.value} i = 0
+{Keyword.SETVAR.value} numbers = {Keyword.WHILE.value} i < 100 {Keyword.THEN.value} {Keyword.SETVAR.value} i = i {TokenType.PLUS.value} 1 # -> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 numbers # -> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 i # -> 10
 
 # To use the For Loop follow the syntax below
-for <var_name> = <start_value> to <end_value> then <expression>
+{Keyword.FOR.value} <var_name> = <start_value> {Keyword.TO.value} <end_value> {Keyword.THEN.value} <expression>
 # Or define step count
-for <var_name> = <start_value> to <end_value> step <step_value> then <expression>
+{Keyword.FOR.value} <var_name> = <start_value> {Keyword.TO.value} <end_value> {Keyword.STEP.value} <step_value> {Keyword.THEN.value} <expression>
 
 # Example of For Loop
-var numbers = for i = 0 to 10 then i # -> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+{Keyword.SETVAR.value} numbers = {Keyword.FOR.value} i = 0 {Keyword.TO.value} 10 {Keyword.THEN.value} i # -> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 numbers # -> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 i # -> 9
 
 ```
+'''
+
+generate_md_file(content)

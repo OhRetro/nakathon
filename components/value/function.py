@@ -1,6 +1,8 @@
 from os import system as os_system, name as os_name
 from .value import Value
 from .number import Number
+from .boolean import Boolean
+from .null import Null 
 from .string import String
 from .list import List
 from ..node import Node
@@ -12,8 +14,8 @@ from ..symbol_table import SymbolTable
 
 class BaseFunction(Value):
     def __init__(self, name: str):
-        super().__init__()
         self.name = name or "<anonymous>"
+        super().__init__()
         
     def generate_new_context(self):
         new_context = Context(self.name, self.context, self.pos_start)
@@ -54,12 +56,16 @@ class BaseFunction(Value):
         
         return res.success(None)
 
+    def __repr__(self):
+        return f"<{self.__class__.__qualname__}:{self.name}>"
+    #({", ".join(self.arg_names)})
+    
 class Function(BaseFunction):
-    def __init__(self, name: str, body_node: Node, arg_names: list[str] = []):
-
+    def __init__(self, name: str, body_node: Node, arg_names: list[str] = [], should_return_null: bool = False):
+        self.name = name or "<anonymous>"
         self.body_node = body_node
         self.arg_names = arg_names
-        
+        self.should_return_null = should_return_null
         super().__init__(name)
         
     def execute(self, args):
@@ -75,19 +81,18 @@ class Function(BaseFunction):
         value = res.register(interpreter.visit(self.body_node, exec_ctx))
         if res.error: return res
         
-        return res.success(value)
+        return res.success(Null.null if self.should_return_null else value)
     
     def copy(self):
-        copy = Function(self.name, self.body_node, self.arg_names)
+        copy = Function(self.name, self.body_node, self.arg_names, self.should_return_null)
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy
     
-    def __repr__(self):
-        return f"<Function:{self.name}({", ".join(self.arg_names)})>"
     
 class BuiltInFunction(BaseFunction):
     def __init__(self, name: str):
+        self.name = name or "<anonymous>"
         super().__init__(name)
         
     def execute(self, args):
@@ -116,11 +121,11 @@ class BuiltInFunction(BaseFunction):
     
     def execute_print(self, exec_ctx: Context):
         print(str(exec_ctx.symbol_table.get("value")))
-        return RunTimeResult().success(Number.NULL)
+        return RunTimeResult().success(Null.null)
     execute_print.arg_names = ["value"]
     
     def execute_print_ret(self, exec_ctx: Context):
-        return RunTimeResult().success(str(exec_ctx.symbol_table.get("value")))
+        return RunTimeResult().success(String(str(exec_ctx.symbol_table.get("value"))))
     execute_print_ret.arg_names = ["value"]
     
     def execute_input_string(self, exec_ctx: Context):
@@ -142,27 +147,27 @@ class BuiltInFunction(BaseFunction):
     
     def execute_clear(self, exec_ctx: Context):
         os_system("cls" if os_name == "nt" else "clear")
-        return RunTimeResult().success(Number.NULL)
+        return RunTimeResult().success(Null.null)
     execute_clear.arg_names = []
     
     def execute_is_number(self, exec_ctx: Context):
         is_number = isinstance(exec_ctx.symbol_table.get("value"), Number)
-        return RunTimeResult().success(Number.TRUE if is_number else Number.FALSE)
+        return RunTimeResult().success(Boolean.true if is_number else Boolean.false)
     execute_is_number.arg_names = ["value"]
     
     def execute_is_string(self, exec_ctx: Context):
         is_string = isinstance(exec_ctx.symbol_table.get("value"), String)
-        return RunTimeResult().success(Number.TRUE if is_string else Number.FALSE)
+        return RunTimeResult().success(Boolean.true if is_string else Boolean.false)
     execute_is_string.arg_names = ["value"]
     
     def execute_is_list(self, exec_ctx: Context):
         is_list = isinstance(exec_ctx.symbol_table.get("value"), List)
-        return RunTimeResult().success(Number.TRUE if is_list else Number.FALSE)
+        return RunTimeResult().success(Boolean.true if is_list else Boolean.false)
     execute_is_list.arg_names = ["value"]
     
     def execute_is_function(self, exec_ctx: Context):
-        is_function = isinstance(exec_ctx.symbol_table.get("value"), Function)
-        return RunTimeResult().success(Number.TRUE if is_function else Number.FALSE)
+        is_function = isinstance(exec_ctx.symbol_table.get("value"), Function) or isinstance(exec_ctx.symbol_table.get("value"), BuiltInFunction)
+        return RunTimeResult().success(Boolean.true if is_function else Boolean.false)
     execute_is_function.arg_names = ["value"]
     
     def execute_append(self, exec_ctx: Context):
