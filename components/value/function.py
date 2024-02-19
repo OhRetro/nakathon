@@ -239,6 +239,57 @@ class BuiltInFunction(BaseFunction):
         
         return RunTimeResult().success(list_a)
     execute_extend.arg_names = ["listA", "listB"]
+
+    def execute_len(self, exec_ctx: Context):
+        list_ = exec_ctx.symbol_table.get("list")
+        
+        if not isinstance(list_, List):
+            return RunTimeResult().failure(RunTimeError(
+                self.pos_start, self.pos_end,
+                "First arg must be list",
+                exec_ctx
+            ))
+        
+        return RunTimeResult().success(Number(len(list_)))
+    execute_extend.arg_names = ["list"]
+    
+    def execute_run(self, exec_ctx: Context):
+        from ..wrapper import run
+        fn = exec_ctx.symbol_table.get("fn")
+        
+        if not isinstance(fn, String):
+            return RunTimeResult().failure(RunTimeError(
+                self.pos_start, self.pos_end,
+                "Arg must be string",
+                exec_ctx
+            ))
+            
+        fn = fn.value
+        
+        try:
+            with open(fn, "r") as f:
+                script = f.read()
+        except Exception as e:
+            return RunTimeResult().failure(RunTimeError(
+                self.pos_start, self.pos_end,
+                f"Failed to load script \"{fn}\"\n" + str(e),
+                exec_ctx
+            ))
+        
+        print(script)
+        _, error = run(fn, script)
+        
+        if error:
+            return RunTimeResult().failure(RunTimeError(
+                self.pos_start, self.pos_end,
+                f"Failed to finish executing the script \"{fn}\"\n" + 
+                error.as_string(),
+                exec_ctx
+            ))
+            
+        return RunTimeResult().success(Null.null)
+        
+    execute_run.arg_names = ["fn"]
     
 BuiltInFunction.print       = BuiltInFunction("print")
 BuiltInFunction.print_ret   = BuiltInFunction("print_ret")
@@ -252,3 +303,5 @@ BuiltInFunction.is_function = BuiltInFunction("is_function")
 BuiltInFunction.append      = BuiltInFunction("append")
 BuiltInFunction.pop         = BuiltInFunction("pop")
 BuiltInFunction.extend      = BuiltInFunction("extend")
+BuiltInFunction.len         = BuiltInFunction("len")
+BuiltInFunction.run        = BuiltInFunction("run")

@@ -83,7 +83,7 @@ class Parser:
         statements = []
         pos_start = self.current_tok.pos_start.copy()
 
-        while self.current_tok.type == TokenType.NEWLINE:
+        while self.current_tok.type in (TokenType.NEWLINE, TokenType.SEMICOLON):
             res.register_advancement()
             self.advance()
 
@@ -96,7 +96,7 @@ class Parser:
 
         while True:
             newline_count = 0
-            while self.current_tok.type == TokenType.NEWLINE:
+            while self.current_tok.type in (TokenType.NEWLINE, TokenType.SEMICOLON):
                 res.register_advancement()
                 self.advance()
                 newline_count += 1
@@ -456,7 +456,7 @@ class Parser:
             res.register_advancement()
             self.advance()
 
-            if self.current_tok.type == TokenType.NEWLINE:
+            if self.current_tok.type in (TokenType.NEWLINE, TokenType.SEMICOLON):
                 res.register_advancement()
                 self.advance()
 
@@ -524,7 +524,7 @@ class Parser:
         res.register_advancement()
         self.advance()
 
-        if self.current_tok.type == TokenType.NEWLINE:
+        if self.current_tok.type in (TokenType.NEWLINE, TokenType.SEMICOLON):
             res.register_advancement()
             self.advance()
 
@@ -623,7 +623,7 @@ class Parser:
         res.register_advancement()
         self.advance()
 
-        if self.current_tok.type == TokenType.NEWLINE:
+        if self.current_tok.type in (TokenType.NEWLINE, TokenType.SEMICOLON):
             res.register_advancement()
             self.advance()
 
@@ -673,7 +673,7 @@ class Parser:
         res.register_advancement()
         self.advance()
 
-        if self.current_tok.type == TokenType.NEWLINE:
+        if self.current_tok.type in (TokenType.NEWLINE, TokenType.SEMICOLON):
             res.register_advancement()
             self.advance()
 

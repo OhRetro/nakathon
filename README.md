@@ -7,9 +7,8 @@ based on the BASIC syntax.
 
 ## Usage
 
-note: there's no actual comment syntax implemented yet
-
-note: the only way to execute the expression at the moment is by the shell.py
+To Run on the shell run the following command: `python nakathon.py`  
+To Run an external file run the following command: `python nakathon.py *file*.nk`
 
 ### Data Types
 

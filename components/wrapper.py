@@ -24,8 +24,10 @@ global_symbol_table.set_as_immutable("IsFunction", BuiltInFunction.is_function)
 global_symbol_table.set_as_immutable("ListAppend", BuiltInFunction.append)
 global_symbol_table.set_as_immutable("ListPop", BuiltInFunction.pop)
 global_symbol_table.set_as_immutable("ListExtend", BuiltInFunction.extend)
+global_symbol_table.set_as_immutable("ListLen", BuiltInFunction.len)
+global_symbol_table.set_as_immutable("Run", BuiltInFunction.run)
 
-def run(fn: str, text: str):
+def run(fn: str, text: str, context_name: str = "<Program>"):
     debug_message = DebugMessage("")
     
     # Generate tokens
@@ -42,8 +44,15 @@ def run(fn: str, text: str):
     
     # Run Program
     interpreter = Interpreter()
-    context = Context("<Program>")
+    context = Context(context_name)
     context.symbol_table = global_symbol_table
     result = interpreter.visit(ast.node, context)
     debug_message.set_message(f"Interpreter generated:\n\tValue: {result.value}\n\tError: {result.error}\n").display()
     return result.value, result.error
+
+def run_external(fn: str):
+    fn = fn.replace("\\", "/")
+    if not fn.endswith(".nk"):
+        raise Exception("Script file extension must be .nk")    
+    
+    return run(fn, f"Run(\"{fn}\")", "External File")

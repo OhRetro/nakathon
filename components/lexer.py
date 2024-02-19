@@ -33,6 +33,7 @@ class Lexer:
             TokenType.RSQUARE.value: TokenType.RSQUARE,
             TokenType.COMMA.value: TokenType.COMMA,
             TokenType.NEWLINE.value: TokenType.NEWLINE,
+            TokenType.SEMICOLON.value: TokenType.SEMICOLON
         }
         
         advanced_tokens = {
@@ -41,7 +42,8 @@ class Lexer:
             TokenType.EQUALS.value: self.make_equals, # Also checks for '=='
             TokenType.LT.value: self.make_less_than, # Also checks for '<='
             TokenType.GT.value: self.make_greater_than, # Also checks for '>='
-            TokenType.STRING.value: self.make_string
+            TokenType.STRING.value: self.make_string,
+            TokenType.COMMENT.value: self.skip_comment
         }
         
         while self.current_char != None:
@@ -201,3 +203,10 @@ class Lexer:
             
         return Token(tok_type, pos_start=pos_start, pos_end=self.pos)
             
+    def skip_comment(self):
+        self.advance()
+        
+        while self.current_char != "\n":
+            self.advance()
+            
+        self.advance()

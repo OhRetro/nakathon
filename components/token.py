@@ -75,7 +75,9 @@ class TokenType(Enum):
     # Other
     COMMA = ","
     ARROW = "->"
-    NEWLINE = ";"
+    SEMICOLON = ";"
+    NEWLINE = "\n"
+    COMMENT = "#"
     
     EOF = "EOF"
 

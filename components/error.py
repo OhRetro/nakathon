@@ -1,7 +1,6 @@
 from .utils.strings_with_arrows import string_with_arrows
 from .context import Context
-from .position import Position 
-
+from .position import Position
 
 class Error:
     def __init__(self, pos_start: Position, pos_end: Position, error_name: str, details: str):
@@ -31,8 +30,8 @@ class IllegalCharError(Error):
 class ExpectedCharError(Error):
     def __init__(self, pos_start: Position, pos_end: Position, details: str):
         super().__init__(pos_start, pos_end, "Expected Character", details)
-        
-        
+
+
 # Happens at AST Process
 class InvalidSyntaxError(Error):
     def __init__(self, pos_start: Position, pos_end: Position, details: str):
