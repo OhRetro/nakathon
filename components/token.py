@@ -19,14 +19,18 @@ class Keyword(Enum):
     THEN = "then"
     ELSEIF = "else if"
     ELSE = "else"
+    IS = "is"
     
     # Loops
     FOR = "for"
     TO = "to"
     STEP = "step"
     WHILE = "while"
+    CONTINUE = "continue"
+    BREAK = "break"
     
     # Other
+    RETURN = "return"
     END = "end"
 
 
@@ -65,14 +69,14 @@ class TokenType(Enum):
     LT = "<"
     GT = ">"
     LTE = "<="
-    GTE = ">="   
+    GTE = ">="
+    #ISNULL = "?="
     
     # Other
     COMMA = ","
     ARROW = "->"
     NEWLINE = ";"
     
-    #ENDLINE = ""
     EOF = "EOF"
 
 

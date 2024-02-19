@@ -31,13 +31,13 @@ def run(fn: str, text: str):
     # Generate tokens
     lexer = Lexer(fn, text)
     tokens, error = lexer.make_tokens()
-    debug_message.set_message(f"Lexer generated:\n Tokens: {tokens}\n Error: {error}\n").display()
+    debug_message.set_message(f"Lexer generated:\n\tTokens: {tokens}\n\tError: {error}\n").display()
     if error: return None, error
 
     # Generate AST
     parser = Parser(tokens)
     ast = parser.parse()
-    debug_message.set_message(f"Parser generated:\n Node: {ast.node}\n Error: {ast.error}\n").display()
+    debug_message.set_message(f"Parser generated:\n\tNode: {ast.node}\n\tError: {ast.error}\n").display()
     if ast.error: return None, ast.error
     
     # Run Program
@@ -45,5 +45,5 @@ def run(fn: str, text: str):
     context = Context("<Program>")
     context.symbol_table = global_symbol_table
     result = interpreter.visit(ast.node, context)
-    debug_message.set_message(f"Interpreter generated:\n Value: {result.value}\n Error: {result.error}\n").display()
+    debug_message.set_message(f"Interpreter generated:\n\tValue: {result.value}\n\tError: {result.error}\n").display()
     return result.value, result.error

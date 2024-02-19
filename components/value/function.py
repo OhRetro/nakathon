@@ -51,7 +51,7 @@ class BaseFunction(Value):
     def check_and_populate_args(self, arg_names: list[str], args, exec_ctx: Context):
         res = RunTimeResult()
         res.register(self.check_args(arg_names, args))
-        if res.error: return res
+        if res.should_return() and res.func_return_value is None: return res
         self.populate_args(arg_names, args, exec_ctx)
         
         return res.success(None)
@@ -61,11 +61,11 @@ class BaseFunction(Value):
     #({", ".join(self.arg_names)})
     
 class Function(BaseFunction):
-    def __init__(self, name: str, body_node: Node, arg_names: list[str] = [], should_return_null: bool = False):
+    def __init__(self, name: str, body_node: Node, arg_names: list[str] = [], should_auto_return: bool = False):
         self.name = name or "<anonymous>"
         self.body_node = body_node
         self.arg_names = arg_names
-        self.should_return_null = should_return_null
+        self.should_auto_return = should_auto_return
         super().__init__(name)
         
     def execute(self, args):
@@ -76,15 +76,16 @@ class Function(BaseFunction):
         exec_ctx = self.generate_new_context()
         
         res.register(self.check_and_populate_args(self.arg_names, args, exec_ctx))
-        if res.error: return res
+        if res.should_return() and res.func_return_value is None: return res
         
         value = res.register(interpreter.visit(self.body_node, exec_ctx))
-        if res.error: return res
+        if res.should_return() and res.func_return_value is None: return res
         
-        return res.success(Null.null if self.should_return_null else value)
+        ret_value = (value if self.should_auto_return else None) or res.func_return_value or Null.null
+        return res.success(ret_value)
     
     def copy(self):
-        copy = Function(self.name, self.body_node, self.arg_names, self.should_return_null)
+        copy = Function(self.name, self.body_node, self.arg_names, self.should_auto_return)
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy
@@ -103,10 +104,10 @@ class BuiltInFunction(BaseFunction):
         method = getattr(self, method_name, self.no_visit_method)
         
         res.register(self.check_and_populate_args(method.arg_names, args, exec_ctx))
-        if res.error: return res
+        if res.should_return(): return res
         
         return_value = res.register(method(exec_ctx))
-        if res.error: return res
+        if res.should_return(): return res
         
         return res.success(return_value)
 

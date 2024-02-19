@@ -4,7 +4,7 @@ from .position import Position
 
 
 class Node:
-    def __init__(self, tok: Token, pos_start: Position = None, pos_end: Position = None, should_return_null: bool = False):
+    def __init__(self, tok: Token = None, pos_start: Position = None, pos_end: Position = None, should_return_null: bool = False):
         self.tok = tok
 
         self.pos_start = self.tok.pos_start if pos_start is None else pos_start
@@ -119,11 +119,12 @@ class WhileNode(Node):
 
 
 class FuncDefNode(Node):
-    def __init__(self, var_name_tok: Token, arg_name_toks: list[Token], body_node: Node, should_return_null: bool):
+    def __init__(self, var_name_tok: Token, arg_name_toks: list[Token], body_node: Node, should_auto_return: bool):
         self.var_name_tok = var_name_tok
         self.arg_name_toks = arg_name_toks
         self.body_node = body_node
-
+        self.should_auto_return = should_auto_return
+        
         if self.var_name_tok:
             to_tok_base = self.var_name_tok
         elif len(arg_name_toks) > 0:
@@ -131,7 +132,7 @@ class FuncDefNode(Node):
         else:
             to_tok_base = self.body_node
 
-        super().__init__(to_tok_base, should_return_null = should_return_null)
+        super().__init__(to_tok_base)
 
         self.pos_end = self.body_node.pos_end
 
@@ -147,3 +148,19 @@ class CallNode(Node):
             self.pos_end = self.arg_nodes[-1].pos_end
         else:
             self.pos_end = self.node_to_call.pos_end
+
+
+class ReturnNode(Node):
+    def __init__(self, node_to_return: Node, pos_start: Position, pos_end: Position):
+        self.node_to_return = node_to_return
+        super().__init__(node_to_return, pos_start, pos_end)
+
+
+class ContinueNode(Node):
+    def __init__(self, pos_start: Position, pos_end: Position):
+        super().__init__(pos_start=pos_start, pos_end=pos_end)
+        
+
+class BreakNode(Node):
+    def __init__(self, pos_start: Position, pos_end: Position):
+        super().__init__(pos_start=pos_start, pos_end=pos_end)

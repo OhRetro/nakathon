@@ -1,4 +1,9 @@
-statements	: NEWLINE* expr (NEWLINE+ expr)*
+statements	: NEWLINE* statement (NEWLINE+ statement)*
+
+statement	: KEYWORD:RETURN expr?
+			: KEYWORD:CONTINUE
+			: KEYWORD:BREAK
+			: expre
 
 expr    	: (KEYWORD:SETVAR|KEYWORD:SETIMMUTABLEVAR|KEYWORD:SETTEMPVAR) IDENTIFIER EQUALS expr
 			: comp-expr ((KEYWORD:AND|KEYWORD:OR) comp-expr)*
@@ -28,25 +33,25 @@ atom 		: INT|FLOAT|STRING|IDENTIFIER
 list-expr 	: LSQUARE (expr (COMMA expr)*) RSQUARE
 
 if-expr		: KEYWORD:IF expr KEYWORD:THEN 
-			  (expr elseif-expr|else-expr?)
+			  (statement elseif-expr|else-expr?)
 			  | (NEWLINE statements KEYWORD:END|elseif-expr|else-expr)
 
 elseif-expr	: KEYWORD:ELSEIF expr KEYWORD:THEN 
-			  (expr elseif-expr|else-expr?)
+			  (statement elseif-expr|else-expr?)
 			  | (NEWLINE statements KEYWORD:END|elseif-expr|else-expr)
 
 else-expr	: KEYWORD:ELSE 
-			  expr 
+			  statement 
 			  (NEWLINE statements KEYWORD:END)
 
 
 for-expr	: KEYWORD:FOR IDENTIFIER EQUALS expr KEYWORD:TO expr 
 			  (KEYWORD:STEP expr)? KEYWORD:THEN 
-			  expr
+			  statement
 			  (NEWLINE statements KEYWORD:END)
 
 while-expr	: KEYWORD:WHILE expr KEYWORD:THEN 
-			  expr
+			  statement
 			  (NEWLINE statements KEYWORD:END)
 
 func-def	: KEYWORD:SETFUNCTION IDENTIFIER?
