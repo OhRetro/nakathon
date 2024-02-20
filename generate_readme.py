@@ -1,4 +1,5 @@
 from components.token import TokenType, Keyword
+from components.wrapper import run
 
 def generate_md_file(content):
     try:
@@ -8,12 +9,18 @@ def generate_md_file(content):
     except Exception as e:
         print(f"Error: {e}")
 
+def simulate_code(command: str):
+    results, error = run("generate_readme.py", command, "Generating README.md")
+    return results if results is not None else error.as_string_simple()
+
+def build_src_and_output(command: str, show_output: bool = True):
+    return f"{command} " + f"# -> {simulate_code(command)}" if show_output else ""
+
 content = f'''
 # Nakathon (WIP)
 
 An Interpreted Programming Language made with Python;  
-with the purpose of to learn and how an interpreted language works;  
-based on the BASIC syntax.
+with the purpose of to learn and how an interpreted language works
 
 ## Usage
 
@@ -25,11 +32,11 @@ To Run an external file run the following command: `python nakathon.py *file*.nk
 ```py
 # int
 1
-{TokenType.MINUS.value}1
+-1
 
 # float
 1.0
-{TokenType.MINUS.value}1.0
+-1.0
 
 # string
 "Hello, World!"
@@ -49,13 +56,13 @@ The Variable/Function name can be in ``snake_case``, ``camelCase`` or ``PascalCa
 var_name # -> <value>
 
 # You can also set a immutable, also known as a constant, variable using the 'const' keyword
-{Keyword.SETIMMUTABLEVAR.value} pi = 3.14
+{build_src_and_output(f"{Keyword.SETIMMUTABLEVAR.value} pi = 3.14")}
 
 # There's also temporary variable using the 'temp' keyword
-{Keyword.SETTEMPVAR.value} temp_var 2 = "I'm going stop to exist once I'm referenced 2 times"
-temp_var # -> "I'm going stop to exist once I'm referenced 2 times"
-temp_var # -> "I'm going stop to exist once I'm referenced 2 times"
-temp_var # -> Error: temp_var not defined
+{build_src_and_output(f'{Keyword.SETTEMPVAR.value} temp_var 2 = "I\'m going to stop existing once I\'m referenced 2 times"')}
+{build_src_and_output("temp_var")}
+{build_src_and_output("temp_var")}
+{build_src_and_output("temp_var")}
 # The number after the 'temp_var' is the lifetime of the variable, 
 # every time it's referenced the lifetime decreases with the exception of the initial reference
 # which is while initializing the variable
@@ -78,22 +85,25 @@ varFunc() # -> <value>
 
 ```py
 # Print, used to print the value inside the function
-Print("Hello, world!") -> Hello, world!
+{build_src_and_output('Print("Hello, world!")')}
 
 # InputString, used to get user input text
-InputString() -> <what the user typed>
+InputString() # -> <what the user typed>
 
 # InputNumber, used to get user input number, either int or float
-InputNumber() -> <what the user typed>
+InputNumber() # -> <what the user typed>
 
 # Clear, used to clear the terminal
-Clear() -> null
+Clear() # -> null
+
+# To Functions, used to convert values into another value type
+{build_src_and_output("ToString(1)")}
 
 # Is Functions, used to know if the inputed value is that data type
-IsNumber(1.1) -> true
-IsString(5) -> false
-IsList([]) -> true
-IsFunction(Print) -> true
+{build_src_and_output("IsNumber(1.1)")}
+{build_src_and_output('IsString("hi")')}
+{build_src_and_output("IsList([])")}
+{build_src_and_output("IsFunction(Print)")}
 
 # List Functions, used to alter a list type (examples are down below)
 ListAppend()
@@ -106,25 +116,25 @@ ListExtend()
 
 ```py
 # Addition
-5 {TokenType.PLUS.value} 5 # -> 10
+{build_src_and_output("5 + 5")}
 
 # Subtraction
-10 {TokenType.MINUS.value} 0.5 # -> 9.5
+{build_src_and_output("10 - 0.5")}
 
 # Multiplication
-2 {TokenType.MUL.value} 10 # -> 20
+{build_src_and_output("2 * 10")}
 
 # Division
-10 {TokenType.DIV.value} 2 # -> 5
+{build_src_and_output("10 / 2")}
 
 # Power
-2 {TokenType.POWER.value} 10 # -> 1024
+{build_src_and_output("2 ** 10")}
 
 # Rest of Division
-11 {TokenType.DIVREST.value} 2 # -> 1
+{build_src_and_output("11 % 2")}
 
 # Parentheses
-(4 {TokenType.PLUS.value} 1) {TokenType.MUL.value} 2 # -> 10
+{build_src_and_output("(4 + 1) * 2")}
 
 ```
 
@@ -132,10 +142,10 @@ ListExtend()
 
 ```py
 # string concat
-"Hello, " {TokenType.PLUS.value} "World!" # -> "Hello, World!"
+{build_src_and_output('"Hello, " + "world!"')}
 
 # string repeat
-"Hello, World!" {TokenType.MUL.value} 2 # -> "Hello, World!Hello, World!"
+{build_src_and_output('"Hello, world!" * 2')}
 
 ```
 
@@ -143,28 +153,28 @@ ListExtend()
 
 ```py
 # list pushing a new item
-[] {TokenType.PLUS.value} 1 # -> [1]
+{build_src_and_output("[] + 1")}
 # or
-{Keyword.SETVAR.value} list = []
-ListAppend(list, 1) # -> [1]
-list # -> [1]
+{build_src_and_output(f"{Keyword.SETVAR.value} list = []")}
+{build_src_and_output("ListAppend(list, 1)")}
+{build_src_and_output("list")}
 
 # list removing item by it's index
-["Hello!", 43, {TokenType.MINUS.value}20, 3.14] {TokenType.MINUS.value} 2 # -> ["Hello!", 43, 3.14]
+{build_src_and_output('["Hello!", 43, -20, 3.14] - 2')}
 # or
-{Keyword.SETVAR.value} list = ["Hello!", 43, {TokenType.MINUS.value}20, 3.14]
-ListPop(list, 2) # -> {TokenType.MINUS.value}20
-list # -> ["Hello!", 43, 3.14]
+{build_src_and_output(f'{Keyword.SETVAR.value} list = ["Hello!", 43, -20, 3.14]')}
+{build_src_and_output("ListPop(list, 2)")}
+{build_src_and_output("list")}
 
 # list merge with another list
-[1 , 2, 3] {TokenType.MUL.value} [4, 5, 6] # -> [1, 2, 3, 4, 5, 6]
+{build_src_and_output("[1 , 2, 3] * [4, 5, 6]")}
 # or
-{Keyword.SETVAR.value} list = [1, 2, 3]
-ListExtend(list, [4, 5, 6]) # -> [1, 2, 3, 4, 5, 6]
-list # -> [1, 2, 3, 4, 5, 6]
+{build_src_and_output(f"{Keyword.SETVAR.value} list = [1, 2, 3]")}
+{build_src_and_output("ListExtend(list, [4, 5, 6])")}
+{build_src_and_output("list")}
 
 # list returning a item by it's index
-["Hello!", "this", "is", "a", "list"] {TokenType.DIV.value} 1 # -> "this"
+{build_src_and_output('["Hello!", "this", "is", "a", "list"] / 1')}
 
 ```
 
@@ -172,28 +182,28 @@ list # -> [1, 2, 3, 4, 5, 6]
 
 ```py
 # is equals
-1 {TokenType.EE.value} 1 # -> 1
+{build_src_and_output(f"1 {TokenType.EE.value} 1")}
 
 # is not equals
-1 {TokenType.NE.value} 1 # -> 0
+{build_src_and_output(f"1 {TokenType.NE.value} 2 ")}
 
 # is less than
-1 {TokenType.LT.value} 2 # -> 1
+{build_src_and_output(f"1 {TokenType.LT.value} 2")}
 
 # is greater than
-1 {TokenType.GT.value} 0 # -> 1
+{build_src_and_output(f"1 {TokenType.GT.value} 0")}
 
 # is less than or equals
-{TokenType.MINUS.value}1 {TokenType.LTE.value} 1 # -> 1
+{build_src_and_output(f"{TokenType.MINUS.value}1 {TokenType.LTE.value} 1")}
 
 # is greater than or equals
-1 {TokenType.GTE.value} 10 # -> 0
+{build_src_and_output(f"1 {TokenType.GTE.value} 10 ")}
 
 # and
-1 {TokenType.EE.value} 1 {Keyword.AND.value} 10 {TokenType.NE.value} 10 # -> 0
+{build_src_and_output(f"1 {TokenType.EE.value} 1 {Keyword.AND.value} 10 {TokenType.NE.value} 10")}
 
 # or
-2 {TokenType.EE.value} 3 {Keyword.OR.value} 10 {TokenType.NE.value} 9 # -> 1
+{build_src_and_output(f"2 {TokenType.EE.value} 3 {Keyword.OR.value} 10 {TokenType.NE.value} 9")}
 
 # if, else if and else
 {Keyword.IF.value} <condition> {Keyword.THEN.value} <expression> {Keyword.ELSEIF.value} <condition> {Keyword.THEN.value} <expression> {Keyword.ELSE.value} <expression>
@@ -207,10 +217,10 @@ list # -> [1, 2, 3, 4, 5, 6]
 {Keyword.WHILE.value} <condition> {Keyword.THEN.value} <expression>
 
 # Example of While Loop
-{Keyword.SETVAR.value} i = 0
-{Keyword.SETVAR.value} numbers = {Keyword.WHILE.value} i < 100 {Keyword.THEN.value} {Keyword.SETVAR.value} i = i {TokenType.PLUS.value} 1 # -> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-numbers # -> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-i # -> 10
+{build_src_and_output(f"{Keyword.SETVAR.value} i = 0")}
+{build_src_and_output(f"{Keyword.SETVAR.value} numbers = {Keyword.WHILE.value} i < 10 {Keyword.THEN.value} {Keyword.SETVAR.value} i = i {TokenType.PLUS.value} 1")}
+{build_src_and_output("numbers")}
+{build_src_and_output("i")}
 
 # To use the For Loop follow the syntax below
 {Keyword.FOR.value} <var_name> = <start_value> {Keyword.TO.value} <end_value> {Keyword.THEN.value} <expression>
@@ -218,9 +228,9 @@ i # -> 10
 {Keyword.FOR.value} <var_name> = <start_value> {Keyword.TO.value} <end_value> {Keyword.STEP.value} <step_value> {Keyword.THEN.value} <expression>
 
 # Example of For Loop
-{Keyword.SETVAR.value} numbers = {Keyword.FOR.value} i = 0 {Keyword.TO.value} 10 {Keyword.THEN.value} i # -> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-numbers # -> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-i # -> 9
+{build_src_and_output(f"{Keyword.SETVAR.value} numbers = {Keyword.FOR.value} i = 0 {Keyword.TO.value} 10 {Keyword.THEN.value} i")}
+{build_src_and_output("numbers")}
+{build_src_and_output("i")}
 
 ```
 '''

@@ -17,6 +17,9 @@ class Error:
                                self.pos_start, self.pos_end)
         return result
 
+    def as_string_simple(self):
+        return f"{self.error_name}: {self.details}"
+
     def __repr__(self) -> str:
         return f"<Error:{self.error_name}:\"{self.details}\">"
 

@@ -251,7 +251,7 @@ class BuiltInFunction(BaseFunction):
             ))
         
         return RunTimeResult().success(Number(len(list_)))
-    execute_extend.arg_names = ["list"]
+    execute_len.arg_names = ["list"]
     
     def execute_run(self, exec_ctx: Context):
         from ..wrapper import run
@@ -276,7 +276,6 @@ class BuiltInFunction(BaseFunction):
                 exec_ctx
             ))
         
-        print(script)
         _, error = run(fn, script)
         
         if error:

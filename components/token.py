@@ -56,10 +56,8 @@ class TokenType(Enum):
     # Parenthesis, Square and Brace
     LPAREN = "("
     RPAREN = ")"
-    
     LSQUARE = "["
     RSQUARE = "]"
-    
     LBRACE = "{"
     RBRACE = "}"
     
@@ -70,7 +68,7 @@ class TokenType(Enum):
     GT = ">"
     LTE = "<="
     GTE = ">="
-    #ISNULL = "?="
+    ISNULL = "?="
     
     # Other
     COMMA = ","

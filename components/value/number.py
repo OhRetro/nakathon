@@ -48,7 +48,7 @@ class Number(Value):
         
         return self.illegal_operation(other)
 
-    def powered_by(self, other):
+    def powed_by(self, other):
         if isinstance(other, Number):
             return Number(self.value ** other.value).set_context(self.context), None
         

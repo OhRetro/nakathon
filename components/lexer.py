@@ -31,6 +31,8 @@ class Lexer:
             TokenType.RPAREN.value: TokenType.RPAREN,
             TokenType.LSQUARE.value: TokenType.LSQUARE,
             TokenType.RSQUARE.value: TokenType.RSQUARE,
+            TokenType.LBRACE.value: TokenType.LBRACE,
+            TokenType.RBRACE.value: TokenType.RBRACE,
             TokenType.COMMA.value: TokenType.COMMA,
             TokenType.NEWLINE.value: TokenType.NEWLINE,
             TokenType.SEMICOLON.value: TokenType.SEMICOLON

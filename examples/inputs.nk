@@ -1,0 +1,11 @@
+Print("Hello world!")
+
+Print("What's your name?")
+var name = InputString()
+Print("It's a pleasure to meet you " + name + "!")
+
+Print("Tell me, what's your favorite number?")
+var number = InputNumber()
+
+Print(ToString(number) + " is your favorite number! mine too!")
+

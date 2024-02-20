@@ -13,7 +13,22 @@ class Boolean(Value):
     
     def __str__(self):
         return str(self.value).lower()
-    
+
+    def anded_by(self, other):
+        if isinstance(other, Boolean):
+            return Boolean(self.value and other.value).set_context(self.context), None
+        
+        return self.illegal_operation(other)
+
+    def ored_by(self, other):
+        if isinstance(other, Boolean):
+            return Boolean(self.value or other.value).set_context(self.context), None
+        
+        return self.illegal_operation(other)
+
+    def notted(self):
+        return Boolean(True if self.value == 0 else False).set_context(self.context), None
+
     def is_true(self):
         return self.value is True
     

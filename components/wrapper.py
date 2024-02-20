@@ -13,8 +13,8 @@ global_symbol_table.set_as_immutable("null", Null.null)
 global_symbol_table.set_as_immutable("false", Boolean.false)
 global_symbol_table.set_as_immutable("true", Boolean.true)
 global_symbol_table.set_as_immutable("Print", BuiltInFunction.print)
-global_symbol_table.set_as_immutable("PRINT_RETURN", BuiltInFunction.print_ret)
-global_symbol_table.set_as_immutable("InputText", BuiltInFunction.input)
+global_symbol_table.set_as_immutable("ToString", BuiltInFunction.print_ret)
+global_symbol_table.set_as_immutable("InputString", BuiltInFunction.input)
 global_symbol_table.set_as_immutable("InputNumber", BuiltInFunction.input_int)
 global_symbol_table.set_as_immutable("Clear", BuiltInFunction.clear)
 global_symbol_table.set_as_immutable("IsNumber", BuiltInFunction.is_number)
@@ -28,7 +28,7 @@ global_symbol_table.set_as_immutable("ListLen", BuiltInFunction.len)
 global_symbol_table.set_as_immutable("Run", BuiltInFunction.run)
 
 def run(fn: str, text: str, context_name: str = "<Program>"):
-    debug_message = DebugMessage("")
+    debug_message = DebugMessage("", 0)
     
     # Generate tokens
     lexer = Lexer(fn, text)

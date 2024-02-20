@@ -1,6 +1,6 @@
 import logging
 
-logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
+logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.DEBUG)
 
 class DebugMessage:
     def __init__(self, message: str, enable = False):
@@ -11,6 +11,8 @@ class DebugMessage:
     def display(self):
         if not self.enabled: return
         logging.log(logging.DEBUG, self.message)
+        return self.message
+        
 
     def set_message(self, message):
         self.message = message

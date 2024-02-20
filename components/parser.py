@@ -445,10 +445,10 @@ class Parser:
         cases, else_case = all_cases
         return res.success(IfNode(cases, else_case))
 
-    def if_expr_b(self):
+    def elseif_expr(self):
         return self.if_expr_cases(Keyword.ELSEIF)
 
-    def if_expr_c(self):
+    def else_expr(self):
         res = ParseResult()
         else_case = None
 
@@ -456,7 +456,7 @@ class Parser:
             res.register_advancement()
             self.advance()
 
-            if self.current_tok.type in (TokenType.NEWLINE, TokenType.SEMICOLON):
+            if self.current_tok.type == TokenType.NEWLINE:
                 res.register_advancement()
                 self.advance()
 
@@ -481,17 +481,17 @@ class Parser:
 
         return res.success(else_case)
 
-    def if_expr_b_or_c(self):
+    def if_expr_elseif_or_else(self):
         res = ParseResult()
         cases, else_case = [], None
 
         if self.current_tok.matches(TokenType.KEYWORD, Keyword.ELSEIF):
-            all_cases = res.register(self.if_expr_b())
+            all_cases = res.register(self.elseif_expr())
             if res.error:
                 return res
             cases, else_case = all_cases
         else:
-            else_case = res.register(self.if_expr_c())
+            else_case = res.register(self.else_expr())
             if res.error:
                 return res
 
@@ -524,7 +524,7 @@ class Parser:
         res.register_advancement()
         self.advance()
 
-        if self.current_tok.type in (TokenType.NEWLINE, TokenType.SEMICOLON):
+        if self.current_tok.type == TokenType.NEWLINE:
             res.register_advancement()
             self.advance()
 
@@ -537,7 +537,7 @@ class Parser:
                 res.register_advancement()
                 self.advance()
             else:
-                all_cases = res.register(self.if_expr_b_or_c())
+                all_cases = res.register(self.if_expr_elseif_or_else())
                 if res.error:
                     return res
                 new_cases, else_case = all_cases
@@ -548,7 +548,7 @@ class Parser:
                 return res
             cases.append((condition, expr, False))
 
-            all_cases = res.register(self.if_expr_b_or_c())
+            all_cases = res.register(self.if_expr_elseif_or_else())
             if res.error:
                 return res
             new_cases, else_case = all_cases

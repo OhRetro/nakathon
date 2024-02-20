@@ -2,8 +2,7 @@
 # Nakathon (WIP)
 
 An Interpreted Programming Language made with Python;  
-with the purpose of to learn and how an interpreted language works;  
-based on the BASIC syntax.
+with the purpose of to learn and how an interpreted language works
 
 ## Usage
 
@@ -39,13 +38,13 @@ var var_name = <value> # -> <value>
 var_name # -> <value>
 
 # You can also set a immutable, also known as a constant, variable using the 'const' keyword
-const pi = 3.14
+const pi = 3.14 # -> 3.14
 
 # There's also temporary variable using the 'temp' keyword
-temp temp_var 2 = "I'm going stop to exist once I'm referenced 2 times"
-temp_var # -> "I'm going stop to exist once I'm referenced 2 times"
-temp_var # -> "I'm going stop to exist once I'm referenced 2 times"
-temp_var # -> Error: temp_var not defined
+temp temp_var 2 = "I'm going to stop existing once I'm referenced 2 times" # -> I'm going to stop existing once I'm referenced 2 times
+temp_var # -> I'm going to stop existing once I'm referenced 2 times
+temp_var # -> I'm going to stop existing once I'm referenced 2 times
+temp_var # -> Runtime Error: 'temp_var' Is not defined
 # The number after the 'temp_var' is the lifetime of the variable, 
 # every time it's referenced the lifetime decreases with the exception of the initial reference
 # which is while initializing the variable
@@ -68,22 +67,25 @@ varFunc() # -> <value>
 
 ```py
 # Print, used to print the value inside the function
-Print("Hello, world!") -> Hello, world!
+Print("Hello, world!") # -> null
 
 # InputString, used to get user input text
-InputString() -> <what the user typed>
+InputString() # -> <what the user typed>
 
 # InputNumber, used to get user input number, either int or float
-InputNumber() -> <what the user typed>
+InputNumber() # -> <what the user typed>
 
 # Clear, used to clear the terminal
-Clear() -> null
+Clear() # -> null
+
+# To Functions, used to convert values into another value type
+ToString(1) # -> 1
 
 # Is Functions, used to know if the inputed value is that data type
-IsNumber(1.1) -> true
-IsString(5) -> false
-IsList([]) -> true
-IsFunction(Print) -> true
+IsNumber(1.1) # -> true
+IsString("hi") # -> true
+IsList([]) # -> true
+IsFunction(Print) # -> true
 
 # List Functions, used to alter a list type (examples are down below)
 ListAppend()
@@ -105,7 +107,7 @@ ListExtend()
 2 * 10 # -> 20
 
 # Division
-10 / 2 # -> 5
+10 / 2 # -> 5.0
 
 # Power
 2 ** 10 # -> 1024
@@ -122,10 +124,10 @@ ListExtend()
 
 ```py
 # string concat
-"Hello, " + "World!" # -> "Hello, World!"
+"Hello, " + "world!" # -> Hello, world!
 
 # string repeat
-"Hello, World!" * 2 # -> "Hello, World!Hello, World!"
+"Hello, world!" * 2 # -> Hello, world!Hello, world!
 
 ```
 
@@ -133,28 +135,28 @@ ListExtend()
 
 ```py
 # list pushing a new item
-[] + 1 # -> [1]
+[] + 1 # -> 1
 # or
-var list = []
-ListAppend(list, 1) # -> [1]
-list # -> [1]
+var list = [] # -> 
+ListAppend(list, 1) # -> 1
+list # -> 1
 
 # list removing item by it's index
-["Hello!", 43, -20, 3.14] - 2 # -> ["Hello!", 43, 3.14]
+["Hello!", 43, -20, 3.14] - 2 # -> Hello!, 43, 3.14
 # or
-var list = ["Hello!", 43, -20, 3.14]
+var list = ["Hello!", 43, -20, 3.14] # -> Hello!, 43, -20, 3.14
 ListPop(list, 2) # -> -20
-list # -> ["Hello!", 43, 3.14]
+list # -> Hello!, 43, 3.14
 
 # list merge with another list
-[1 , 2, 3] * [4, 5, 6] # -> [1, 2, 3, 4, 5, 6]
+[1 , 2, 3] * [4, 5, 6] # -> 1, 2, 3, 4, 5, 6
 # or
-var list = [1, 2, 3]
-ListExtend(list, [4, 5, 6]) # -> [1, 2, 3, 4, 5, 6]
-list # -> [1, 2, 3, 4, 5, 6]
+var list = [1, 2, 3] # -> 1, 2, 3
+ListExtend(list, [4, 5, 6]) # -> 1, 2, 3, 4, 5, 6
+list # -> 1, 2, 3, 4, 5, 6
 
 # list returning a item by it's index
-["Hello!", "this", "is", "a", "list"] / 1 # -> "this"
+["Hello!", "this", "is", "a", "list"] / 1 # -> this
 
 ```
 
@@ -162,28 +164,28 @@ list # -> [1, 2, 3, 4, 5, 6]
 
 ```py
 # is equals
-1 == 1 # -> 1
+1 == 1 # -> true
 
 # is not equals
-1 != 1 # -> 0
+1 != 2  # -> true
 
 # is less than
-1 < 2 # -> 1
+1 < 2 # -> true
 
 # is greater than
-1 > 0 # -> 1
+1 > 0 # -> true
 
 # is less than or equals
--1 <= 1 # -> 1
+-1 <= 1 # -> true
 
 # is greater than or equals
-1 >= 10 # -> 0
+1 >= 10  # -> false
 
 # and
-1 == 1 && 10 != 10 # -> 0
+1 == 1 && 10 != 10 # -> false
 
 # or
-2 == 3 || 10 != 9 # -> 1
+2 == 3 || 10 != 9 # -> true
 
 # if, else if and else
 if <condition> then <expression> else if <condition> then <expression> else <expression>
@@ -197,9 +199,9 @@ if <condition> then <expression> else if <condition> then <expression> else <exp
 while <condition> then <expression>
 
 # Example of While Loop
-var i = 0
-var numbers = while i < 100 then var i = i + 1 # -> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-numbers # -> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+var i = 0 # -> 0
+var numbers = while i < 10 then var i = i + 1 # -> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+numbers # -> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 i # -> 10
 
 # To use the For Loop follow the syntax below
@@ -208,8 +210,8 @@ for <var_name> = <start_value> to <end_value> then <expression>
 for <var_name> = <start_value> to <end_value> step <step_value> then <expression>
 
 # Example of For Loop
-var numbers = for i = 0 to 10 then i # -> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-numbers # -> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+var numbers = for i = 0 to 10 then i # -> 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+numbers # -> 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 i # -> 9
 
 ```
