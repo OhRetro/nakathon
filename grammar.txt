@@ -1,3 +1,5 @@
+note: this file may become outdated
+
 statements	: NEWLINE* statement (NEWLINE+ statement)*
 
 statement	: KEYWORD:RETURN expr?

@@ -12,7 +12,7 @@ from .node import (Node, NumberNode, StringNode,
 from .token import TokenType, Keyword
 from .runtime import RunTimeResult
 from .error import RunTimeError
-from .utils.error_messages import is_not_defined, cannot_overwrite_immutable_var, no_method_defined
+from .utils.strings_template import IS_NOT_DEFINED_ERROR, CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR, NO_METHOD_DEFINED_ERROR
 
 
 class Interpreter:
@@ -22,7 +22,7 @@ class Interpreter:
         return method(node, context)
 
     def no_visit_method(self, node: Node, context: Context):
-        raise Exception(no_method_defined.format(f"visit_{type(node).__name__}"))
+        raise Exception(NO_METHOD_DEFINED_ERROR.format(f"visit_{type(node).__name__}"))
 
     ###################################
 
@@ -60,7 +60,7 @@ class Interpreter:
         if not context.symbol_table.exists(var_name):
             return res.failure(RunTimeError(
                 node.pos_start, node.pos_end,
-                is_not_defined.format(var_name),
+                IS_NOT_DEFINED_ERROR.format(var_name),
                 context
             ))
 
@@ -88,7 +88,7 @@ class Interpreter:
         if success: return res.success(value)
         else: return res.failure(RunTimeError(
             node.pos_start, node.pos_end,
-            cannot_overwrite_immutable_var.format(immutable_name),
+            CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR.format(immutable_name),
             context
         ))
  
@@ -104,7 +104,7 @@ class Interpreter:
         if success: return res.success(value)
         else: return res.failure(RunTimeError(
             node.pos_start, node.pos_end,
-            cannot_overwrite_immutable_var.format(temp_name),
+            CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR.format(temp_name),
             context
         ))
         

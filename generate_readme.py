@@ -1,4 +1,8 @@
 from components.token import TokenType, Keyword
+from components.utils.syntax_template import (WHILE_SYNTAX_IN_LINE, FOR_SYNTAX_IN_LINE,
+                                             WHILE_SYNTAX, FOR_SYNTAX,
+                                             IF_ELSEIF_ELSE_SYNTAX_IN_LINE, IF_ELSEIF_ELSE_SYNTAX,
+                                             FUNC_SYNTAX_IN_LINE, FUNC_SYNTAX)
 from components.wrapper import run
 
 def generate_md_file(content):
@@ -11,10 +15,14 @@ def generate_md_file(content):
 
 def simulate_code(command: str):
     results, error = run("generate_readme.py", command, "Generating README.md")
+    if results is not None:
+        results = results.value[0].__repr__() if len(results.value) <= 1 else results.value
+        
     return results if results is not None else error.as_string_simple()
 
 def build_src_and_output(command: str, show_output: bool = True):
-    return f"{command} " + f"# -> {simulate_code(command)}" if show_output else ""
+    command_result = simulate_code(command)
+    return f"{command} " + (f"# -> {command_result}" if show_output else "")
 
 content = f'''
 # Nakathon (WIP)
@@ -52,14 +60,14 @@ The Variable/Function name can be in ``snake_case``, ``camelCase`` or ``PascalCa
 
 ```py
 # To set & refer a variable follow the syntax below
-{Keyword.SETVAR.value} var_name = <value> # -> <value>
-var_name # -> <value>
+{build_src_and_output(f'{Keyword.SETVAR.value} var_name = "Any of the Data types"')}
+{build_src_and_output("var_name")}
 
 # You can also set a immutable, also known as a constant, variable using the 'const' keyword
 {build_src_and_output(f"{Keyword.SETIMMUTABLEVAR.value} pi = 3.14")}
 
 # There's also temporary variable using the 'temp' keyword
-{build_src_and_output(f'{Keyword.SETTEMPVAR.value} temp_var 2 = "I\'m going to stop existing once I\'m referenced 2 times"')}
+{build_src_and_output(f'{Keyword.SETTEMPVAR.value} temp_var 2 = "I\'m going to stop existing once I\'m referenced 2 times"', 0)}
 {build_src_and_output("temp_var")}
 {build_src_and_output("temp_var")}
 {build_src_and_output("temp_var")}
@@ -68,12 +76,7 @@ var_name # -> <value>
 # which is while initializing the variable
 
 # To define & execute a function follow the syntax below
-{Keyword.SETFUNCTION.value} FuncName() -> <expression> # -> Function
-FuncName() # -> <value>
-
-# To define & execute a function with args follow the syntax below
-{Keyword.SETFUNCTION.value} FuncName(arg) -> <expression> # -> Function
-FuncName(<value>) # -> <value>
+{FUNC_SYNTAX}
 
 # To set & execute a variable function follow the syntax below
 {Keyword.SETVAR.value} varFunc = func () -> <expression> # -> Variable Function
@@ -182,56 +185,54 @@ ListExtend()
 
 ```py
 # is equals
-{build_src_and_output(f"1 {TokenType.EE.value} 1")}
+{build_src_and_output("1 == 1")}
 
 # is not equals
-{build_src_and_output(f"1 {TokenType.NE.value} 2 ")}
+{build_src_and_output("1 != 2 ")}
 
 # is less than
-{build_src_and_output(f"1 {TokenType.LT.value} 2")}
+{build_src_and_output("1 < 2")}
 
 # is greater than
-{build_src_and_output(f"1 {TokenType.GT.value} 0")}
+{build_src_and_output("1 > 0")}
 
 # is less than or equals
-{build_src_and_output(f"{TokenType.MINUS.value}1 {TokenType.LTE.value} 1")}
+{build_src_and_output("-1 <= 1")}
 
 # is greater than or equals
-{build_src_and_output(f"1 {TokenType.GTE.value} 10 ")}
+{build_src_and_output("1 >= 10 ")}
 
 # and
-{build_src_and_output(f"1 {TokenType.EE.value} 1 {Keyword.AND.value} 10 {TokenType.NE.value} 10")}
+{build_src_and_output("1 == 1 && 10 != 10")}
 
 # or
-{build_src_and_output(f"2 {TokenType.EE.value} 3 {Keyword.OR.value} 10 {TokenType.NE.value} 9")}
+{build_src_and_output("2 == 3 || 10 != 9")}
 
 # if, else if and else
-{Keyword.IF.value} <condition> {Keyword.THEN.value} <expression> {Keyword.ELSEIF.value} <condition> {Keyword.THEN.value} <expression> {Keyword.ELSE.value} <expression>
+{IF_ELSEIF_ELSE_SYNTAX}
 
 ```
 
-### While & For Loops
+### For & While Loops
 
 ```py
-# To use the While Loop follow the syntax below
-{Keyword.WHILE.value} <condition> {Keyword.THEN.value} <expression>
-
-# Example of While Loop
-{build_src_and_output(f"{Keyword.SETVAR.value} i = 0")}
-{build_src_and_output(f"{Keyword.SETVAR.value} numbers = {Keyword.WHILE.value} i < 10 {Keyword.THEN.value} {Keyword.SETVAR.value} i = i {TokenType.PLUS.value} 1")}
-{build_src_and_output("numbers")}
-{build_src_and_output("i")}
-
 # To use the For Loop follow the syntax below
-{Keyword.FOR.value} <var_name> = <start_value> {Keyword.TO.value} <end_value> {Keyword.THEN.value} <expression>
-# Or define step count
-{Keyword.FOR.value} <var_name> = <start_value> {Keyword.TO.value} <end_value> {Keyword.STEP.value} <step_value> {Keyword.THEN.value} <expression>
+{FOR_SYNTAX}
 
-# Example of For Loop
-{build_src_and_output(f"{Keyword.SETVAR.value} numbers = {Keyword.FOR.value} i = 0 {Keyword.TO.value} 10 {Keyword.THEN.value} i")}
-{build_src_and_output("numbers")}
-{build_src_and_output("i")}
+# Example of how for loop can be used
+{build_src_and_output(f"""{Keyword.SETVAR.value} i = 0
+{Keyword.SETVAR.value} numbers = for i = 0 to 10 {{ i }}
+numbers""", 0)}
 
+# To use the While Loop follow the syntax below
+{WHILE_SYNTAX}
+
+# Example of how while loop can be used
+{build_src_and_output(f"""{Keyword.SETVAR.value} i = 0
+{Keyword.SETVAR.value} numbers = while i < 10 {{ 
+    {Keyword.SETVAR.value} i = i + 1 
+}}
+numbers""", 0)}
 ```
 '''
 

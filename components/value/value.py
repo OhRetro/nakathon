@@ -1,5 +1,5 @@
 from ..utils.debug import DebugMessage
-from ..utils.error_messages import illegal_operation, no_method_defined
+from ..utils.strings_template import ILLEGAL_OPERATION_ERROR, NO_METHOD_DEFINED_ERROR
 from typing import Any
 
 class Value:
@@ -67,7 +67,7 @@ class Value:
         return RunTimeResult().failure(self.illegal_operation())
 
     def copy(self):
-        raise Exception(no_method_defined.format("copy"))
+        raise Exception(NO_METHOD_DEFINED_ERROR.format("copy"))
 
     def is_true(self):
         return False
@@ -77,7 +77,7 @@ class Value:
         if not other: other = self
         return RunTimeError(
             self.pos_start, other.pos_end,
-            illegal_operation,
+            ILLEGAL_OPERATION_ERROR,
             self.context
         )
     

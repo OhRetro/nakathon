@@ -52,7 +52,7 @@ def run(fn: str, text: str, context_name: str = "<Program>"):
 
 def run_external(fn: str):
     fn = fn.replace("\\", "/")
-    if not fn.endswith(".nk"):
+    if not fn.endswith(".nkt"):
         raise Exception("Script file extension must be .nk")    
     
     return run(fn, f"Run(\"{fn}\")", "External File")

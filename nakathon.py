@@ -1,11 +1,11 @@
 from sys import argv
 from components.wrapper import run, run_external
 
-version = [1,0,0]
+VERSION = [1,0,0]
 fn = len(argv) > 1
 
 if not fn:
-    print(f"Welcome to Nakathon v{".".join([str(x) for x in version])}")
+    print(f"Welcome to Nakathon v{".".join([str(x) for x in VERSION])}")
     while True:
         text = input("Nakathon Shell > ")
         if not text.strip(): continue 

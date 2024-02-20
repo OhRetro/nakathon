@@ -1,7 +1,0 @@
-temp number 1 = 10
-
-if number < 20 then
-    Print("Less than 20")
-
-else if number > 20 then
-    Print("Greater than 20")

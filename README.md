@@ -34,28 +34,25 @@ The Variable/Function name can be in ``snake_case``, ``camelCase`` or ``PascalCa
 
 ```py
 # To set & refer a variable follow the syntax below
-var var_name = <value> # -> <value>
-var_name # -> <value>
+var var_name = "Any of the Data types" # -> "Any of the Data types"
+var_name # -> "Any of the Data types"
 
 # You can also set a immutable, also known as a constant, variable using the 'const' keyword
 const pi = 3.14 # -> 3.14
 
 # There's also temporary variable using the 'temp' keyword
-temp temp_var 2 = "I'm going to stop existing once I'm referenced 2 times" # -> I'm going to stop existing once I'm referenced 2 times
-temp_var # -> I'm going to stop existing once I'm referenced 2 times
-temp_var # -> I'm going to stop existing once I'm referenced 2 times
+temp temp_var 2 = "I'm going to stop existing once I'm referenced 2 times" 
+temp_var # -> "I'm going to stop existing once I'm referenced 2 times"
+temp_var # -> "I'm going to stop existing once I'm referenced 2 times"
 temp_var # -> Runtime Error: 'temp_var' Is not defined
 # The number after the 'temp_var' is the lifetime of the variable, 
 # every time it's referenced the lifetime decreases with the exception of the initial reference
 # which is while initializing the variable
 
 # To define & execute a function follow the syntax below
-func FuncName() -> <expression> # -> Function
-FuncName() # -> <value>
-
-# To define & execute a function with args follow the syntax below
-func FuncName(arg) -> <expression> # -> Function
-FuncName(<value>) # -> <value>
+func FunctionName {
+    <expression>
+}
 
 # To set & execute a variable function follow the syntax below
 var varFunc = func () -> <expression> # -> Variable Function
@@ -79,7 +76,7 @@ InputNumber() # -> <what the user typed>
 Clear() # -> null
 
 # To Functions, used to convert values into another value type
-ToString(1) # -> 1
+ToString(1) # -> "1"
 
 # Is Functions, used to know if the inputed value is that data type
 IsNumber(1.1) # -> true
@@ -124,10 +121,10 @@ ListExtend()
 
 ```py
 # string concat
-"Hello, " + "world!" # -> Hello, world!
+"Hello, " + "world!" # -> "Hello, world!"
 
 # string repeat
-"Hello, world!" * 2 # -> Hello, world!Hello, world!
+"Hello, world!" * 2 # -> "Hello, world!Hello, world!"
 
 ```
 
@@ -135,28 +132,28 @@ ListExtend()
 
 ```py
 # list pushing a new item
-[] + 1 # -> 1
+[] + 1 # -> [1]
 # or
-var list = [] # -> 
-ListAppend(list, 1) # -> 1
-list # -> 1
+var list = [] # -> []
+ListAppend(list, 1) # -> [1]
+list # -> [1]
 
 # list removing item by it's index
-["Hello!", 43, -20, 3.14] - 2 # -> Hello!, 43, 3.14
+["Hello!", 43, -20, 3.14] - 2 # -> [Hello!, 43, 3.14]
 # or
-var list = ["Hello!", 43, -20, 3.14] # -> Hello!, 43, -20, 3.14
+var list = ["Hello!", 43, -20, 3.14] # -> [Hello!, 43, -20, 3.14]
 ListPop(list, 2) # -> -20
-list # -> Hello!, 43, 3.14
+list # -> [Hello!, 43, 3.14]
 
 # list merge with another list
-[1 , 2, 3] * [4, 5, 6] # -> 1, 2, 3, 4, 5, 6
+[1 , 2, 3] * [4, 5, 6] # -> [1, 2, 3, 4, 5, 6]
 # or
-var list = [1, 2, 3] # -> 1, 2, 3
-ListExtend(list, [4, 5, 6]) # -> 1, 2, 3, 4, 5, 6
-list # -> 1, 2, 3, 4, 5, 6
+var list = [1, 2, 3] # -> [1, 2, 3]
+ListExtend(list, [4, 5, 6]) # -> [1, 2, 3, 4, 5, 6]
+list # -> [1, 2, 3, 4, 5, 6]
 
 # list returning a item by it's index
-["Hello!", "this", "is", "a", "list"] / 1 # -> this
+["Hello!", "this", "is", "a", "list"] / 1 # -> "this"
 
 ```
 
@@ -188,30 +185,38 @@ list # -> 1, 2, 3, 4, 5, 6
 2 == 3 || 10 != 9 # -> true
 
 # if, else if and else
-if <condition> then <expression> else if <condition> then <expression> else <expression>
+if <condition> then
+    <expression>
+elseif then
+    <expression>
+else then
+    <expression>
+end
 
 ```
 
-### While & For Loops
+### For & While Loops
 
 ```py
-# To use the While Loop follow the syntax below
-while <condition> then <expression>
-
-# Example of While Loop
-var i = 0 # -> 0
-var numbers = while i < 10 then var i = i + 1 # -> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-numbers # -> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-i # -> 10
-
 # To use the For Loop follow the syntax below
-for <var_name> = <start_value> to <end_value> then <expression>
-# Or define step count
-for <var_name> = <start_value> to <end_value> step <step_value> then <expression>
+for <variable> = <start-value> to <end-value> step <step-value> {
+    <expression>
+}
 
-# Example of For Loop
-var numbers = for i = 0 to 10 then i # -> 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
-numbers # -> 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
-i # -> 9
+# Example of how for loop can be used
+var i = 0
+var numbers = for i = 0 to 10 { i }
+numbers 
 
+# To use the While Loop follow the syntax below
+while <condition> {
+    <expression>
+}
+
+# Example of how while loop can be used
+var i = 0
+var numbers = while i < 10 { 
+    var i = i + 1 
+}
+numbers 
 ```

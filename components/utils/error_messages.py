@@ -1,7 +1,0 @@
-out_of_bounds = "Out of bounds"
-division_by_zero = "Division by zero"
-illegal_operation = "Illegal operation"
-cannot_overwrite_immutable_var = "Cannot overwrite the immutable variable '{}'"
-cannot_overwrite_builtin_func = "Cannot overwrite the builtin function '{}'"
-is_not_defined = "'{}' Is not defined"
-no_method_defined = "No '{}' method defined"

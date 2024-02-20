@@ -2,7 +2,7 @@ from .value import Value
 from .boolean import Boolean
 from ..context import Context
 from ..error import RunTimeError
-from ..utils.error_messages import division_by_zero
+from ..utils.strings_template import DIVISION_BY_ZERO_ERROR
 
 
 class Number(Value):
@@ -41,7 +41,7 @@ class Number(Value):
             if other.value == 0:
                 return None, RunTimeError(
                     other.pos_start, other.pos_end,
-                    division_by_zero,
+                    DIVISION_BY_ZERO_ERROR,
                     self.context
                 )
             return Number(self.value / other.value).set_context(self.context), None
@@ -59,7 +59,7 @@ class Number(Value):
             if other.value == 0:
                 return None, RunTimeError(
                     other.pos_start, other.pos_end,
-                    division_by_zero,
+                    DIVISION_BY_ZERO_ERROR,
                     self.context
                 )
             return Number(self.value % other.value).set_context(self.context), None

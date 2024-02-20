@@ -1,0 +1,16 @@
+func Foo() {
+    return 5
+}
+
+func Bar() -> 7
+
+var baz = func () {
+    return 9
+}
+
+var qux = func () -> 11
+
+Print(Foo())
+Print(Bar())
+Print(baz())
+Print(qux())

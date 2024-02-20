@@ -17,7 +17,7 @@ class Keyword(Enum):
     NOT = "not"
     IF = "if"
     THEN = "then"
-    ELSEIF = "else if"
+    ELSEIF = "elseif"
     ELSE = "else"
     IS = "is"
     

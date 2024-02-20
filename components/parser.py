@@ -96,10 +96,12 @@ class Parser:
 
         while True:
             newline_count = 0
+            
             while self.current_tok.type in (TokenType.NEWLINE, TokenType.SEMICOLON):
                 res.register_advancement()
                 self.advance()
                 newline_count += 1
+                
             if newline_count == 0:
                 more_statements = False
 
@@ -121,11 +123,11 @@ class Parser:
     def statement(self):
         res = ParseResult()
         pos_start = self.current_tok.pos_start.copy()
-
+        
         if self.current_tok.matches(TokenType.KEYWORD, Keyword.RETURN):
             res.register_advancement()
             self.advance()
-
+            
             expr = res.try_register(self.expr())
             if not expr:
                 self.reverse(res.to_reverse_count)
@@ -149,9 +151,9 @@ class Parser:
                          Keyword.SETVAR, Keyword.SETIMMUTABLEVAR, Keyword.SETTEMPVAR, Keyword.SETSCOPEDVAR,
                          Keyword.IF, Keyword.FOR, Keyword.WHILE, Keyword.SETFUNCTION,
                          TokenType.INT, TokenType.FLOAT, TokenType.IDENTIFIER,
-                         TokenType.PLUS, TokenType.MINUS, TokenType.LPAREN, TokenType.LSQUARE, Keyword.NOT)
+                         TokenType.PLUS, TokenType.MINUS, TokenType.LPAREN, TokenType.LSQUARE, TokenType.LBRACE, Keyword.NOT)
             ))
-
+            
         return res.success(expr)
 
     def expr(self):
@@ -217,7 +219,7 @@ class Parser:
                 expected(Keyword.SETVAR, Keyword.SETIMMUTABLEVAR, Keyword.SETTEMPVAR, Keyword.SETSCOPEDVAR,
                          Keyword.IF, Keyword.FOR, Keyword.WHILE, Keyword.SETFUNCTION,
                          TokenType.INT, TokenType.FLOAT, TokenType.IDENTIFIER,
-                         TokenType.PLUS, TokenType.MINUS, TokenType.LPAREN, TokenType.LSQUARE, Keyword.NOT)
+                         TokenType.PLUS, TokenType.MINUS, TokenType.LPAREN, TokenType.LSQUARE, TokenType.LBRACE, Keyword.NOT)
             ))
 
         return res.success(node)
@@ -452,32 +454,31 @@ class Parser:
         res = ParseResult()
         else_case = None
 
-        if self.current_tok.matches(TokenType.KEYWORD, Keyword.ELSE):
+        res.register_advancement()
+        self.advance()
+            
+        if self.current_tok.type == TokenType.NEWLINE:
             res.register_advancement()
             self.advance()
+                
+            statements = res.register(self.statements())
+            if res.error:
+                return res
+            else_case = (statements, True)
 
-            if self.current_tok.type == TokenType.NEWLINE:
+            if self.current_tok.matches(TokenType.KEYWORD, Keyword.END):
                 res.register_advancement()
                 self.advance()
-
-                statements = res.register(self.statements())
-                if res.error:
-                    return res
-                else_case = (statements, True)
-
-                if self.current_tok.matches(TokenType.KEYWORD, Keyword.END):
-                    res.register_advancement()
-                    self.advance()
-                else:
-                    return res.failure(InvalidSyntaxError(
-                        self.current_tok.pos_start, self.current_tok.pos_end,
-                        expected(Keyword.END)
-                    ))
             else:
-                expr = res.register(self.statement())
-                if res.error:
-                    return res
-                else_case = (expr, False)
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    expected(Keyword.END)
+                ))
+        else:
+            expr = res.register(self.statement())
+            if res.error:
+                return res
+            else_case = (expr, False)
 
         return res.success(else_case)
 
@@ -487,6 +488,7 @@ class Parser:
 
         if self.current_tok.matches(TokenType.KEYWORD, Keyword.ELSEIF):
             all_cases = res.register(self.elseif_expr())
+            
             if res.error:
                 return res
             cases, else_case = all_cases
@@ -507,41 +509,41 @@ class Parser:
                 self.current_tok.pos_start, self.current_tok.pos_end,
                 f"Expected '{case_keyword}'"
             ))
-
+        
+        keyword_tok = self.current_tok
+        
         res.register_advancement()
         self.advance()
-
+        
         condition = res.register(self.expr())
         if res.error:
             return res
 
-        if not self.current_tok.matches(TokenType.KEYWORD, Keyword.THEN):
-            return res.failure(InvalidSyntaxError(
-                self.current_tok.pos_start, self.current_tok.pos_end,
-                expected(Keyword.THEN)
-            ))
-
-        res.register_advancement()
-        self.advance()
-
-        if self.current_tok.type == TokenType.NEWLINE:
+        if self.current_tok.matches(TokenType.KEYWORD, Keyword.THEN):
             res.register_advancement()
             self.advance()
+
+            if self.current_tok.type == TokenType.NEWLINE:
+                res.register_advancement()
+                self.advance()
 
             statements = res.register(self.statements())
             if res.error:
                 return res
             cases.append((condition, statements, True))
-
-            if self.current_tok.matches(TokenType.KEYWORD, Keyword.END):
+            
+            if self.current_tok.matches(TokenType.KEYWORD, Keyword.END):                
                 res.register_advancement()
                 self.advance()
+
             else:
                 all_cases = res.register(self.if_expr_elseif_or_else())
                 if res.error:
                     return res
                 new_cases, else_case = all_cases
                 cases.extend(new_cases)
+        
+        # Inline statements
         else:
             expr = res.register(self.statement())
             if res.error:
@@ -553,7 +555,7 @@ class Parser:
                 return res
             new_cases, else_case = all_cases
             cases.extend(new_cases)
-
+            
         return res.success((cases, else_case))
 
     def for_expr(self):
@@ -614,10 +616,10 @@ class Parser:
         else:
             step_value = None
 
-        if not self.current_tok.matches(TokenType.KEYWORD, Keyword.THEN):
+        if self.current_tok.type != TokenType.LBRACE:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, self.current_tok.pos_end,
-                expected(Keyword.THEN)
+                expected(TokenType.LBRACE)
             ))
 
         res.register_advancement()
@@ -631,10 +633,10 @@ class Parser:
             if res.error:
                 return res
 
-            if not self.current_tok.matches(TokenType.KEYWORD, Keyword.END):
+            if self.current_tok.type != TokenType.RBRACE:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start, self.current_tok.pos_end,
-                    expected(Keyword.END)
+                    expected(TokenType.RBRACE)
                 ))
 
             res.register_advancement()
@@ -645,6 +647,15 @@ class Parser:
         body = res.register(self.statement())
         if res.error:
             return res
+    
+        if self.current_tok.type != TokenType.RBRACE:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                expected(TokenType.RBRACE)
+            ))
+
+        res.register_advancement()
+        self.advance()
 
         return res.success(ForNode(var_name, start_value, end_value, step_value, body, False))
 
@@ -664,10 +675,10 @@ class Parser:
         if res.error:
             return res
 
-        if not self.current_tok.matches(TokenType.KEYWORD, Keyword.THEN):
+        if self.current_tok.type != TokenType.LBRACE:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, self.current_tok.pos_end,
-                expected(Keyword.THEN)
+                expected(TokenType.LBRACE)
             ))
 
         res.register_advancement()
@@ -681,10 +692,10 @@ class Parser:
             if res.error:
                 return res
 
-            if not self.current_tok.matches(TokenType.KEYWORD, Keyword.END):
+            if self.current_tok.type != TokenType.RBRACE:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start, self.current_tok.pos_end,
-                    expected(Keyword.END)
+                    expected(TokenType.RBRACE)
                 ))
 
             res.register_advancement()
@@ -696,6 +707,15 @@ class Parser:
         if res.error:
             return res
 
+        if self.current_tok.type != TokenType.RBRACE:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                expected(TokenType.RBRACE)
+            ))
+
+        res.register_advancement()
+        self.advance()
+            
         return res.success(WhileNode(condition, body, False))
 
     def func_def(self):
@@ -780,10 +800,10 @@ class Parser:
                 True
             ))
 
-        if self.current_tok.type != TokenType.NEWLINE:
+        if self.current_tok.type != TokenType.LBRACE:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, self.current_tok.pos_end,
-                expected(TokenType.ARROW, TokenType.NEWLINE)
+                expected(TokenType.ARROW, TokenType.LBRACE)
             ))
 
         res.register_advancement()
@@ -793,10 +813,10 @@ class Parser:
         if res.error:
             return res
 
-        if not self.current_tok.matches(TokenType.KEYWORD, Keyword.END):
+        if self.current_tok.type != TokenType.RBRACE:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, self.current_tok.pos_end,
-                expected(Keyword.END)
+                expected(TokenType.RBRACE)
             ))
 
         res.register_advancement()

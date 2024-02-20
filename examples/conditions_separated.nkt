@@ -1,0 +1,17 @@
+temp state1 2 = true
+temp state2 2 = false
+
+if state1 then
+    Print("State 1 is true")
+end
+
+if state2 then 
+    Print("State 2 is true")
+end
+
+if not state1 && not state2 then
+    Print("Neither of the two states is true")
+end
+
+
+

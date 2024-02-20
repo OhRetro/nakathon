@@ -8,4 +8,3 @@ Print("Tell me, what's your favorite number?")
 var number = InputNumber()
 
 Print(ToString(number) + " is your favorite number! mine too!")
-

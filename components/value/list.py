@@ -2,7 +2,7 @@ from .value import Value
 from .number import Number
 from ..token import TokenType
 from ..error import RunTimeError
-from ..utils.error_messages import out_of_bounds
+from ..utils.strings_template import OUT_OF_BOUNDS_ERROR
 
 class List(Value):
     def __init__(self, elements: list):
@@ -24,7 +24,7 @@ class List(Value):
             except:
                 return None, RunTimeError(
                     other.pos_start, other.pos_end,
-                    out_of_bounds,
+                    OUT_OF_BOUNDS_ERROR,
                     self.context
                 )
 
@@ -45,7 +45,7 @@ class List(Value):
             except:
                 return None, RunTimeError(
                     other.pos_start, other.pos_end,
-                    out_of_bounds,
+                    OUT_OF_BOUNDS_ERROR,
                     self.context
                 )
         

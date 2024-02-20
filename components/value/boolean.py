@@ -26,13 +26,10 @@ class Boolean(Value):
         
         return self.illegal_operation(other)
 
-    def notted(self):
-        return Boolean(True if self.value == 0 else False).set_context(self.context), None
-
     def is_true(self):
         return self.value is True
     
-    def notted(self, other):
+    def notted(self):
         return Boolean(True if self.value == 0 else False).set_context(self.context), None
 
     def copy(self):
