@@ -10,21 +10,21 @@ def tab_space(): return " " * 4
 # Set Function
 FUNC_SYNTAX_IN_LINE = f"{key("SETFUNCTION")} {FUNC_NAME_EXAMPLE}() {token("ARROW")} {EXPRESSION}"
 
-FUNC_SYNTAX = f"""{key("SETFUNCTION")} {FUNC_NAME_EXAMPLE} {{
+FUNC_SYNTAX = f"""{key("SETFUNCTION")} {FUNC_NAME_EXAMPLE}() {{
     {EXPRESSION}
 }}"""
 
 
 # If 
-IF_ELSEIF_ELSE_SYNTAX_IN_LINE = f"if {CONDITION} then {EXPRESSION} elseif {CONDITION} then {EXPRESSION} else {EXPRESSION}"
+IF_ELSEIF_ELSE_SYNTAX_IN_LINE = f"if {CONDITION} {{ {EXPRESSION} }} elseif {CONDITION} {{ {EXPRESSION} }} else {{ {EXPRESSION} }}"
 
-IF_ELSEIF_ELSE_SYNTAX = f"""if {CONDITION} then
+IF_ELSEIF_ELSE_SYNTAX = f"""if {CONDITION} {{
     {EXPRESSION}
-elseif then
+}} else if {{
     {EXPRESSION}
-else then
+}} else {{
     {EXPRESSION}
-end"""
+}}"""
 
 
 # For

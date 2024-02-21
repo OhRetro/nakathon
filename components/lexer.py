@@ -156,6 +156,11 @@ class Lexer:
             id_str += self.current_char
             self.advance()
             
+            if self.current_char == " " and id_str == Keyword.ELSE.value:
+                self.advance()
+                if self.current_char == "i":
+                    id_str += " "
+            
         tok_type = TokenType.KEYWORD if id_str in reversed_keyword_dict else TokenType.IDENTIFIER
         tok_value = reversed_keyword_dict[id_str] if id_str in reversed_keyword_dict else id_str
         

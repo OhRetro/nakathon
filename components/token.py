@@ -17,7 +17,7 @@ class Keyword(Enum):
     NOT = "not"
     IF = "if"
     THEN = "then"
-    ELSEIF = "elseif"
+    ELSEIF = "else if"
     ELSE = "else"
     IS = "is"
     
@@ -96,7 +96,7 @@ class Token:
         DebugMessage(f"Created {self}").display()
 
     def matches(self, type_: TokenType, value: Any = None):
-        return self.type == type_ and self.value == value
+        return (self.type == type_ and self.value == value) if value else (self.type == type_)
 
     def __repr__(self):
         strRepr = f"<Token:{self.type.name}"

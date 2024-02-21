@@ -195,13 +195,13 @@ list # -> [1, 2, 3, 4, 5, 6]
 2 == 3 || 10 != 9 # -> true
 
 # if, else if and else
-if <condition> then
+if <condition> {
     <expression>
-elseif then
+} else if {
     <expression>
-else then
+} else {
     <expression>
-end
+}
 
 ```
 

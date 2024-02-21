@@ -457,22 +457,26 @@ class Parser:
         res.register_advancement()
         self.advance()
             
-        if self.current_tok.type == TokenType.NEWLINE:
+        if self.current_tok.type == TokenType.LBRACE:
             res.register_advancement()
             self.advance()
+            
+            if self.current_tok.type == TokenType.NEWLINE:
+                res.register_advancement()
+                self.advance()
                 
             statements = res.register(self.statements())
             if res.error:
                 return res
             else_case = (statements, True)
 
-            if self.current_tok.matches(TokenType.KEYWORD, Keyword.END):
+            if self.current_tok.matches(TokenType.RBRACE):
                 res.register_advancement()
                 self.advance()
             else:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start, self.current_tok.pos_end,
-                    expected(Keyword.END)
+                    expected(TokenType.RBRACE)
                 ))
         else:
             expr = res.register(self.statement())
@@ -519,7 +523,7 @@ class Parser:
         if res.error:
             return res
 
-        if self.current_tok.matches(TokenType.KEYWORD, Keyword.THEN):
+        if self.current_tok.matches(TokenType.LBRACE):
             res.register_advancement()
             self.advance()
 
@@ -532,16 +536,32 @@ class Parser:
                 return res
             cases.append((condition, statements, True))
             
-            if self.current_tok.matches(TokenType.KEYWORD, Keyword.END):                
-                res.register_advancement()
-                self.advance()
-
+            if self.current_tok.matches(TokenType.RBRACE):
+                if keyword_tok.matches(TokenType.KEYWORD, Keyword.IF) or keyword_tok.matches(TokenType.KEYWORD, Keyword.ELSEIF):
+                    res.register_advancement()
+                    self.advance()
+                    
+                    all_cases = res.register(self.if_expr_elseif_or_else())
+                    if res.error:
+                        return res
+                    new_cases, else_case = all_cases
+                    cases.extend(new_cases)
+                    
+                elif keyword_tok.matches(TokenType.KEYWORD, Keyword.ELSE):                
+                    res.register_advancement()
+                    self.advance()
+                
+                else:
+                    return res.failure(InvalidSyntaxError(
+                        self.current_tok.pos_start, self.current_tok.pos_end,
+                        expected(Keyword.IF, Keyword.ELSEIF, Keyword.ELSE)
+                    ))
+                    
             else:
-                all_cases = res.register(self.if_expr_elseif_or_else())
-                if res.error:
-                    return res
-                new_cases, else_case = all_cases
-                cases.extend(new_cases)
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    expected(TokenType.RBRACE)
+                ))
         
         # Inline statements
         else:

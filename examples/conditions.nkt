@@ -1,20 +1,20 @@
 temp state1 3 = true
 temp state2 3 = true
 
-if state1 && state2 then
+if state1 && state2 {
     Print("State 1 is true")
     Print("State 2 is true") 
 
-elseif state1 then
+} else if state1 {
     Print("State 1 is true")
     Print("State 2 is false")
 
-elseif state2 then
+} else if state2 {
     Print("State 1 is false")
     Print("State 2 is true")
 
-else
+} else {
     Print("B: Neither of the two states is true")
-end
+}
 
 

@@ -1,7 +1,7 @@
 from sys import argv
 from components.wrapper import run, run_external
 
-VERSION = [1,0,0]
+VERSION = [1,1,0]
 fn = len(argv) > 1
 
 if not fn:
