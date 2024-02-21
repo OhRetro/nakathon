@@ -25,7 +25,7 @@ def build_src_and_output(command: str, show_output: bool = True):
     return f"{command} " + (f"# -> {command_result}" if show_output else "")
 
 content = f'''
-# Nakathon (WIP)
+# Nakathon
 
 An Interpreted Programming Language made with Python;  
 with the purpose of to learn and how an interpreted language works

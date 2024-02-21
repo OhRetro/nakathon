@@ -1,5 +1,5 @@
 
-# Nakathon (WIP)
+# Nakathon
 
 An Interpreted Programming Language made with Python;  
 with the purpose of to learn and how an interpreted language works
