@@ -2,80 +2,101 @@ from .utils.debug import DebugMessage
 from .value.value import Value
 
 debug_message = DebugMessage("", 0, 1)
+symbol_table_count = 0
 
 class SymbolTable:
     def __init__(self, parent = None):
+        global symbol_table_count
+        self.id = symbol_table_count
         self.symbols: dict[str, Value] = {}
         self.immutable_symbols: dict[str, Value] = {}
         self.temporary_symbols: dict[str, (Value, int)] = {}
-        self.scoped_symbols: dict[str, Value] = {} # WIP
+        self.scoped_symbols: dict[str, Value] = {}
         
         self.parent: SymbolTable = parent
         self.is_child = True if self.parent else False
+        symbol_table_count += 1
+    
+    def _exists(self, name: str, symbols_name: str, extra_condition: bool = True):
+        return name in getattr(self, symbols_name) and extra_condition
     
     def exists(self, name: str):
         exists = False
-        debug_message.set_message(f"Checking if symbol '{name}' exists")
+        debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: CHECKING")
+
+        symbols_list = [
+            ("symbols", 1),
+            ("immutable_symbols", 1),
+            ("temporary_symbols", 1),
+            ("scoped_symbols", not self.is_child)
+        ]
         
-        if name in self.symbols:
-            exists = True
-        elif name in self.immutable_symbols:
-            exists = True
-        elif name in self.temporary_symbols:
-            exists = True
-        elif name in self.scoped_symbols and not self.is_child:
-            exists = True
+        for symbols in symbols_list:
+            exists = self._exists(name, symbols[0], symbols[1])
+            if exists: break
             
-        if not exists:
+        if not exists and self.parent:
+            debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: CHECKING IN PARENT ST {self.parent.id}")
             exists = self.parent.exists(name)
         
-        debug_message.set_message(f"Symbol '{name}' exists? {exists}")
+        debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: {exists}")
+        return exists
+
+    def _is_immutable_check(self, name: str):
+        exists = self._exists(name, "immutable_symbols")
+        
+        if not exists and self.parent:
+            exists = self.parent._is_immutable_check(name)
+        
         return exists
     
-    def copy(self):
-        copy = SymbolTable()
-        copy.parent = self
-        return copy
-    
     def get(self, name: str):
-        debug_message.set_message(f"Getting the symbol '{name}'")
-        debug_message.set_message(f"Checking '{name}' in symbols")
+        debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': GET: CHECKING")
         value = self.symbols.get(name, None)
         
-        if value is None and name in self.immutable_symbols:
-            debug_message.set_message(f"Checking '{name}' in immutable_symbols")
-            value = self.immutable_symbols.get(name, None)
-        
-        elif value is None and name in self.temporary_symbols:
-            debug_message.set_message(f"Checking '{name}' in temporary_symbols")
-            value = self.temporary_symbols.get(name, None)[0]
+        if value is None:
+            if name in self.immutable_symbols:
+                value = self.immutable_symbols.get(name, None)
             
-            if value is not None:
-                new_lifetime = self.temporary_symbols[name][1] - 1 or 0
-                self.set_as_temp(name, value, new_lifetime)
+            elif name in self.temporary_symbols:
+                value = self.temporary_symbols.get(name, [None])[0]
                 
-        elif value is None and name in self.scoped_symbols and not self.is_child:
-            debug_message.set_message(f"Checking '{name}' in scoped_symbols")
-            value = self.scoped_symbols.get(name, None)
+                if value is not None:
+                    new_lifetime = self.temporary_symbols[name][1] - 1 or 0
+                    self.set_as_temp(name, value, new_lifetime)
+                    
+            elif name in self.scoped_symbols and not self.is_child:
+                value = self.scoped_symbols.get(name, None)
 
-        if value is None and self.parent:
-            debug_message.set_message(f"Not present for this symbol table for '{name}', Getting from parent")
-            value = self.parent.get(name)
+            if value is None and self.parent:
+                debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': GET: CHECKING IN PARENT ST {self.parent.id}")
+                value = self.parent.get(name)
                 
         return value
     
-    def _set_check(self, name: str, extra_condition: bool = True):
-        dont_exists = name not in self.immutable_symbols and extra_condition
-        return dont_exists
-    
-    def _set_symbol(self, name: str, value: Value, symbol_name: str, extra_condition: bool = True):
-        debug_message.set_message(f"Setting symbol '{name}'")
-        immutable_of_same_name_dont_exists = self._set_check(name, extra_condition)
-        if immutable_of_same_name_dont_exists:
-            getattr(self, symbol_name)[name] = value
 
-        debug_message.set_message(f"Setting symbol '{name}' successful? {immutable_of_same_name_dont_exists}")
-        return immutable_of_same_name_dont_exists 
+    def _set_symbol(self, name: str, value: Value, symbol_name: str, **kwargs):
+        success = False
+        debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': SET: CHECKING")
+        
+        if not self._is_immutable_check(name):
+            if symbol_name.startswith("temp"):
+                lifetime = kwargs.get("lifetime", 0)
+                if not self._exists(name, symbol_name):
+                    if lifetime > 0:
+                        getattr(self, symbol_name)[name] = (value, lifetime+1)
+                        success =  True
+                else:
+                    if lifetime <= 0: self.remove(name)
+                    else:
+                        getattr(self, symbol_name)[name] = (value, lifetime)
+                        success = True
+            else:
+                getattr(self, symbol_name)[name] = value
+                success = True
+
+        debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': SET: SUCCESSFUL: {success}")
+        return success
    
     def set(self, name: str, value: Value):
         return self._set_symbol(name, value, "symbols")
@@ -84,23 +105,13 @@ class SymbolTable:
         return self._set_symbol(name, value, "immutable_symbols")
         
     def set_as_temp(self, name: str, value: Value, lifetime: int):
-        if name not in self.immutable_symbols and name not in self.temporary_symbols:
-            if lifetime <= 0: return False
-            self.temporary_symbols[name] = (value, lifetime+1)
-            return True
-        
-        else:
-            if lifetime <= 0:
-                self.remove(name)
-                return False
-            
-            self.temporary_symbols[name] = (value, lifetime)
-            return True
+        return self._set_symbol(name, value, "temporary_symbols", lifetime = lifetime)
         
     def set_as_scoped(self, name: str, value: Value):
         return self._set_symbol(name, value, "scoped_symbols")
         
     def remove(self, name: str):
+        debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': DELETE")
         if name in self.symbols:
             del self.symbols[name]
         elif name in self.immutable_symbols:
@@ -109,3 +120,9 @@ class SymbolTable:
             del self.temporary_symbols[name]
         elif name in self.scoped_symbols:
             del self.scoped_symbols[name]
+            
+    def copy(self):
+        copy = SymbolTable()
+        copy.parent = self
+        return copy
+            

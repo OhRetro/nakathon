@@ -50,6 +50,9 @@ const variable_name = <value> or <expression>
 # There's also temporary variable using the 'temp' keyword
 temp variable_name <value-of-type-int> = <value> or <expression>
 
+# You can also set a scoped, or local, variable using the 'local' keyword
+local variable_name = <value> or <expression>
+
 # To define & execute a function follow the syntax below
 func FunctionName() -> <expression>
 

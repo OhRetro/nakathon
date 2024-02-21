@@ -1,5 +1,5 @@
 from components.token import Keyword
-from components.utils.syntax_template import (WHILE_SYNTAX, FOR_SYNTAX, IF_ELSEIF_ELSE_SYNTAX, FUNC_SYNTAX,
+from components.utils.syntax_template import (WHILE_SYNTAX, FOR_SYNTAX, IF_ELSEIF_ELSE_SYNTAX, FUNC_SYNTAX, LOCAL_SYNTAX,
                                              VAR_SYNTAX, CONST_SYNTAX, TEMP_SYNTAX, VALUE_EXPRESSION, FUNC_SYNTAX_IN_LINE)
 from components.wrapper import run
 
@@ -73,6 +73,9 @@ The Variable/Function name can be in ``snake_case``, ``camelCase`` or ``PascalCa
 
 # There's also temporary variable using the 'temp' keyword
 {TEMP_SYNTAX}
+
+# You can also set a scoped, or local, variable using the 'local' keyword
+{LOCAL_SYNTAX}
 
 # To define & execute a function follow the syntax below
 {FUNC_SYNTAX_IN_LINE}
