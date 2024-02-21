@@ -1,8 +1,18 @@
 
-# Nakathon
+<img 
+    style="display: block; 
+           margin-left: auto;
+           margin-right: auto;
+           width: 100%;"
+    src="./logo_parody.png" 
+    alt="Logo Parody of Python">
+</img>
 
-An Interpreted Programming Language made with Python;  
-with the purpose of to learn and how an interpreted language works
+<p style="text-align: center;">
+An Interpreted Programming Language made with Python; <br>
+with the purpose of to learn and how an interpreted language works.<br>
+Syntax based on other languages like JavaScript, C# and etc.
+</p>
 
 ## Usage
 
@@ -203,20 +213,9 @@ for <variable> = <start-value> to <end-value> step <step-value> {
     <expression>
 }
 
-# Example of how for loop can be used
-var i = 0
-var numbers = for i = 0 to 10 { i }
-numbers 
-
 # To use the While Loop follow the syntax below
 while <condition> {
     <expression>
 }
 
-# Example of how while loop can be used
-var i = 0
-var numbers = while i < 10 { 
-    var i = i + 1 
-}
-numbers 
 ```

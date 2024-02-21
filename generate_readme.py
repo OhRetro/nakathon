@@ -25,10 +25,20 @@ def build_src_and_output(command: str, show_output: bool = True):
     return f"{command} " + (f"# -> {command_result}" if show_output else "")
 
 content = f'''
-# Nakathon
+<img 
+    style="display: block; 
+           margin-left: auto;
+           margin-right: auto;
+           width: 100%;"
+    src="./logo_parody.png" 
+    alt="Logo Parody of Python">
+</img>
 
-An Interpreted Programming Language made with Python;  
-with the purpose of to learn and how an interpreted language works
+<p style="text-align: center;">
+An Interpreted Programming Language made with Python; <br>
+with the purpose of to learn and how an interpreted language works.<br>
+Syntax based on other languages like JavaScript, C# and etc.
+</p>
 
 ## Usage
 
@@ -219,20 +229,9 @@ ListExtend()
 # To use the For Loop follow the syntax below
 {FOR_SYNTAX}
 
-# Example of how for loop can be used
-{build_src_and_output(f"""{Keyword.SETVAR.value} i = 0
-{Keyword.SETVAR.value} numbers = for i = 0 to 10 {{ i }}
-numbers""", 0)}
-
 # To use the While Loop follow the syntax below
 {WHILE_SYNTAX}
 
-# Example of how while loop can be used
-{build_src_and_output(f"""{Keyword.SETVAR.value} i = 0
-{Keyword.SETVAR.value} numbers = while i < 10 {{ 
-    {Keyword.SETVAR.value} i = i + 1 
-}}
-numbers""", 0)}
 ```
 '''
 

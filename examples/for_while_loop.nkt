@@ -1,0 +1,12 @@
+var i = 0
+var numbers = for i = 0 to 10 {i}
+Print(numbers)
+
+var i = 0
+var numbers = []
+
+while i < 20 {
+    var i = i + 1
+    ListAppend(numbers, i)
+}
+Print(numbers)
