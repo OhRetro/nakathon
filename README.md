@@ -4,7 +4,7 @@
            margin-left: auto;
            margin-right: auto;
            width: 100%;"
-    src="./logo_parody.png" 
+    src="./logo_parody_v2.png" 
     alt="Logo Parody of Python">
 </img>
 
@@ -13,8 +13,6 @@ An Interpreted Programming Language made with Python; <br>
 with the purpose of to learn and how an interpreted language works.<br>
 Syntax based on other languages like JavaScript, C# and etc.
 </p>
-
-## COMMENTS CRASHES THE INTERPRETER, DON'T USE THEM
 
 ## Usage
 
@@ -53,13 +51,11 @@ const variable_name = <value> or <expression>
 temp variable_name <value-of-type-int> = <value> or <expression>
 
 # To define & execute a function follow the syntax below
+func FunctionName() -> <expression>
+
 func FunctionName() {
     <expression>
 }
-
-# To set & execute a variable function follow the syntax below
-var varFunc = func () -> <expression> # -> Variable Function
-varFunc() # -> <value>
 
 ```
 

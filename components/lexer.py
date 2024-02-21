@@ -44,7 +44,10 @@ class Lexer:
             TokenType.EQUALS.value: self.make_equals, # Also checks for '=='
             TokenType.LT.value: self.make_less_than, # Also checks for '<='
             TokenType.GT.value: self.make_greater_than, # Also checks for '>='
-            TokenType.STRING.value: self.make_string,
+            TokenType.STRING.value: self.make_string
+        }
+        
+        not_a_token_tokens = {
             TokenType.COMMENT.value: self.skip_comment
         }
         
@@ -64,7 +67,10 @@ class Lexer:
 
             elif self.current_char in advanced_tokens:
                 tokens.append(advanced_tokens[self.current_char]())
-                
+
+            elif self.current_char in not_a_token_tokens:
+                not_a_token_tokens[self.current_char]()
+                            
             elif self.current_char == TokenType.NE.value[0]:
                 tok, error = self.make_not_equals()
                 if error: return [], error
@@ -213,7 +219,9 @@ class Lexer:
     def skip_comment(self):
         self.advance()
         
-        while self.current_char != "\n":
+        while self.current_char != TokenType.NEWLINE.value:
             self.advance()
             
+            if self.current_char is None: break
+
         self.advance()

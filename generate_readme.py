@@ -1,6 +1,6 @@
-from components.token import TokenType, Keyword
+from components.token import Keyword
 from components.utils.syntax_template import (WHILE_SYNTAX, FOR_SYNTAX, IF_ELSEIF_ELSE_SYNTAX, FUNC_SYNTAX,
-                                             VAR_SYNTAX, CONST_SYNTAX, TEMP_SYNTAX, VALUE_EXPRESSION, VALUE_OF)
+                                             VAR_SYNTAX, CONST_SYNTAX, TEMP_SYNTAX, VALUE_EXPRESSION, FUNC_SYNTAX_IN_LINE)
 from components.wrapper import run
 
 def generate_md_file(content):
@@ -28,7 +28,7 @@ content = f'''
            margin-left: auto;
            margin-right: auto;
            width: 100%;"
-    src="./logo_parody.png" 
+    src="./logo_parody_v2.png" 
     alt="Logo Parody of Python">
 </img>
 
@@ -37,8 +37,6 @@ An Interpreted Programming Language made with Python; <br>
 with the purpose of to learn and how an interpreted language works.<br>
 Syntax based on other languages like JavaScript, C# and etc.
 </p>
-
-## COMMENTS CRASHES THE INTERPRETER, DON'T USE THEM
 
 ## Usage
 
@@ -77,11 +75,9 @@ The Variable/Function name can be in ``snake_case``, ``camelCase`` or ``PascalCa
 {TEMP_SYNTAX}
 
 # To define & execute a function follow the syntax below
-{FUNC_SYNTAX}
+{FUNC_SYNTAX_IN_LINE}
 
-# To set & execute a variable function follow the syntax below
-{Keyword.SETVAR.value} varFunc = func () -> <expression> # -> Variable Function
-varFunc() # -> <value>
+{FUNC_SYNTAX}
 
 ```
 
