@@ -69,6 +69,9 @@ class TempVarAssignNode(VarAssignNode):
         super().__init__(var_name_tok, value_node)
         self.lifetime_tok = lifetime_tok
 
+class ScopedVarAssignNode(VarAssignNode):
+    def __init__(self, var_name_tok: Token, value_node: Node):
+        super().__init__(var_name_tok, value_node)
 
 class BinOpNode(Node):
     def __init__(self, left_node: Node, op_tok: Token, right_node: Node):

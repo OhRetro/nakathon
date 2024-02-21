@@ -5,7 +5,7 @@ from .value.list import List
 from .value.null import Null
 from .context import Context
 from .node import (Node, NumberNode, StringNode,
-                   ListNode, VarAccessNode, VarAssignNode,
+                   ListNode, VarAccessNode, VarAssignNode, ScopedVarAssignNode,
                    ImmutableVarAssignNode, TempVarAssignNode, BinOpNode,
                    UnaryOpNode, IfNode, ForNode, WhileNode,
                    FuncDefNode, CallNode, ReturnNode, ContinueNode, BreakNode)
@@ -112,6 +112,21 @@ class Interpreter:
         else: return res.failure(RunTimeError(
             node.pos_start, node.pos_end,
             CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR.format(temp_name),
+            context
+        ))
+
+    def visit_ScopedVarAssignNode(self, node: ScopedVarAssignNode, context: Context):
+        res = RunTimeResult()
+        scoped_name = node.var_name_tok.value
+        value = res.register(self.visit(node.value_node, context))
+        if res.should_return(): return res
+
+        success = context.symbol_table.set_as_scoped(scoped_name, value)
+        
+        if success: return res.success(value)
+        else: return res.failure(RunTimeError(
+            node.pos_start, node.pos_end,
+            CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR.format(scoped_name),
             context
         ))
         

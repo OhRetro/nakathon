@@ -3,7 +3,7 @@ from .error import InvalidSyntaxError
 from .token import Token, TokenType, Keyword
 from .node import (NumberNode, StringNode, BinOpNode,
                    UnaryOpNode, VarAccessNode, VarAssignNode,
-                   ImmutableVarAssignNode, TempVarAssignNode,
+                   ImmutableVarAssignNode, TempVarAssignNode, ScopedVarAssignNode,
                    CallNode, ForNode, FuncDefNode, IfNode,
                    WhileNode, ListNode, ReturnNode, ContinueNode, BreakNode)
 from .utils.expected import expected
@@ -161,7 +161,8 @@ class Parser:
 
         if (self.current_tok.matches(TokenType.KEYWORD, Keyword.SETVAR) or
             self.current_tok.matches(TokenType.KEYWORD, Keyword.SETIMMUTABLEVAR) or
-                self.current_tok.matches(TokenType.KEYWORD, Keyword.SETTEMPVAR)):
+            self.current_tok.matches(TokenType.KEYWORD, Keyword.SETTEMPVAR) or
+            self.current_tok.matches(TokenType.KEYWORD, Keyword.SETSCOPEDVAR)):
             var_keyword_tok = self.current_tok
 
             res.register_advancement()
@@ -207,6 +208,8 @@ class Parser:
                 node_ret = ImmutableVarAssignNode(var_name, expr)
             elif var_keyword_tok.value == Keyword.SETTEMPVAR:
                 node_ret = TempVarAssignNode(var_name, expr, temp_lifetime)
+            elif var_keyword_tok.value == Keyword.SETSCOPEDVAR:
+                node_ret = ScopedVarAssignNode(var_name, expr)
 
             return res.success(node_ret)
 

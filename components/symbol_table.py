@@ -15,12 +15,14 @@ class SymbolTable:
         
         self.parent: SymbolTable = parent
         self.is_child = True if self.parent else False
+        self.is_parent = not self.is_child
+        
         symbol_table_count += 1
     
     def _exists(self, name: str, symbols_name: str, extra_condition: bool = True):
         return name in getattr(self, symbols_name) and extra_condition
     
-    def exists(self, name: str):
+    def exists(self, name: str, calling_from_parent: bool = False):
         exists = False
         debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: CHECKING")
 
@@ -28,7 +30,7 @@ class SymbolTable:
             ("symbols", 1),
             ("immutable_symbols", 1),
             ("temporary_symbols", 1),
-            ("scoped_symbols", not self.is_child)
+            ("scoped_symbols", not calling_from_parent)
         ]
         
         for symbols in symbols_list:
@@ -37,7 +39,7 @@ class SymbolTable:
             
         if not exists and self.parent:
             debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: CHECKING IN PARENT ST {self.parent.id}")
-            exists = self.parent.exists(name)
+            exists = self.parent.exists(name, True)
         
         debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: {exists}")
         return exists
@@ -50,7 +52,7 @@ class SymbolTable:
         
         return exists
     
-    def get(self, name: str):
+    def get(self, name: str, calling_from_parent: bool = False):
         debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': GET: CHECKING")
         value = self.symbols.get(name, None)
         
@@ -65,12 +67,12 @@ class SymbolTable:
                     new_lifetime = self.temporary_symbols[name][1] - 1 or 0
                     self.set_as_temp(name, value, new_lifetime)
                     
-            elif name in self.scoped_symbols and not self.is_child:
+            elif name in self.scoped_symbols and not calling_from_parent:
                 value = self.scoped_symbols.get(name, None)
 
             if value is None and self.parent:
                 debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': GET: CHECKING IN PARENT ST {self.parent.id}")
-                value = self.parent.get(name)
+                value = self.parent.get(name, True)
                 
         return value
     
