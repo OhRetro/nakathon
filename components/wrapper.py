@@ -12,6 +12,7 @@ global_symbol_table = SymbolTable()
 global_symbol_table.set_as_immutable("null", Null.null)
 global_symbol_table.set_as_immutable("false", Boolean.false)
 global_symbol_table.set_as_immutable("true", Boolean.true)
+
 global_symbol_table.set_as_immutable("Print", BuiltInFunction.print)
 global_symbol_table.set_as_immutable("ToString", BuiltInFunction.print_ret)
 global_symbol_table.set_as_immutable("InputString", BuiltInFunction.input)
@@ -28,7 +29,7 @@ global_symbol_table.set_as_immutable("ListLen", BuiltInFunction.len)
 global_symbol_table.set_as_immutable("Run", BuiltInFunction.run)
 
 def run(fn: str, text: str, context_name: str = "<Program>"):
-    debug_message = DebugMessage("", 0)
+    debug_message = DebugMessage("")
     
     # Generate tokens
     lexer = Lexer(fn, text)

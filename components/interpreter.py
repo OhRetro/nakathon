@@ -71,11 +71,18 @@ class Interpreter:
         res = RunTimeResult()
         var_name = node.var_name_tok.value
         value = res.register(self.visit(node.value_node, context))
+        
         if res.should_return():
             return res
 
-        context.symbol_table.set(var_name, value)
-        return res.success(value)
+        success = context.symbol_table.set(var_name, value)
+        
+        if success: return res.success(value)
+        else: return res.failure(RunTimeError(
+            node.pos_start, node.pos_end,
+            CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR.format(var_name),
+            context
+        ))
     
     def visit_ImmutableVarAssignNode(self, node: ImmutableVarAssignNode, context: Context):
         res = RunTimeResult()

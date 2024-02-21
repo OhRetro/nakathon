@@ -74,6 +74,9 @@ InputNumber()
 # Clear, used to clear the terminal
 Clear()
 
+# To Functions, used to convert a value into a string
+ToString(<value> or <expression>)
+
 # Is Functions, used to know if the inputed value is that data type
 IsNumber(<value> or <expression>)
 IsString(<value> or <expression>)

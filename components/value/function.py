@@ -1,4 +1,5 @@
 from os import system as os_system, name as os_name
+from enum import Enum
 from .value import Value
 from .number import Number
 from .boolean import Boolean
@@ -11,6 +12,10 @@ from ..runtime import RunTimeResult
 from ..error import RunTimeError
 from ..symbol_table import SymbolTable
 
+class BuiltInFunctionNames(Enum):
+    PRINT = "Print"
+    INPUTSTRING = "InputString"
+    INPUTNUMBER = "InputNumber"
 
 class BaseFunction(Value):
     def __init__(self, name: str):
@@ -289,7 +294,7 @@ class BuiltInFunction(BaseFunction):
         return RunTimeResult().success(Null.null)
         
     execute_run.arg_names = ["fn"]
-    
+
 BuiltInFunction.print       = BuiltInFunction("print")
 BuiltInFunction.print_ret   = BuiltInFunction("print_ret")
 BuiltInFunction.input       = BuiltInFunction("input_string")

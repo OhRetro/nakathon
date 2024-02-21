@@ -2,7 +2,6 @@ from .value import Value
 from .number import Number
 from ..token import TokenType
 
-
 class String(Value):
     def __init__(self, value: str):
         super().__init__(value)
