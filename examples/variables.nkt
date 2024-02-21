@@ -1,13 +1,16 @@
 # Variable
 var hello_world = "Hello, world!" 
+
 Print(hello_world)
 
 # Constant Variable
 const pi = 3.14
+
 Print(pi)
 
 # Temporary Variable
 temp bye_bye 2 = "I'm going to stop existing once I'm referenced 2 times"
+
 Print(bye_bye)
 Print(bye_bye)
 
@@ -16,3 +19,17 @@ Print(bye_bye)
 # The number after the 'temp_var' is the lifetime of the variable, 
 # every time it's referenced the lifetime decreases with the exception of the initial reference
 # which is while initializing the variable
+
+# Local Variable
+local local_var = "Hello"
+
+Print(local_var)
+
+func hi() {
+    local local_var = "hi"
+    
+    Print(local_var)
+}
+
+hi()
+Print(local_var)

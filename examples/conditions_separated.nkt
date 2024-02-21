@@ -12,6 +12,3 @@ if state2 {
 if not state1 && not state2 {
     Print("Neither of the two states is true")
 }
-
-
-

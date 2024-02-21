@@ -14,7 +14,5 @@ if state1 && state2 {
     Print("State 2 is true")
 
 } else {
-    Print("B: Neither of the two states is true")
+    Print("Neither of the two states is true")
 }
-
-
