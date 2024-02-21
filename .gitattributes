@@ -1,0 +1,3 @@
+*.nkt linguist-language = Nakathon
+*.nkt linguist-detectable = true
+*.nkt linguist-documentation = false
