@@ -1,8 +1,6 @@
 from components.token import TokenType, Keyword
-from components.utils.syntax_template import (WHILE_SYNTAX_IN_LINE, FOR_SYNTAX_IN_LINE,
-                                             WHILE_SYNTAX, FOR_SYNTAX,
-                                             IF_ELSEIF_ELSE_SYNTAX_IN_LINE, IF_ELSEIF_ELSE_SYNTAX,
-                                             FUNC_SYNTAX_IN_LINE, FUNC_SYNTAX)
+from components.utils.syntax_template import (WHILE_SYNTAX, FOR_SYNTAX, IF_ELSEIF_ELSE_SYNTAX, FUNC_SYNTAX,
+                                             VAR_SYNTAX, CONST_SYNTAX, TEMP_SYNTAX, VALUE_EXPRESSION, VALUE_OF)
 from components.wrapper import run
 
 def generate_md_file(content):
@@ -40,6 +38,8 @@ with the purpose of to learn and how an interpreted language works.<br>
 Syntax based on other languages like JavaScript, C# and etc.
 </p>
 
+## COMMENTS CRASHES THE INTERPRETER, DON'T USE THEM
+
 ## Usage
 
 To Run on the shell run the following command: `python nakathon.py`  
@@ -50,14 +50,12 @@ To Run an external file run the following command: `python nakathon.py *file*.nk
 ```py
 # int
 1
--1
 
 # float
 1.0
--1.0
 
 # string
-"Hello, World!"
+"String"
 
 # list
 []
@@ -70,20 +68,13 @@ The Variable/Function name can be in ``snake_case``, ``camelCase`` or ``PascalCa
 
 ```py
 # To set & refer a variable follow the syntax below
-{build_src_and_output(f'{Keyword.SETVAR.value} var_name = "Any of the Data types"')}
-{build_src_and_output("var_name")}
+{VAR_SYNTAX}
 
 # You can also set a immutable, also known as a constant, variable using the 'const' keyword
-{build_src_and_output(f"{Keyword.SETIMMUTABLEVAR.value} pi = 3.14")}
+{CONST_SYNTAX}
 
 # There's also temporary variable using the 'temp' keyword
-{build_src_and_output(f'{Keyword.SETTEMPVAR.value} temp_var 2 = "I\'m going to stop existing once I\'m referenced 2 times"', 0)}
-{build_src_and_output("temp_var")}
-{build_src_and_output("temp_var")}
-{build_src_and_output("temp_var")}
-# The number after the 'temp_var' is the lifetime of the variable, 
-# every time it's referenced the lifetime decreases with the exception of the initial reference
-# which is while initializing the variable
+{TEMP_SYNTAX}
 
 # To define & execute a function follow the syntax below
 {FUNC_SYNTAX}
@@ -98,30 +89,27 @@ varFunc() # -> <value>
 
 ```py
 # Print, used to print the value inside the function
-{build_src_and_output('Print("Hello, world!")')}
+Print({VALUE_EXPRESSION})
 
 # InputString, used to get user input text
-InputString() # -> <what the user typed>
+InputString()
 
 # InputNumber, used to get user input number, either int or float
-InputNumber() # -> <what the user typed>
+InputNumber()
 
 # Clear, used to clear the terminal
-Clear() # -> null
-
-# To Functions, used to convert values into another value type
-{build_src_and_output("ToString(1)")}
+Clear()
 
 # Is Functions, used to know if the inputed value is that data type
-{build_src_and_output("IsNumber(1.1)")}
-{build_src_and_output('IsString("hi")')}
-{build_src_and_output("IsList([])")}
-{build_src_and_output("IsFunction(Print)")}
+IsNumber({VALUE_EXPRESSION})
+IsString({VALUE_EXPRESSION})
+IsList({VALUE_EXPRESSION})
+IsFunction({VALUE_EXPRESSION})
 
 # List Functions, used to alter a list type (examples are down below)
-ListAppend()
-ListPop()
-ListExtend()
+ListAppend(list, value)
+ListPop(list, index)
+ListExtend(list, list)
 
 ```
 
@@ -154,11 +142,10 @@ ListExtend()
 ### String Methods
 
 ```py
-# string concat
-{build_src_and_output('"Hello, " + "world!"')}
+# string concatenation
+{build_src_and_output('"Hello," + "world!"')}
 
-# string repeat
-{build_src_and_output('"Hello, world!" * 2')}
+{build_src_and_output('"Hello, world! " * 2')}
 
 ```
 

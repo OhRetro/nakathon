@@ -14,6 +14,8 @@ with the purpose of to learn and how an interpreted language works.<br>
 Syntax based on other languages like JavaScript, C# and etc.
 </p>
 
+## COMMENTS CRASHES THE INTERPRETER, DON'T USE THEM
+
 ## Usage
 
 To Run on the shell run the following command: `python nakathon.py`  
@@ -24,14 +26,12 @@ To Run an external file run the following command: `python nakathon.py *file*.nk
 ```py
 # int
 1
--1
 
 # float
 1.0
--1.0
 
 # string
-"Hello, World!"
+"String"
 
 # list
 []
@@ -44,23 +44,16 @@ The Variable/Function name can be in ``snake_case``, ``camelCase`` or ``PascalCa
 
 ```py
 # To set & refer a variable follow the syntax below
-var var_name = "Any of the Data types" # -> "Any of the Data types"
-var_name # -> "Any of the Data types"
+var variable_name = <value> or <expression>
 
 # You can also set a immutable, also known as a constant, variable using the 'const' keyword
-const pi = 3.14 # -> 3.14
+const variable_name = <value> or <expression>
 
 # There's also temporary variable using the 'temp' keyword
-temp temp_var 2 = "I'm going to stop existing once I'm referenced 2 times" 
-temp_var # -> "I'm going to stop existing once I'm referenced 2 times"
-temp_var # -> "I'm going to stop existing once I'm referenced 2 times"
-temp_var # -> Runtime Error: 'temp_var' Is not defined
-# The number after the 'temp_var' is the lifetime of the variable, 
-# every time it's referenced the lifetime decreases with the exception of the initial reference
-# which is while initializing the variable
+temp variable_name <value-of-type-int> = <value> or <expression>
 
 # To define & execute a function follow the syntax below
-func FunctionName {
+func FunctionName() {
     <expression>
 }
 
@@ -74,30 +67,27 @@ varFunc() # -> <value>
 
 ```py
 # Print, used to print the value inside the function
-Print("Hello, world!") # -> null
+Print(<value> or <expression>)
 
 # InputString, used to get user input text
-InputString() # -> <what the user typed>
+InputString()
 
 # InputNumber, used to get user input number, either int or float
-InputNumber() # -> <what the user typed>
+InputNumber()
 
 # Clear, used to clear the terminal
-Clear() # -> null
-
-# To Functions, used to convert values into another value type
-ToString(1) # -> "1"
+Clear()
 
 # Is Functions, used to know if the inputed value is that data type
-IsNumber(1.1) # -> true
-IsString("hi") # -> true
-IsList([]) # -> true
-IsFunction(Print) # -> true
+IsNumber(<value> or <expression>)
+IsString(<value> or <expression>)
+IsList(<value> or <expression>)
+IsFunction(<value> or <expression>)
 
 # List Functions, used to alter a list type (examples are down below)
-ListAppend()
-ListPop()
-ListExtend()
+ListAppend(list, value)
+ListPop(list, index)
+ListExtend(list, list)
 
 ```
 
@@ -130,11 +120,10 @@ ListExtend()
 ### String Methods
 
 ```py
-# string concat
-"Hello, " + "world!" # -> "Hello, world!"
+# string concatenation
+"Hello," + "world!" # -> "Hello,world!"
 
-# string repeat
-"Hello, world!" * 2 # -> "Hello, world!Hello, world!"
+"Hello, world! " * 2 # -> "Hello, world! Hello, world! "
 
 ```
 

@@ -1,10 +1,13 @@
 # Placeholders
+VALUE = "<value>"
 CONDITION = "<condition>"
 EXPRESSION = "<expression>"
 START_VALUE = "<start-value>"
 END_VALUE = "<end-value>"
 STEP_VALUE = "<step-value>"
 VARIABLE = "<variable>"
+VALUE_EXPRESSION = "<value> or <expression>"
+VALUE_OF = "<value-of-type-{}>"
 
 # Templates
 VAR_NAME_EXAMPLE = "variable_name"

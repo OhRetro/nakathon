@@ -1,4 +1,4 @@
-note: this file may become outdated
+note: this file may become outdated over the course of the project, oy may be deleted in the future
 
 statements	: NEWLINE* statement (NEWLINE+ statement)*
 
