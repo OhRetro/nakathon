@@ -1,5 +1,5 @@
 from .utils.debug import DebugMessage
-from .value.value import Value
+from .values.value import Value
 
 debug_message = DebugMessage("").set_auto_display(True)
 symbol_table_count = 0

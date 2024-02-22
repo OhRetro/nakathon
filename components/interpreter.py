@@ -1,8 +1,8 @@
-from .value.number import Number
-from .value.function import Function
-from .value.string import String
-from .value.list import List
-from .value.null import Null
+from .values.number import Number
+from .values.function import Function
+from .values.string import String
+from .values.list import List
+from .values.null import Null
 from .context import Context
 from .node import (Node, NumberNode, StringNode,
                    ListNode, VarAccessNode, VarAssignNode, ScopedVarAssignNode,

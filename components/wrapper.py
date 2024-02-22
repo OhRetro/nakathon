@@ -3,9 +3,9 @@ from components.parser import Parser
 from components.interpreter import Interpreter
 from components.context import Context
 from components.symbol_table import SymbolTable
-from components.value.null import Null
-from components.value.boolean import Boolean
-from components.value.function import BuiltInFunction
+from components.values.null import Null
+from components.values.boolean import Boolean
+from components.values.function import BuiltInFunction
 from components.utils.debug import DebugMessage
 
 global_symbol_table = SymbolTable()
