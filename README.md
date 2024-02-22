@@ -219,7 +219,7 @@ if <condition> {
 
 ```py
 # To use the For Loop follow the syntax below
-for <variable> = <start-value> to <end-value> step <step-value> {
+for <variable> = <start-value> ; <end-value> ; <step-value> {
     <expression>
 }
 
