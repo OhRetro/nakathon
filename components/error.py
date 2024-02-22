@@ -9,7 +9,7 @@ class Error:
         self.error_name = error_name
         self.details = details
 
-    def as_string(self):
+    def as_string(self) -> str:
         result = f"{self.error_name}: {self.details}\n"
         result += f"    File {self.pos_start.fn}, line {self.pos_start.ln + 1}"
         result += "\n\n" + \
@@ -17,7 +17,7 @@ class Error:
                                self.pos_start, self.pos_end)
         return result
 
-    def as_string_simple(self):
+    def as_string_simple(self) -> str:
         return f"{self.error_name}: {self.details}"
 
     def __repr__(self) -> str:
@@ -47,7 +47,7 @@ class RunTimeError(Error):
         super().__init__(pos_start, pos_end, "Runtime Error", details)
         self.context = context
 
-    def as_string(self):
+    def as_string(self) -> str:
         result = self.generate_traceback()
         result += f"{self.error_name}: {self.details}"
         result += "\n\n" + \
@@ -55,7 +55,7 @@ class RunTimeError(Error):
                                self.pos_start, self.pos_end)
         return result
 
-    def generate_traceback(self):
+    def generate_traceback(self) -> str:
         result = ""
         pos: Position = self.pos_start
         ctx = self.context

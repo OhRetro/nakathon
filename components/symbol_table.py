@@ -1,7 +1,7 @@
 from .utils.debug import DebugMessage
 from .value.value import Value
 
-debug_message = DebugMessage("", 0, 1)
+debug_message = DebugMessage("").set_auto_display(True)
 symbol_table_count = 0
 
 class SymbolTable:
@@ -18,13 +18,14 @@ class SymbolTable:
         self.is_parent = not self.is_child
         
         symbol_table_count += 1
+        debug_message.set_message(f"ST {self.id}: CREATED")
     
     def _exists(self, name: str, symbols_name: str, extra_condition: bool = True):
         return name in getattr(self, symbols_name) and extra_condition
     
     def exists(self, name: str, calling_from_parent: bool = False):
         exists = False
-        debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: CHECKING")
+        if not calling_from_parent: debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: CHECKING")
 
         symbols_list = [
             ("symbols", 1),
@@ -41,7 +42,7 @@ class SymbolTable:
             debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: CHECKING IN PARENT ST {self.parent.id}")
             exists = self.parent.exists(name, True)
         
-        debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: {exists}")
+        if not calling_from_parent: debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: {exists}")
         return exists
 
     def _is_immutable_check(self, name: str):
@@ -53,7 +54,7 @@ class SymbolTable:
         return exists
     
     def get(self, name: str, calling_from_parent: bool = False):
-        debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': GET: CHECKING")
+        if not calling_from_parent: debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': GET: CHECKING")
         value = self.symbols.get(name, None)
         
         if value is None:

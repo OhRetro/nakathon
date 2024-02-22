@@ -63,7 +63,6 @@ class BaseFunction(Value):
 
     def __repr__(self):
         return f"<{self.__class__.__qualname__}:{self.name}>"
-    #({", ".join(self.arg_names)})
     
 class Function(BaseFunction):
     def __init__(self, name: str, body_node: Node, arg_names: list[str] = [], should_auto_return: bool = False):
@@ -95,7 +94,6 @@ class Function(BaseFunction):
         copy.set_context(self.context)
         return copy
     
-    
 class BuiltInFunction(BaseFunction):
     def __init__(self, name: str):
         self.name = name or "<anonymous>"
@@ -120,19 +118,19 @@ class BuiltInFunction(BaseFunction):
         raise Exception(f"No execute_{self.name} method defined")
     
     def copy(self):
-        copy = BuiltInFunction(self.name)
+        copy = self.__class__(self.name)
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy
-    
+
     def execute_print(self, exec_ctx: Context):
-        print(str(exec_ctx.symbol_table.get("value")))
+        print(exec_ctx.symbol_table.get("value").__print_repr__())
         return RunTimeResult().success(Null.null)
-    execute_print.arg_names = ["value"]
-    
-    def execute_print_ret(self, exec_ctx: Context):
-        return RunTimeResult().success(String(str(exec_ctx.symbol_table.get("value"))))
-    execute_print_ret.arg_names = ["value"]
+    execute_print.arg_names = ["value"]   
+      
+    def execute_to_string(self, exec_ctx: Context):
+        return RunTimeResult().success(String(exec_ctx.symbol_table.get("value").__print_repr__()))
+    execute_to_string.arg_names = ["value"]
     
     def execute_input_string(self, exec_ctx: Context):
         text = input()
@@ -292,11 +290,10 @@ class BuiltInFunction(BaseFunction):
             ))
             
         return RunTimeResult().success(Null.null)
-        
     execute_run.arg_names = ["fn"]
 
 BuiltInFunction.print       = BuiltInFunction("print")
-BuiltInFunction.print_ret   = BuiltInFunction("print_ret")
+BuiltInFunction.to_string   = BuiltInFunction("to_string")
 BuiltInFunction.input       = BuiltInFunction("input_string")
 BuiltInFunction.input_int   = BuiltInFunction("input_number")
 BuiltInFunction.clear       = BuiltInFunction("clear")

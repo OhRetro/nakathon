@@ -1,3 +1,6 @@
+if __name__ != "__main__":
+    quit()
+
 from sys import argv
 from components.wrapper import run, run_external
 
@@ -19,6 +22,7 @@ if not is_running_a_script and not theres_args:
                 print(repr(result.elements[0]))
             else:
                 print(repr(result))
+                
 elif is_running_a_script:
     result, error = run_external(argv[1])
         

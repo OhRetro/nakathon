@@ -24,5 +24,6 @@ class DebugMessage:
     
     def set_auto_display(self, enabled):
         self.auto_display = enabled
+        return self
     
 

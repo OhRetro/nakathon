@@ -13,8 +13,7 @@ class Node:
         self.should_return_null = should_return_null
 
         self.display = self.tok
-
-        DebugMessage(f"Created {self}").display()
+        DebugMessage(f"NODE: CREATED: {self}").display()
 
     def __repr__(self):
         return f"<{self.__class__.__name__}:{self.display}>"
@@ -37,7 +36,7 @@ class ListNode(Node):
         self.pos_start = pos_start
         self.pos_end = pos_end
         
-        DebugMessage(f"Created {self}").display()
+        DebugMessage(f"NODE: CREATED: {self}").display()
         
         #super().__init__()
     def __repr__(self):

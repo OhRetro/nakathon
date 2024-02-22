@@ -14,7 +14,7 @@ global_symbol_table.set_as_immutable("false", Boolean.false)
 global_symbol_table.set_as_immutable("true", Boolean.true)
 
 global_symbol_table.set_as_immutable("Print", BuiltInFunction.print)
-global_symbol_table.set_as_immutable("ToString", BuiltInFunction.print_ret)
+global_symbol_table.set_as_immutable("ToString", BuiltInFunction.to_string)
 global_symbol_table.set_as_immutable("InputString", BuiltInFunction.input)
 global_symbol_table.set_as_immutable("InputNumber", BuiltInFunction.input_int)
 global_symbol_table.set_as_immutable("Clear", BuiltInFunction.clear)
@@ -27,6 +27,8 @@ global_symbol_table.set_as_immutable("ListPop", BuiltInFunction.pop)
 global_symbol_table.set_as_immutable("ListExtend", BuiltInFunction.extend)
 global_symbol_table.set_as_immutable("ListLen", BuiltInFunction.len)
 global_symbol_table.set_as_immutable("Run", BuiltInFunction.run)
+
+#global_symbol_table.set_as_immutable("te", builtin_func)
 
 def run(fn: str, text: str, context_name: str = "<Program>"):
     debug_message = DebugMessage("")

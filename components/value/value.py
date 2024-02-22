@@ -3,15 +3,14 @@ from ..utils.strings_template import ILLEGAL_OPERATION_ERROR, NO_METHOD_DEFINED_
 from typing import Any
 
 class Value:
-   
     def __init__(self, value: Any = None):
         self.value = value
         self.set_pos()
         self.set_context()
         
-        DebugMessage(f"Created {self}").display()
+        DebugMessage(f"VALUE: CREATED: {self}").display()
 
-    def set_pos(self, pos_start=None, pos_end=None):
+    def set_pos(self, pos_start = None, pos_end = None):
         self.pos_start = pos_start
         self.pos_end = pos_end
         return self
@@ -84,6 +83,9 @@ class Value:
     def illegal_operation(self, other = None):
         if not other: other = self
         return None, self.illegal_operation_error(other)
+    
+    def __print_repr__(self) -> str:
+        return repr(self)
 
     def __repr__(self):
         return f"<{self.__class__.__name__}:{self.value}>"

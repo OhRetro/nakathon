@@ -93,7 +93,7 @@ class Token:
         if pos_end:
             self.pos_end = pos_end
             
-        DebugMessage(f"Created {self}").display()
+        DebugMessage(f"TOKEN: CREATED: {self}").display()
 
     def matches(self, type_: TokenType, value: Any = None):
         return (self.type == type_ and self.value == value) if value else (self.type == type_)
