@@ -1,7 +1,7 @@
 from sys import argv
 from components.wrapper import run, run_external
 
-VERSION = [1,1,1]
+VERSION = [1,2,0]
 
 def start():
     theres_args = len(argv) > 1

@@ -8,6 +8,9 @@ from ..utils.strings_template import DIVISION_BY_ZERO_ERROR
 class Number(Value):
     def __init__(self, value: int|float):
         super().__init__(value)
+        
+        self.is_int = isinstance(value, int)
+        self.is_float = isinstance(value, float)
 
     def set_pos(self, pos_start=None, pos_end=None):
         self.pos_start = pos_start
@@ -44,7 +47,10 @@ class Number(Value):
                     DIVISION_BY_ZERO_ERROR,
                     self.context
                 )
-            return Number(self.value / other.value).set_context(self.context), None
+                
+            ret_value = self.value / other.value
+            
+            return Number(int(ret_value) if str(ret_value).endswith(".0") else ret_value).set_context(self.context), None
         
         return self.illegal_operation(other)
 

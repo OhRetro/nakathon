@@ -16,11 +16,6 @@ Syntax based on other languages like JavaScript, C# and etc.
 
 ## Usage
 
-### Requirements (If running directly using Python)
-
-- Python 3.12.2
-- Packages (pip install -r requirements.txt)
-
 ### Running Nakathon
 
 in a future, executables will be available
@@ -86,8 +81,8 @@ func FunctionName() {
 # Print, used to print the value inside the function
 Print(<value> or <expression>)
 
-# InputString, used to get user input text
-InputString()
+# Input, used to get user input text
+Input()
 
 # InputNumber, used to get user input number, either int or float
 InputNumber()
@@ -103,11 +98,14 @@ IsNumber(<value> or <expression>)
 IsString(<value> or <expression>)
 IsList(<value> or <expression>)
 IsFunction(<value> or <expression>)
+IsBoolean(<value> or <expression>)
+IsNull(<value> or <expression>)
 
 # List Functions, used to alter a list type (examples are down below)
 ListAppend(list, value)
 ListPop(list, index)
 ListExtend(list, list)
+ListLen(list)
 
 ```
 
@@ -124,7 +122,7 @@ ListExtend(list, list)
 2 * 10 # -> 20
 
 # Division
-10 / 2 # -> 5.0
+10 / 2 # -> 5
 
 # Power
 2 ** 10 # -> 1024
@@ -158,11 +156,11 @@ ListAppend(list, 1) # -> [1]
 list # -> [1]
 
 # list removing item by it's index
-["Hello!", 43, -20, 3.14] - 2 # -> [Hello!, 43, 3.14]
+["Hello!", 43, -20, 3.14] - 2 # -> ["Hello!", 43, 3.14]
 # or
-var list = ["Hello!", 43, -20, 3.14] # -> [Hello!, 43, -20, 3.14]
+var list = ["Hello!", 43, -20, 3.14] # -> ["Hello!", 43, -20, 3.14]
 ListPop(list, 2) # -> -20
-list # -> [Hello!, 43, 3.14]
+list # -> ["Hello!", 43, 3.14]
 
 # list merge with another list
 [1 , 2, 3] * [4, 5, 6] # -> [1, 2, 3, 4, 5, 6]
@@ -173,6 +171,9 @@ list # -> [1, 2, 3, 4, 5, 6]
 
 # list returning a item by it's index
 ["Hello!", "this", "is", "a", "list"] / 1 # -> "this"
+
+# list getting list's length
+ListLen(["Hello!", "this", "is", "a", "list"]) # -> 5
 
 ```
 

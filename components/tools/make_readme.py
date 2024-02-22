@@ -3,6 +3,12 @@ from ..utils.syntax_template import (WHILE_SYNTAX, FOR_SYNTAX, IF_ELSEIF_ELSE_SY
                                              VAR_SYNTAX, CONST_SYNTAX, TEMP_SYNTAX, VALUE_EXPRESSION, FUNC_SYNTAX_IN_LINE)
 from ..wrapper import run
 
+"""
+### Requirements (If running directly using Python)
+
+- Python 3.12.2
+- Packages (pip install -r requirements.txt)
+"""
 def generate_md_file(content):
     try:
         with open("README.md", "w", encoding="utf-8") as file:
@@ -39,11 +45,6 @@ Syntax based on other languages like JavaScript, C# and etc.
 </p>
 
 ## Usage
-
-### Requirements (If running directly using Python)
-
-- Python 3.12.2
-- Packages (pip install -r requirements.txt)
 
 ### Running Nakathon
 
@@ -108,8 +109,8 @@ The Variable/Function name can be in ``snake_case``, ``camelCase`` or ``PascalCa
 # Print, used to print the value inside the function
 Print({VALUE_EXPRESSION})
 
-# InputString, used to get user input text
-InputString()
+# Input, used to get user input text
+Input()
 
 # InputNumber, used to get user input number, either int or float
 InputNumber()
@@ -125,11 +126,14 @@ IsNumber({VALUE_EXPRESSION})
 IsString({VALUE_EXPRESSION})
 IsList({VALUE_EXPRESSION})
 IsFunction({VALUE_EXPRESSION})
+IsBoolean({VALUE_EXPRESSION})
+IsNull({VALUE_EXPRESSION})
 
 # List Functions, used to alter a list type (examples are down below)
 ListAppend(list, value)
 ListPop(list, index)
 ListExtend(list, list)
+ListLen(list)
 
 ```
 
@@ -195,6 +199,9 @@ ListExtend(list, list)
 
 # list returning a item by it's index
 {build_src_and_output('["Hello!", "this", "is", "a", "list"] / 1')}
+
+# list getting list's length
+{build_src_and_output('ListLen(["Hello!", "this", "is", "a", "list"])')}
 
 ```
 
