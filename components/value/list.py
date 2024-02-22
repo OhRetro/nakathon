@@ -58,7 +58,7 @@ class List(Value):
         return copy
 
     def __str__(self):
-        return f"{', '.join([str(x) for x in self.elements])}"
+        return self.__repr__() #f"{', '.join([str(x) for x in self.elements])}"
     
     def __repr__(self):
         return f"{TokenType.LSQUARE.value}{', '.join([str(x) for x in self.elements])}{TokenType.RSQUARE.value}"

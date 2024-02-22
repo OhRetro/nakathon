@@ -616,10 +616,10 @@ class Parser:
         if res.error:
             return res
 
-        if not self.current_tok.matches(TokenType.KEYWORD, Keyword.TO):
+        if not self.current_tok.type == TokenType.SEMICOLON:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, self.current_tok.pos_end,
-                expected(Keyword.TO)
+                expected(TokenType.SEMICOLON)
             ))
 
         res.register_advancement()
@@ -629,7 +629,7 @@ class Parser:
         if res.error:
             return res
 
-        if self.current_tok.matches(TokenType.KEYWORD, Keyword.STEP):
+        if self.current_tok.type == TokenType.SEMICOLON:
             res.register_advancement()
             self.advance()
 

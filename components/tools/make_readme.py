@@ -1,7 +1,7 @@
-from components.token import Keyword
-from components.utils.syntax_template import (WHILE_SYNTAX, FOR_SYNTAX, IF_ELSEIF_ELSE_SYNTAX, FUNC_SYNTAX, LOCAL_SYNTAX,
+from ..token import Keyword
+from ..utils.syntax_template import (WHILE_SYNTAX, FOR_SYNTAX, IF_ELSEIF_ELSE_SYNTAX, FUNC_SYNTAX, LOCAL_SYNTAX,
                                              VAR_SYNTAX, CONST_SYNTAX, TEMP_SYNTAX, VALUE_EXPRESSION, FUNC_SYNTAX_IN_LINE)
-from components.wrapper import run
+from ..wrapper import run
 
 def generate_md_file(content):
     try:
@@ -28,7 +28,7 @@ content = f'''
            margin-left: auto;
            margin-right: auto;
            width: 100%;"
-    src="./logo_parody_v2.png" 
+    src="https://ohretro.vercel.app/images/nakathon/logo.png" 
     alt="Logo Parody of Python">
 </img>
 
@@ -40,8 +40,26 @@ Syntax based on other languages like JavaScript, C# and etc.
 
 ## Usage
 
-To Run on the shell run the following command: `python nakathon.py`  
-To Run an external file run the following command: `python nakathon.py *file*.nk`
+### Requirements (If running directly using Python)
+
+- Python 3.12.2
+- Packages (pip install -r requirements.txt)
+
+### Running Nakathon
+
+in a future, executables will be available
+
+```py
+# To run Nakathon you use the following command
+python nakathon.py # Windows
+python3 nakathon.py # Linux, Mac
+
+# Just like python, if you run as is, you will go to the shell
+# but if you put file that ends with .nkt, Nakathon will run it
+python nakathon.py .\\examples\\inputs.ntk # Windows
+python3 nakathon.py .\\examples\\inputs.ntk # Linux, Mac
+
+```
 
 ### Data Types
 
@@ -224,4 +242,8 @@ ListExtend(list, list)
 ```
 '''
 
-generate_md_file(content)
+def make_readme():
+    generate_md_file(content)
+    
+if __name__ == "__main__":
+    make_readme()
