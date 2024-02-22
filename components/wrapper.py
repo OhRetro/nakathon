@@ -8,6 +8,8 @@ from components.values.boolean import Boolean
 from components.values.function import BuiltInFunction
 from components.utils.debug import DebugMessage
 
+debug_message = DebugMessage("")
+
 global_symbol_table = SymbolTable()
 
 global_symbol_table.set_as_immutable("null", Null.null)
@@ -40,14 +42,13 @@ global_symbol_table.set_as_immutable("RandomInt", BuiltInFunction.random_int)
 global_symbol_table.set_as_immutable("RandomFloat", BuiltInFunction.random_float)
 
 global_symbol_table.set_as_immutable("Run", BuiltInFunction.run)
+global_symbol_table.set_as_immutable("Exit", BuiltInFunction.exit)
 
 #global_symbol_table.set_as_immutable("te", builtin_func)
 
-def run(fn: str, text: str, context_name: str = "<Program>"):
-    debug_message = DebugMessage("")
-    
+def run(fn: str, text: str, context_name: str, calling_external_code: bool = False):  
     # Generate tokens
-    lexer = Lexer(fn, text)
+    lexer = Lexer(fn, text, calling_external_code)
     tokens, error = lexer.make_tokens()
     debug_message.set_message(f"Lexer generated:\n\tTokens: {tokens}\n\tError: {error}\n").display()
     if error: return None, error
@@ -65,10 +66,3 @@ def run(fn: str, text: str, context_name: str = "<Program>"):
     result = interpreter.visit(ast.node, context)
     debug_message.set_message(f"Interpreter generated:\n\tValue: {result.value}\n\tError: {result.error}\n").display()
     return result.value, result.error
-
-def run_external(fn: str):
-    fn = fn.replace("\\", "/")
-    if not fn.endswith(".nkt"):
-        raise Exception("Script file extension must be .nk")    
-    
-    return run(fn, f"Run(\"{fn}\")", fn)

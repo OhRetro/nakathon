@@ -338,7 +338,7 @@ class BuiltInFunction(BaseFunction):
                 exec_ctx
             ))
 
-        _, error = run(fn, script)
+        _, error = run(fn, script, "<ShellRun>", True)
 
         if error:
             return RunTimeResult().failure(RunTimeError(
@@ -350,6 +350,17 @@ class BuiltInFunction(BaseFunction):
 
         return RunTimeResult().success(Null.null)
     execute_run.arg_names = ["fn"]
+    
+    def execute_exit(self, exec_ctx: Context):
+        code_number = exec_ctx.symbol_table.get("code_number")
+        if not isinstance(code_number, Number) or code_number.is_float:
+            return RunTimeResult().failure(RunTimeError(
+                self.pos_start, self.pos_end,
+                "Arg must be int",
+                exec_ctx
+            ))
+        return RunTimeResult().success(Number(code_number))
+    execute_exit.arg_names = ["code_number"]
 
 
 BuiltInFunction.print = BuiltInFunction("print")
@@ -378,3 +389,4 @@ BuiltInFunction.random_int = BuiltInFunction("random_int")
 BuiltInFunction.random_float = BuiltInFunction("random_float")
 
 BuiltInFunction.run = BuiltInFunction("run")
+BuiltInFunction.exit = BuiltInFunction("exit")

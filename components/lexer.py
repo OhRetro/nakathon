@@ -1,4 +1,4 @@
-from .error import IllegalCharError, ExpectedCharError
+from .error import IllegalCharError, ExpectedCharError, Error
 from .token import TokenType, Token, Keyword
 from .position import Position
 from string import ascii_letters
@@ -9,11 +9,15 @@ SPECIAL_CHARACTERS = "&|"
 LETTERS_DIGITS = LETTERS + DIGITS
 
 class Lexer:
-    def __init__(self, fn: str, text: str):
+    def __init__(self, fn: str, text: str, calling_external_code: bool):
         self.fn = fn
         self.text = text
         self.pos = Position(-1, 0, -1, fn, text)
         self.current_char: str = None
+        
+        if not fn.endswith(".nkt") and calling_external_code:
+            return None, Error(self.pos, self.pos, "Script file extension must be .nk")
+          
         self.advance()
 
     def advance(self):

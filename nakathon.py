@@ -1,5 +1,5 @@
 from sys import argv
-from components.wrapper import run, run_external
+from components.wrapper import run
 
 VERSION = [1,2,0]
 
@@ -12,24 +12,29 @@ def start():
         while True:
             text = input("Nakathon Shell > ")
             if not text.strip(): continue 
-            result, error = run("<stdin>", text)
+            result, error = run("<stdin>", text, "<Shell>")
                 
             if error: print(error.as_string())
-            elif result: 
+            elif result and not text.startswith("Exit(") and not text.endswith(")"): 
                 if len(result.elements) == 1:
                     print(repr(result.elements[0]))
                 else:
                     print(repr(result))
+            elif result and text.startswith("Exit(") and text.endswith(")"):
+                exit(result.elements[0])
                     
     elif is_running_a_script:
-        result, error = run_external(argv[1])
-            
+        fn = argv[1]
+        try:
+            with open(fn, "r") as f:
+                script = f.read()
+        except Exception as e:
+            raise Exception(
+                f"Failed to load script \"{fn}\"\n" + str(e)
+            )
+
+        _, error = run(fn, script, "<External>", True)
         if error: print(error.as_string())
-        elif result: 
-            if len(result.elements) == 1:
-                print(repr(result.elements[0]))
-            else:
-                print(repr(result))
                 
     elif not is_running_a_script and theres_args:
         if "--readme" in argv:
