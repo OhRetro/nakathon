@@ -134,20 +134,29 @@ class Lexer:
         self.advance()
 
         escape_chars = {
-            "n": "\n",
-            "t": "\t"
+            "n": "\n",   # Newline
+            "t": "\t",   # Tab
+            "\\": "\\",  # Backslash
+            "\"": "\"",  # Double quote
+            "r": "\r",   # Carriage return
+            "b": "\b",   # Backspace
+            "f": "\f",   # Form feed
+            "0": "\0",   # Null character
+            "v": "\v"   # Vertical tab
         }
 
         while self.current_char != None and (self.current_char != TokenType.STRING.value or escape_char):
             if escape_char:
                 string += escape_chars.get(self.current_char, self.current_char)
+                escape_char = False
             else:
                 if self.current_char == "\\":
                     escape_char = True
                 else:
                     string += self.current_char
+                    
             self.advance()
-            escape_char = False
+            
 
         self.advance()
         return Token(TokenType.STRING, string, pos_start, self.pos)
