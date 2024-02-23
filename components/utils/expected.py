@@ -1,7 +1,7 @@
 from ..token import TokenType, Keyword
 from string import ascii_letters
 
-def expected(*token_type_or_keyword: TokenType|Keyword):
+def expected(*token_type_or_keyword: TokenType | Keyword):
     error_message_str = "Expected "
     expected_chars = token_type_or_keyword
     
@@ -23,7 +23,7 @@ def expected(*token_type_or_keyword: TokenType|Keyword):
             
         exp_value = expected_chars[-2].value
         error_message_str += f"'{exp_value}' or " if exp_value[0] not in ascii_letters else f"{exp_value} or "
-        exp_value = expected_chars[1].value
+        exp_value = expected_chars[-1].value
         error_message_str += f"'{exp_value}'" if exp_value[0] not in ascii_letters else f"{exp_value}"
     
     else:

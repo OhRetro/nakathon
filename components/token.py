@@ -74,8 +74,11 @@ class TokenType(Enum):
     COMMA = ","
     ARROW = "->"
     SEMICOLON = ";"
+    COLON = ":"
     NEWLINE = "\n"
     COMMENT = "#"
+    
+    GENERIC = "GENERIC"
     
     EOF = "EOF"
 
@@ -100,8 +103,10 @@ class Token:
 
     def __repr__(self):
         strRepr = f"<Token:{self.type.name}"
-        if self.value:
+        if self.value and not isinstance(self.value, type):
             strRepr += f":{self.value}>" if not isinstance(self.value, Enum) else f":{self.value.name}>"
+        elif self.value and isinstance(self.value, type):
+            strRepr += f":{self.value.__name__}>"
         else:
             strRepr += ">"
         return strRepr

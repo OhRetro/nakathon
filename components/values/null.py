@@ -1,6 +1,5 @@
 from .value import Value
 
-
 class Null(Value):
     def __init__(self):
         super().__init__(None)

@@ -5,7 +5,7 @@ VERSION = [1,2,0]
 
 def start():
     theres_args = len(argv) > 1
-    is_running_a_script = theres_args and not argv[1].startswith("--") and argv[1].endswith(".nkt")
+    is_running_a_script = theres_args and not argv[1].startswith("--")
 
     if not is_running_a_script and not theres_args:
         print(f"Welcome to Nakathon v{".".join([str(x) for x in VERSION])}")
@@ -15,13 +15,11 @@ def start():
             result, error = run("<stdin>", text, "<Shell>")
                 
             if error: print(error.as_string())
-            elif result and not text.startswith("Exit(") and not text.endswith(")"): 
+            elif result: 
                 if len(result.elements) == 1:
                     print(repr(result.elements[0]))
                 else:
                     print(repr(result))
-            elif result and text.startswith("Exit(") and text.endswith(")"):
-                exit(result.elements[0])
                     
     elif is_running_a_script:
         fn = argv[1]

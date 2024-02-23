@@ -14,10 +14,7 @@ class Lexer:
         self.text = text
         self.pos = Position(-1, 0, -1, fn, text)
         self.current_char: str = None
-        
-        if not fn.endswith(".nkt") and calling_external_code:
-            return None, Error(self.pos, self.pos, "Script file extension must be .nk")
-          
+        self.calling_external_code = calling_external_code
         self.advance()
 
     def advance(self):
@@ -27,6 +24,10 @@ class Lexer:
 
     def make_tokens(self):
         tokens = []
+        
+        if not self.fn.endswith(".nkt") and self.calling_external_code:
+            return None, Error(self.pos, self.pos, "LoadingError", "Script file extension must be .nkt")
+        
         basic_tokens = {
             TokenType.PLUS.value: TokenType.PLUS,
             TokenType.DIV.value: TokenType.DIV,
@@ -39,7 +40,8 @@ class Lexer:
             TokenType.RBRACE.value: TokenType.RBRACE,
             TokenType.COMMA.value: TokenType.COMMA,
             TokenType.NEWLINE.value: TokenType.NEWLINE,
-            TokenType.SEMICOLON.value: TokenType.SEMICOLON
+            TokenType.SEMICOLON.value: TokenType.SEMICOLON,
+            TokenType.COLON.value: TokenType.COLON
         }
         
         advanced_tokens = {
