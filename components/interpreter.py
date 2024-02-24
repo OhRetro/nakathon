@@ -1,3 +1,4 @@
+from .values.value import Value
 from .values.number import Number
 from .values.function import Function
 from .values.string import String
@@ -293,13 +294,18 @@ class Interpreter:
                 node.pos_start, node.pos_end)
         )
 
+    # TODO: PROBLEM HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
     def visit_FuncDefNode(self, node: FuncDefNode, context: Context):
         res = RunTimeResult()
 
         func_name = node.var_name_tok.value if node.var_name_tok else None
         body_node = node.body_node
+        
         arg_names = [arg_name.value for arg_name in node.arg_name_toks]
-        func_value = Function(func_name, body_node, arg_names, node.should_auto_return).set_context(
+        arg_types = [Value for _ in node.arg_name_toks]
+        arg_default_values = [] #None for _ in node.arg_name_toks
+        
+        func_value = Function(func_name, body_node, arg_names, arg_types, arg_default_values, node.should_auto_return).set_context(
             context).set_pos(node.pos_start, node.pos_end)
 
         if node.var_name_tok:

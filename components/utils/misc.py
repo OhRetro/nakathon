@@ -1,0 +1,36 @@
+def convert_to_snake_case(input_string: str) -> str:
+    result = ""
+    for char in input_string:
+        if char.isupper():
+            result += "_" + char.lower()
+        else:
+            result += char
+
+    if result.startswith("_"):
+        result = result[1:]
+    return result
+
+def index_exists(list_or_tuple: list | tuple, index: int) -> bool:
+    try:
+        _ = list_or_tuple[index]
+        return True
+    except IndexError:
+        return False
+                    
+def try_get(list_or_tuple: list | tuple, index: int, default = None):
+    if index_exists(list_or_tuple, index):
+        return list_or_tuple[index]
+    return default
+
+def try_set(list_or_tuple: list | tuple, index: int, value = None):
+    if index_exists(list_or_tuple, index):
+        list_or_tuple[index] = value
+        return True
+    return False
+
+def try_del(list_or_tuple: list | tuple, index):
+    if index_exists(list_or_tuple, index):
+        del list_or_tuple[index]
+        return True
+    return False 
+        
