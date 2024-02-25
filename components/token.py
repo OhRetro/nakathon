@@ -73,6 +73,7 @@ class TokenType(Enum):
     ISNULL = "?="
     
     # Other
+    DOT = "."
     COMMA = ","
     ARROW = "->"
     SEMICOLON = ";"

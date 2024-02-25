@@ -110,10 +110,10 @@ The Variable/Function name can be in ``snake_case``, ``camelCase`` or ``PascalCa
 Print({VALUE_EXPRESSION})
 
 # Input, used to get user input text
-Input()
+Input(prompt: String = "> ")
 
 # InputNumber, used to get user input number, either int or float
-InputNumber()
+InputNumber(prompt: String = "> ")
 
 # Clear, used to clear the terminal
 Clear()
@@ -130,10 +130,19 @@ IsBoolean({VALUE_EXPRESSION})
 IsNull({VALUE_EXPRESSION})
 
 # List Functions, used to alter a list type (examples are down below)
-ListAppend(list, value)
-ListPop(list, index)
-ListExtend(list, list)
-ListLen(list)
+ListAppend(list: List, value: Value)
+ListPop(list: List, index: Number)
+ListExtend(list: List, list: List)
+ListLen(list: List)
+
+# Random Functions
+Random()
+RandomInt(min: Number, max: Number)
+RandomFloat(min: Number, max: Number)
+
+# Misc Functions
+Run()
+Exit(code_number: Number = 0)
 
 ```
 

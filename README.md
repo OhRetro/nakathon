@@ -82,10 +82,10 @@ func FunctionName() {
 Print(<value> or <expression>)
 
 # Input, used to get user input text
-Input()
+Input(prompt: String = "> ")
 
 # InputNumber, used to get user input number, either int or float
-InputNumber()
+InputNumber(prompt: String = "> ")
 
 # Clear, used to clear the terminal
 Clear()
@@ -102,10 +102,19 @@ IsBoolean(<value> or <expression>)
 IsNull(<value> or <expression>)
 
 # List Functions, used to alter a list type (examples are down below)
-ListAppend(list, value)
-ListPop(list, index)
-ListExtend(list, list)
-ListLen(list)
+ListAppend(list: List, value: Value)
+ListPop(list: List, index: Number)
+ListExtend(list: List, list: List)
+ListLen(list: List)
+
+# Random Functions
+Random()
+RandomInt(min: Number, max: Number)
+RandomFloat(min: Number, max: Number)
+
+# Misc Functions
+Run()
+Exit(code_number: Number = 0)
 
 ```
 

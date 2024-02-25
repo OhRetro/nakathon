@@ -1,10 +1,7 @@
-from .values.value import Value
-from .values.number import Number
-from .values.function import Function
-from .values.string import String
-from .values.list import List
-from .values.null import Null
-from .values.all import make_value, make_value_type
+from .values.all import (
+    Number, Function, String, List, Null,
+    make_value, make_value_type
+)
 from .context import Context
 from .node import (Node, NumberNode, StringNode,
                    ListNode, VarAccessNode, VarAssignNode, ScopedVarAssignNode,

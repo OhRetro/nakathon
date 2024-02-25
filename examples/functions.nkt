@@ -14,3 +14,9 @@ Print(Foo())
 Print(Bar())
 Print(baz())
 Print(qux())
+
+func RandomMath(base: Number) {
+    return base + Random() + RandomInt(-base, base)
+}
+
+Print(RandomMath(0))

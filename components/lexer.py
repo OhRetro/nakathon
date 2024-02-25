@@ -41,7 +41,8 @@ class Lexer:
             TokenType.COMMA.value: TokenType.COMMA,
             TokenType.NEWLINE.value: TokenType.NEWLINE,
             TokenType.SEMICOLON.value: TokenType.SEMICOLON,
-            TokenType.COLON.value: TokenType.COLON
+            TokenType.COLON.value: TokenType.COLON,
+            TokenType.DOT.value: TokenType.DOT,
         }
         
         advanced_tokens = {
@@ -53,7 +54,7 @@ class Lexer:
             TokenType.STRING.value: self.make_string
         }
         
-        not_a_token_tokens = {
+        no_return_tokens = {
             TokenType.COMMENT.value: self.skip_comment
         }
         
@@ -74,8 +75,8 @@ class Lexer:
             elif self.current_char in advanced_tokens:
                 tokens.append(advanced_tokens[self.current_char]())
 
-            elif self.current_char in not_a_token_tokens:
-                not_a_token_tokens[self.current_char]()
+            elif self.current_char in no_return_tokens:
+                no_return_tokens[self.current_char]()
                             
             elif self.current_char == TokenType.NE.value[0]:
                 tok, error = self.make_not_equals()

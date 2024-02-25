@@ -3,8 +3,7 @@ from components.parser import Parser
 from components.interpreter import Interpreter
 from components.context import Context
 from components.symbol_table import SymbolTable
-from components.values.boolean import Boolean
-from components.values.null import Null
+from components.values.all import Value, Boolean, Null
 from components.values.builtin_function import define_builtin_functions
 from components.utils.debug import DebugMessage
 
@@ -15,6 +14,9 @@ global_symbol_table.set_as_immutable("null", Null.null)
 global_symbol_table.set_as_immutable("false", Boolean.false)
 global_symbol_table.set_as_immutable("true", Boolean.true)
 define_builtin_functions(global_symbol_table)
+
+def set_global(name: str, value: Value):
+    global_symbol_table.set_as_immutable(name, value)
 
 def run(fn: str, text: str, context_name: str, calling_external_code: bool = False):  
     # Generate tokens

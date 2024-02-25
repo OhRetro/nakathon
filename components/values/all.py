@@ -4,6 +4,8 @@ from .string import String
 from .list import List
 from .boolean import Boolean
 from .null import Null
+from .function import Function
+from .builtin_function import BuiltInFunction
 
 def make_value_type(name: str):
     map = {
@@ -37,5 +39,7 @@ __all__ = [
     String,
     List,
     Boolean,
-    Null
+    Null,
+    Function,
+    BuiltInFunction
 ]

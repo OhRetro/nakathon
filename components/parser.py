@@ -1,6 +1,4 @@
 from typing import Callable
-
-from .values.value import Value
 from .error import InvalidSyntaxError
 from .token import Token, TokenType, Keyword
 from .node import (NumberNode, StringNode, BinOpNode,
@@ -886,7 +884,7 @@ class Parser:
         body = res.register(self.statements())
         if res.error:
             return res
-
+        
         if self.current_tok.type != TokenType.RBRACE:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, self.current_tok.pos_end,
