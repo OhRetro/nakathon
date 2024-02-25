@@ -3,6 +3,7 @@ from .position import Position
 from .symbol_table import SymbolTable
 
 context_count = 0
+debug_message = DebugMessage("", filename=__file__)
 
 class Context:
     def __init__(self, display_name: str, parent= None, parent_entry_pos: Position = None):
@@ -14,7 +15,7 @@ class Context:
         self.symbol_table: SymbolTable = None
         
         context_count += 1
-        DebugMessage(f"CONTEXT {self.id}: CREATED: {self.display_name}").display()
+        debug_message.set_message(f"CONTEXT {self.id}: CREATED: {self.display_name}").display()
         
     def __repr__(self) -> str:
         return f"<Context:{self.display_name}, Parent:{self.parent}>"

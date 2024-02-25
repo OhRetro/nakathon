@@ -33,4 +33,7 @@ def try_del(list_or_tuple: list | tuple, index):
         del list_or_tuple[index]
         return True
     return False 
+
+def remove_none_elements(list: list) -> list:
+    return [item for item in list if item is not None]
         

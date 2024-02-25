@@ -3,6 +3,8 @@ from typing import Any
 from .position import Position
 from .utils.debug import DebugMessage
 
+debug_message = DebugMessage("", filename=__file__)
+
 class Keyword(Enum):
     # Variables and Methods/Functions
     SETVAR = "var"
@@ -96,7 +98,7 @@ class Token:
         if pos_end:
             self.pos_end = pos_end
             
-        DebugMessage(f"TOKEN: CREATED: {self}").display()
+        debug_message.set_message(f"TOKEN: CREATED: {self}").display()
 
     def matches(self, type_: TokenType, value: Any = None):
         return (self.type == type_ and self.value == value) if value else (self.type == type_)

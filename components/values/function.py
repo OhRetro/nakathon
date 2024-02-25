@@ -5,10 +5,10 @@ from ..context import Context
 from ..runtime import RunTimeResult
 from ..error import RunTimeError
 from ..symbol_table import SymbolTable
-from ..utils.misc import index_exists, try_get, try_set, try_del
+from ..utils.misc import index_exists, try_get, try_set, remove_none_elements
 from ..utils.debug import DebugMessage
 
-debug_message = DebugMessage("", 1)
+debug_message = DebugMessage("", filename=__file__)
 
 class BaseFunction(Value):
     def __init__(self, name: str, display_name: str = None):
@@ -26,7 +26,7 @@ class BaseFunction(Value):
 
     def check_args(self, arg_names: list[str], arg_values: list[Value], arg_types: list[Value], arg_default_values: list[Value]):
         res = RunTimeResult()
-        # TODO: PROBLEM HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
         for i in range(len(arg_names)):
             if try_get(arg_values, i) is not None:
                 if not isinstance(try_get(arg_values, i), arg_types[i]):
@@ -35,11 +35,20 @@ class BaseFunction(Value):
                         f"Argument {i} '{arg_names[i]}' in '{self._get_name()}' must be an type of '{arg_types[i].__qualname__}' but got '{type(arg_values[i]).__qualname__}'",
                         self.context
                     ))
-            elif try_get(arg_values, i) is None:
-                #try_del(arg_values, i)
-                if index_exists(arg_values, i):
-                    del arg_values[i]
-                    
+
+        _last = None
+        for default in arg_default_values:
+            if default is not None and _last is None:
+                _last = default
+            elif default is None and _last is not None:
+                return res.failure(RunTimeError(
+                    self.pos_start, self.pos_end,
+                    f"An Argument without a default value was after an Argument with a default value",
+                    self.context
+                ))         
+            
+        arg_values = remove_none_elements(arg_values)
+                         
         if len(arg_values) > len(arg_names):
             return res.failure(RunTimeError(
                 self.pos_start, self.pos_end,
@@ -54,7 +63,6 @@ class BaseFunction(Value):
                 self.context
             ))
              
-
         return res.success(None)
 
     def populate_args(self, arg_names: list[str], arg_values: list[Value], arg_types: list[Value], arg_default_values: list[Value], exec_ctx: Context):
@@ -71,7 +79,7 @@ class BaseFunction(Value):
     def check_and_populate_args(self, arg_names: list[str], arg_values: list[Value], arg_types: list[Value], arg_default_values: list[Value], exec_ctx: Context):
         res = RunTimeResult()
         
-        arg_values = fill_default_args(arg_values, arg_default_values, arg_names)
+        arg_values = make_out_args(arg_values, arg_default_values, arg_names, arg_types, self._get_name())
         
         res.register(self.check_args(arg_names, arg_values, arg_types, arg_default_values))
         if res.should_return() and res.func_return_value is None:
@@ -82,7 +90,6 @@ class BaseFunction(Value):
 
     def __repr__(self):
         return f"<{self.__class__.__qualname__}:{self.name}>"
-
 
 class Function(BaseFunction):
     def __init__(self, name: str, body_node: Node, arg_names: list[str], arg_types: list[Value], arg_default_values: list[Value], should_auto_return: bool = False):
@@ -99,12 +106,6 @@ class Function(BaseFunction):
         res = RunTimeResult()
         interpreter = Interpreter()
         exec_ctx = self.generate_new_context()
-
-        ##########
-        
-        #arg_values = fill_default_args(arg_values, self.arg_default_values, self.arg_names)
-            
-        ##########
         
         res.register(self.check_and_populate_args(
             self.arg_names, arg_values, self.arg_types, self.arg_default_values, exec_ctx))
@@ -133,24 +134,23 @@ def make_args_struct(name: str, type: Value = Value, default_value: Value = None
         "DEFAULT_VALUE": default_value
     }
     
-# TODO: PROBLEM HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-def fill_default_args(input_arg_values, default_arg_values, arg_names):
+def make_out_args(input_arg_values: list[Value], default_arg_values: list[Value], arg_names: list[str], arg_types: list[Value], function_name: str):
     debug_message.set_auto_display(True)
 
-    new_args = [None] * (len(default_arg_values) if input_arg_values == [] else len(input_arg_values))
+    new_args = [None] * len(arg_names)
     
-    debug_message.set_message(f"ARG VALUES: INPUT: {input_arg_values}")
-    debug_message.set_message(f"ARG VALUES: DEFAULT: {default_arg_values}")
-    debug_message.set_message(f"ARG VALUES: NAMESs: {arg_names}")
+    debug_message.set_message(f"{function_name}: ARG VALUES: NAMES: {arg_names}")
+    debug_message.set_message(f"{function_name}: ARG VALUES: TYPES: {[_type.__qualname__ for _type in arg_types]}")
+    debug_message.set_message(f"{function_name}: ARG VALUES: INPUT: {input_arg_values}")
+    debug_message.set_message(f"{function_name}: ARG VALUES: DEFAULT: {default_arg_values}")
     
     for i in range(len(new_args)):
-        if index_exists(default_arg_values, i):
+        if index_exists(default_arg_values, i) and try_get(default_arg_values, i):
             new_args[i] = default_arg_values[i]
             
-        if index_exists(input_arg_values, i) and try_get(new_args, i) == None:
+        if index_exists(input_arg_values, i) and try_get(new_args, i) is None:
             try_set(new_args, i, try_get(input_arg_values, i))
-            new_args[i] = input_arg_values[i]
     
-    debug_message.set_message(f"ARG VALUES: NEW: {new_args}")
+    debug_message.set_message(f"{function_name}: ARG VALUES: NEW: {new_args}")
 
     return new_args

@@ -2,6 +2,7 @@ from .token import Token
 from .utils.debug import DebugMessage
 from .position import Position
 
+debug_message = DebugMessage("", filename=__file__)
 
 class Node:
     def __init__(self, tok: Token = None, pos_start: Position = None, pos_end: Position = None, should_return_null: bool = False):
@@ -13,7 +14,7 @@ class Node:
         self.should_return_null = should_return_null
 
         self.display = self.tok
-        DebugMessage(f"NODE: CREATED: {self}").display()
+        debug_message.set_message(f"NODE: CREATED: {self}").display()
 
     def __repr__(self):
         return f"<{self.__class__.__name__}:{self.display}>"
@@ -36,7 +37,7 @@ class ListNode(Node):
         self.pos_start = pos_start
         self.pos_end = pos_end
         
-        DebugMessage(f"NODE: CREATED: {self}").display()
+        debug_message.set_message(f"NODE: CREATED: {self}").display()
         
         #super().__init__()
     def __repr__(self):
@@ -121,9 +122,11 @@ class WhileNode(Node):
 
 
 class FuncDefNode(Node):
-    def __init__(self, var_name_tok: Token, arg_name_toks: list[Token], body_node: Node, should_auto_return: bool):
+    def __init__(self, var_name_tok: Token, arg_name_toks: list[Token], arg_type_toks: list[Token], arg_default_value_toks: list[Token], body_node: Node, should_auto_return: bool):
         self.var_name_tok = var_name_tok
         self.arg_name_toks = arg_name_toks
+        self.arg_type_toks = arg_type_toks
+        self.arg_default_value_toks = arg_default_value_toks
         self.body_node = body_node
         self.should_auto_return = should_auto_return
         

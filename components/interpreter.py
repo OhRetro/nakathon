@@ -4,6 +4,7 @@ from .values.function import Function
 from .values.string import String
 from .values.list import List
 from .values.null import Null
+from .values.all import make_value, make_value_type
 from .context import Context
 from .node import (Node, NumberNode, StringNode,
                    ListNode, VarAccessNode, VarAssignNode, ScopedVarAssignNode,
@@ -294,7 +295,6 @@ class Interpreter:
                 node.pos_start, node.pos_end)
         )
 
-    # TODO: PROBLEM HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
     def visit_FuncDefNode(self, node: FuncDefNode, context: Context):
         res = RunTimeResult()
 
@@ -302,8 +302,8 @@ class Interpreter:
         body_node = node.body_node
         
         arg_names = [arg_name.value for arg_name in node.arg_name_toks]
-        arg_types = [Value for _ in node.arg_name_toks]
-        arg_default_values = [] #None for _ in node.arg_name_toks
+        arg_types = [make_value_type(arg_type.value) for arg_type in node.arg_type_toks]
+        arg_default_values = [make_value(arg_default_value.value) for arg_default_value in node.arg_default_value_toks]
         
         func_value = Function(func_name, body_node, arg_names, arg_types, arg_default_values, node.should_auto_return).set_context(
             context).set_pos(node.pos_start, node.pos_end)

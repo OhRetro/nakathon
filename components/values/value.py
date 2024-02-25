@@ -2,13 +2,15 @@ from ..utils.debug import DebugMessage
 from ..utils.strings_template import ILLEGAL_OPERATION_ERROR, NO_METHOD_DEFINED_ERROR
 from typing import Any
 
+debug_message = DebugMessage("", filename=__file__)
+
 class Value:
     def __init__(self, value: Any = None):
         self.value = value
         self.set_pos()
         self.set_context()
         
-        DebugMessage(f"VALUE: CREATED: {self}").display()
+        debug_message.set_message(f"VALUE: CREATED: {self}").display()
 
     def set_pos(self, pos_start = None, pos_end = None):
         self.pos_start = pos_start
@@ -89,3 +91,4 @@ class Value:
 
     def __repr__(self):
         return f"<{self.__class__.__name__}:{self.value}>"
+    

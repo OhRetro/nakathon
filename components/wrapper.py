@@ -8,6 +8,8 @@ from components.values.null import Null
 from components.values.builtin_function import define_builtin_functions
 from components.utils.debug import DebugMessage
 
+debug_message = DebugMessage("", filename=__file__)
+
 global_symbol_table = SymbolTable()
 global_symbol_table.set_as_immutable("null", Null.null)
 global_symbol_table.set_as_immutable("false", Boolean.false)
@@ -15,8 +17,6 @@ global_symbol_table.set_as_immutable("true", Boolean.true)
 define_builtin_functions(global_symbol_table)
 
 def run(fn: str, text: str, context_name: str, calling_external_code: bool = False):  
-    debug_message = DebugMessage("")
-
     # Generate tokens
     lexer = Lexer(fn, text, calling_external_code)
     tokens, error = lexer.make_tokens()

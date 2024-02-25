@@ -1,4 +1,6 @@
 from typing import Callable
+
+from .values.value import Value
 from .error import InvalidSyntaxError
 from .token import Token, TokenType, Keyword
 from .node import (NumberNode, StringNode, BinOpNode,
@@ -772,14 +774,33 @@ class Parser:
 
         res.register_advancement()
         self.advance()
+        
         arg_name_toks = []
+        arg_type_toks = []
+        arg_default_value_toks = []
+        
+        failsafe = -1
+        
+        while True:
+            failsafe += 1
+            if failsafe > 5 or self.current_tok.type == TokenType.RPAREN: break
+            
+            arg_name_set = False
 
-        if self.current_tok.type == TokenType.IDENTIFIER:
-            arg_name_toks.append(self.current_tok)
-            res.register_advancement()
-            self.advance()
-
-            while self.current_tok.type == TokenType.COMMA:
+            if self.current_tok.type == TokenType.IDENTIFIER:
+                arg_name_toks.append(self.current_tok)
+                res.register_advancement()
+                self.advance()
+                
+                failsafe = -1
+                arg_name_set = True
+            else:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    expected(TokenType.IDENTIFIER)
+                ))             
+                
+            if self.current_tok.type == TokenType.COLON and arg_name_set:
                 res.register_advancement()
                 self.advance()
 
@@ -789,22 +810,50 @@ class Parser:
                         expected(TokenType.IDENTIFIER)
                     ))
 
-                arg_name_toks.append(self.current_tok)
+                arg_type_toks.append(self.current_tok)
+                res.register_advancement()
+                self.advance()
+                
+                failsafe = -1
+                
+            elif arg_name_set:
+                arg_type_toks.append(Token(TokenType.IDENTIFIER, "Value"))
+            else:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    expected(TokenType.IDENTIFIER)
+                ))
+            
+            if self.current_tok.type == TokenType.EQUALS and arg_name_set:
                 res.register_advancement()
                 self.advance()
 
-            if self.current_tok.type != TokenType.RPAREN:
+                arg_default_value_toks.append(self.current_tok)
+                
+                res.register_advancement()
+                self.advance()
+                
+                failsafe = -1
+            elif arg_name_set:
+                arg_default_value_toks.append(Token(TokenType.GENERIC, None))
+            else:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start, self.current_tok.pos_end,
-                    expected(TokenType.COMMA, TokenType.RPAREN)
-                ))
-        else:
-            if self.current_tok.type != TokenType.RPAREN:
-                return res.failure(InvalidSyntaxError(
-                    self.current_tok.pos_start, self.current_tok.pos_end,
-                    expected(TokenType.IDENTIFIER, TokenType.RPAREN)
+                    expected(TokenType.IDENTIFIER)
                 ))
 
+            if self.current_tok.type == TokenType.COMMA and arg_name_set:
+                res.register_advancement()
+                self.advance()
+                
+                failsafe = -1
+
+        if self.current_tok.type != TokenType.RPAREN:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                expected(TokenType.IDENTIFIER, TokenType.COLON, TokenType.EQUALS, TokenType.COMMA, TokenType.RPAREN)
+            ))
+                
         res.register_advancement()
         self.advance()
 
@@ -819,6 +868,8 @@ class Parser:
             return res.success(FuncDefNode(
                 var_name_tok,
                 arg_name_toks,
+                arg_type_toks,
+                arg_default_value_toks,
                 body,
                 True
             ))
@@ -848,6 +899,8 @@ class Parser:
         return res.success(FuncDefNode(
             var_name_tok,
             arg_name_toks,
+            arg_type_toks,
+            arg_default_value_toks,
             body,
             False
         ))

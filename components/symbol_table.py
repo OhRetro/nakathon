@@ -1,7 +1,7 @@
 from .utils.debug import DebugMessage
 from .values.value import Value
 
-debug_message = DebugMessage("").set_auto_display(True)
+debug_message = DebugMessage("", filename=__file__).set_auto_display(True)
 symbol_table_count = 0
 
 class SymbolTable:
