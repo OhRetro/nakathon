@@ -1,7 +1,7 @@
 from os import system
 
 def make_executable(version: list[int]):
-    options = "--standalone --onefile --follow-imports"
+    options = "--standalone --onefile --disable-ccache"
     options += " --company-name=OhRetro"
     options += " --product-name=Nakathon"
     options += f" --file-version={version}"
