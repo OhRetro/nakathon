@@ -45,7 +45,7 @@ def start():
             
         if "--exec" in argv:
             from components.tools.make_executable import make_executable
-            make_executable(VERSION)
+            make_executable(_version)
 
 if __name__ == "__main__":
     start()
