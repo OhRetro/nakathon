@@ -2,7 +2,7 @@ from sys import argv
 from components.wrapper import run, set_global
 from components.values.all import String
 
-VERSION = [1,3,0]
+VERSION = [1, 3, 0]
 
 def start():
     theres_args = len(argv) > 1
@@ -14,16 +14,20 @@ def start():
     if not is_running_a_script and not theres_args:
         print(f"Welcome to Nakathon v{_version}")
         while True:
-            text = input("Nakathon Shell > ")
-            if not text.strip(): continue 
-            result, error = run("<stdin>", text, "<Shell>")
-                
-            if error: print(error.as_string())
-            elif result: 
-                if len(result.elements) == 1:
-                    print(repr(result.elements[0]))
-                else:
-                    print(repr(result))
+            try:
+                text = input("Nakathon Shell > ")
+                if not text.strip(): continue 
+                result, error = run("<stdin>", text, "<Shell>")
+                    
+                if error: print(error.as_string())
+                elif result: 
+                    if len(result.elements) == 1:
+                        print(repr(result.elements[0]))
+                    else:
+                        print(repr(result))
+            except KeyboardInterrupt:
+                print("\nExiting...")
+                break
                     
     elif is_running_a_script:
         fn = argv[1]
@@ -39,11 +43,11 @@ def start():
         if error: print(error.as_string())
                 
     elif not is_running_a_script and theres_args:
-        if "--readme" in argv:
+        if "--make-readme" in argv:
             from components.tools.make_readme import make_readme
             make_readme()
             
-        if "--exec" in argv:
+        if "--make-exec" in argv:
             from components.tools.make_executable import make_executable
             make_executable(_version)
 
