@@ -3,12 +3,6 @@ from ..utils.syntax_template import (WHILE_SYNTAX, FOR_SYNTAX, IF_ELSEIF_ELSE_SY
                                              VAR_SYNTAX, CONST_SYNTAX, TEMP_SYNTAX, VALUE_EXPRESSION, FUNC_SYNTAX_IN_LINE)
 from ..wrapper import run
 
-"""
-### Requirements (If running directly using Python)
-
-- Python 3.12.2
-- Packages (pip install -r requirements.txt)
-"""
 def generate_md_file(content):
     try:
         with open("README.md", "w", encoding="utf-8") as file:
@@ -48,8 +42,6 @@ Syntax based on other languages like JavaScript, C# and etc.
 
 ### Running Nakathon
 
-in a future, executables will be available
-
 ```py
 # To run Nakathon you use the following command
 python nakathon.py # Windows
@@ -59,6 +51,8 @@ python3 nakathon.py # Linux, Mac
 # but if you put file that ends with .nkt, Nakathon will run it
 python nakathon.py .\\examples\\inputs.ntk # Windows
 python3 nakathon.py .\\examples\\inputs.ntk # Linux, Mac
+
+# If you have the .exe, instead of "python nakathon.py" write "nakathon.exe".
 
 ```
 
