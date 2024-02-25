@@ -30,3 +30,9 @@ jobs:
     - name: Make executable
       run: |
         python nakathon.py --exec
+        ls
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Nakathon exe 
+        path: build/nakathon.exe
