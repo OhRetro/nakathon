@@ -9,12 +9,14 @@ from .builtin_function import BuiltInFunction
 
 def make_value_type(name: str):
     map = {
+        "Any": Value,
         "Value": Value,
         "Number": Number,
         "Float": Number,
         "String": String,
         "List": List,
         "Boolean": Boolean,
+        "Function": Function
     }
         
     return map.get(name, None)

@@ -1,4 +1,5 @@
 from .token import Token
+from .values.value import Value
 from .utils.debug import DebugMessage
 from .position import Position
 
@@ -19,16 +20,13 @@ class Node:
     def __repr__(self):
         return f"<{self.__class__.__name__}:{self.display}>"
 
-
 class NumberNode(Node):
     def __init__(self, tok: Token):
         super().__init__(tok)
 
-
 class StringNode(Node):
     def __init__(self, tok: Token):
         super().__init__(tok)
-
 
 class ListNode(Node):
     def __init__(self, element_nodes: list[Node], pos_start: Position, pos_end: Position):
@@ -43,35 +41,33 @@ class ListNode(Node):
     def __repr__(self):
         return f"<{self.__class__.__name__}:{len(self.element_nodes)}>"
 
-
 class VarAccessNode(Node):
     def __init__(self, var_name_tok: Token):
         self.var_name_tok = var_name_tok
         super().__init__(var_name_tok)
 
-
 class VarAssignNode(Node):
-    def __init__(self, var_name_tok: Token, value_node: Node):
+    def __init__(self, var_name_tok: Token, value_node: Node, var_type_tok: Value):
         self.var_name_tok = var_name_tok
+        self.var_type_tok = var_type_tok
         self.value_node = value_node
         super().__init__(var_name_tok)
-        self.display = f"{self.var_name_tok}:{self.value_node}"
+        self.display = f"{self.var_name_tok}:{self.var_type_tok.value}:{self.value_node}"
         self.pos_end = self.value_node.pos_end
 
-
 class ImmutableVarAssignNode(VarAssignNode):
-    def __init__(self, var_name_tok: Token, value_node: Node):
-        super().__init__(var_name_tok, value_node)
+    def __init__(self, var_name_tok: Token, value_node: Node, var_type_tok: Value):
+        super().__init__(var_name_tok, value_node, var_type_tok)
 
 
 class TempVarAssignNode(VarAssignNode):
-    def __init__(self, var_name_tok: Token, value_node: Node, lifetime_tok: Token):
-        super().__init__(var_name_tok, value_node)
+    def __init__(self, var_name_tok: Token, value_node: Node, var_type_tok: Value, lifetime_tok: Token):
+        super().__init__(var_name_tok, value_node, var_type_tok)
         self.lifetime_tok = lifetime_tok
 
 class ScopedVarAssignNode(VarAssignNode):
-    def __init__(self, var_name_tok: Token, value_node: Node):
-        super().__init__(var_name_tok, value_node)
+    def __init__(self, var_name_tok: Token, value_node: Node, var_type_tok: Value):
+        super().__init__(var_name_tok, value_node, var_type_tok)
 
 class BinOpNode(Node):
     def __init__(self, left_node: Node, op_tok: Token, right_node: Node):
@@ -83,7 +79,6 @@ class BinOpNode(Node):
         self.pos_start = self.left_node.pos_start
         self.pos_end = self.right_node.pos_end
 
-
 class UnaryOpNode(Node):
     def __init__(self, op_tok: Token, node: Node):
         self.op_tok = op_tok
@@ -92,7 +87,6 @@ class UnaryOpNode(Node):
         self.display = f"({self.op_tok}, {self.node})"
         self.pos_end = self.node.pos_end
 
-
 class IfNode(Node):
     def __init__(self, cases: tuple[tuple[Token]], else_case: tuple):
         self.cases = cases
@@ -100,7 +94,6 @@ class IfNode(Node):
         super().__init__(cases[0][0])
         self.pos_end = (
             else_case or self.cases[len(self.cases) - 1])[0].pos_end
-
 
 class ForNode(Node):
     def __init__(self, var_name_tok: Token, start_value_node: Node, end_value_node: Node, step_value_node: Node, body_node: Node, should_return_null: bool):
@@ -112,14 +105,12 @@ class ForNode(Node):
         super().__init__(var_name_tok, should_return_null = should_return_null)
         self.pos_end = self.body_node.pos_end
 
-
 class WhileNode(Node):
     def __init__(self, condition_node: Node, body_node: Node, should_return_null: bool):
         self.condition_node = condition_node
         self.body_node = body_node
         super().__init__(condition_node, should_return_null = should_return_null)
         self.pos_end = self.body_node.pos_end
-
 
 class FuncDefNode(Node):
     def __init__(self, var_name_tok: Token, arg_name_toks: list[Token], arg_type_toks: list[Token], arg_default_value_toks: list[Token], body_node: Node, should_auto_return: bool):
@@ -141,7 +132,6 @@ class FuncDefNode(Node):
 
         self.pos_end = self.body_node.pos_end
 
-
 class CallNode(Node):
     def __init__(self, node_to_call: Node, arg_nodes: list[Node]):
         self.node_to_call = node_to_call
@@ -154,18 +144,13 @@ class CallNode(Node):
         else:
             self.pos_end = self.node_to_call.pos_end
 
-
 class ReturnNode(Node):
     def __init__(self, node_to_return: Node, pos_start: Position, pos_end: Position):
         self.node_to_return = node_to_return
         super().__init__(node_to_return, pos_start, pos_end)
-
-
 class ContinueNode(Node):
     def __init__(self, pos_start: Position, pos_end: Position):
         super().__init__(pos_start=pos_start, pos_end=pos_end)
-        
-
 class BreakNode(Node):
     def __init__(self, pos_start: Position, pos_end: Position):
         super().__init__(pos_start=pos_start, pos_end=pos_end)

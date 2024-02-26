@@ -163,7 +163,10 @@ class Parser:
             self.current_tok.matches(TokenType.KEYWORD, Keyword.SETIMMUTABLEVAR) or
             self.current_tok.matches(TokenType.KEYWORD, Keyword.SETTEMPVAR) or
             self.current_tok.matches(TokenType.KEYWORD, Keyword.SETSCOPEDVAR)):
+            
             var_keyword_tok = self.current_tok
+            var_type_tok = None
+            var_type_specified = False
 
             res.register_advancement()
             self.advance()
@@ -173,12 +176,33 @@ class Parser:
                     self.current_tok.pos_start, self.current_tok.pos_end,
                     expected(TokenType.IDENTIFIER)
                 ))
-
+                
             var_name = self.current_tok
-            if var_keyword_tok.value == Keyword.SETTEMPVAR:
+            
+            res.register_advancement()
+            self.advance()
+        
+            if self.current_tok.type == TokenType.COLON:
                 res.register_advancement()
                 self.advance()
 
+                if self.current_tok.type != TokenType.IDENTIFIER:
+                    return res.failure(InvalidSyntaxError(
+                        self.current_tok.pos_start, self.current_tok.pos_end,
+                        expected(TokenType.IDENTIFIER)
+                    ))
+                    
+                var_type_tok = self.current_tok
+                
+                var_type_specified = True
+                
+                if var_keyword_tok.value == Keyword.SETTEMPVAR:
+                    res.register_advancement()
+                    self.advance()
+            else:
+                var_type_tok = Token(TokenType.IDENTIFIER, "Any")
+            
+            if var_keyword_tok.value == Keyword.SETTEMPVAR:
                 if self.current_tok.type != TokenType.INT:
                     return res.failure(InvalidSyntaxError(
                         self.current_tok.pos_start, self.current_tok.pos_end,
@@ -187,8 +211,9 @@ class Parser:
 
                 temp_lifetime = self.current_tok
 
-            res.register_advancement()
-            self.advance()
+            if var_type_specified or var_keyword_tok.value == Keyword.SETTEMPVAR:
+                res.register_advancement()
+                self.advance()
 
             if self.current_tok.type != TokenType.EQUALS:
                 return res.failure(InvalidSyntaxError(
@@ -203,13 +228,13 @@ class Parser:
                 return res
 
             if var_keyword_tok.value == Keyword.SETVAR:
-                node_ret = VarAssignNode(var_name, expr)
+                node_ret = VarAssignNode(var_name, expr, var_type_tok)
             elif var_keyword_tok.value == Keyword.SETIMMUTABLEVAR:
-                node_ret = ImmutableVarAssignNode(var_name, expr)
+                node_ret = ImmutableVarAssignNode(var_name, expr, var_type_tok)
             elif var_keyword_tok.value == Keyword.SETTEMPVAR:
-                node_ret = TempVarAssignNode(var_name, expr, temp_lifetime)
+                node_ret = TempVarAssignNode(var_name, expr, var_type_tok, temp_lifetime)
             elif var_keyword_tok.value == Keyword.SETSCOPEDVAR:
-                node_ret = ScopedVarAssignNode(var_name, expr)
+                node_ret = ScopedVarAssignNode(var_name, expr, var_type_tok)
 
             return res.success(node_ret)
 

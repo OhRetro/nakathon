@@ -69,12 +69,13 @@ class Interpreter:
     def visit_VarAssignNode(self, node: VarAssignNode, context: Context):
         res = RunTimeResult()
         var_name = node.var_name_tok.value
+        var_type = make_value_type(node.var_type_tok.value)
         value = res.register(self.visit(node.value_node, context))
         
         if res.should_return():
             return res
 
-        success = context.symbol_table.set(var_name, value)
+        success = context.symbol_table.set(var_name, value, var_type)
         
         if success: return res.success(value)
         else: return res.failure(RunTimeError(
@@ -86,10 +87,11 @@ class Interpreter:
     def visit_ImmutableVarAssignNode(self, node: ImmutableVarAssignNode, context: Context):
         res = RunTimeResult()
         immutable_name = node.var_name_tok.value
+        immutable_type = make_value_type(node.var_type_tok.value)
         value = res.register(self.visit(node.value_node, context))
         if res.should_return(): return res
 
-        success = context.symbol_table.set_as_immutable(immutable_name, value)
+        success = context.symbol_table.set_as_immutable(immutable_name, value, immutable_type)
         
         if success: return res.success(value)
         else: return res.failure(RunTimeError(
@@ -101,11 +103,12 @@ class Interpreter:
     def visit_TempVarAssignNode(self, node: TempVarAssignNode, context: Context):
         res = RunTimeResult()
         temp_name = node.var_name_tok.value
+        temp_type = make_value_type(node.var_type_tok.value)
         value = res.register(self.visit(node.value_node, context))
         if res.should_return(): return res
 
         temp_lifetime = node.lifetime_tok.value
-        success = context.symbol_table.set_as_temp(temp_name, value, temp_lifetime)
+        success = context.symbol_table.set_as_temp(temp_name, value, temp_type, temp_lifetime)
         
         if success: return res.success(value)
         else: return res.failure(RunTimeError(
@@ -117,10 +120,11 @@ class Interpreter:
     def visit_ScopedVarAssignNode(self, node: ScopedVarAssignNode, context: Context):
         res = RunTimeResult()
         scoped_name = node.var_name_tok.value
+        scoped_type = make_value_type(node.var_type_tok.value)
         value = res.register(self.visit(node.value_node, context))
         if res.should_return(): return res
 
-        success = context.symbol_table.set_as_scoped(scoped_name, value)
+        success = context.symbol_table.set_as_scoped(scoped_name, value, scoped_type)
         
         if success: return res.success(value)
         else: return res.failure(RunTimeError(
@@ -306,7 +310,7 @@ class Interpreter:
             context).set_pos(node.pos_start, node.pos_end)
 
         if node.var_name_tok:
-            context.symbol_table.set(func_name, func_value)
+            context.symbol_table.set(func_name, func_value, Function)
 
         return res.success(func_value)
 

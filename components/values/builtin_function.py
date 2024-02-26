@@ -257,4 +257,4 @@ class BuiltInFunction(BaseFunction):
     
 def define_builtin_functions(symbol_table: SymbolTable):
     for name in BuiltInFunctionNames:
-        symbol_table.set_as_immutable(name.value, BuiltInFunction(name.name, name.value))
+        symbol_table.set_as_immutable(name.value, BuiltInFunction(name.name, name.value), BuiltInFunction)

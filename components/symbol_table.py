@@ -8,10 +8,13 @@ class SymbolTable:
     def __init__(self, parent = None):
         global symbol_table_count
         self.id = symbol_table_count
+        
         self.symbols: dict[str, Value] = {}
         self.immutable_symbols: dict[str, Value] = {}
         self.temporary_symbols: dict[str, (Value, int)] = {}
         self.scoped_symbols: dict[str, Value] = {}
+        
+        self.symbol_types: dict[str, Value] = {}
         
         self.parent: SymbolTable = parent
         self.is_child = True if self.parent else False
@@ -66,7 +69,7 @@ class SymbolTable:
                 
                 if value is not None:
                     new_lifetime = self.temporary_symbols[name][1] - 1 or 0
-                    self.set_as_temp(name, value, new_lifetime)
+                    self.set_as_temp(name, value, self.symbol_types[name], new_lifetime)
                     
             elif name in self.scoped_symbols and not calling_from_parent:
                 value = self.scoped_symbols.get(name, None)
@@ -77,8 +80,7 @@ class SymbolTable:
                 
         return value
     
-
-    def _set_symbol(self, name: str, value: Value, symbol_name: str, **kwargs):
+    def _set_symbol(self, name: str, value: Value, type: Value, symbol_name: str, **kwargs):
         success = False
         debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': SET: CHECKING")
         
@@ -88,30 +90,33 @@ class SymbolTable:
                 if not self._exists(name, symbol_name):
                     if lifetime > 0:
                         getattr(self, symbol_name)[name] = (value, lifetime+1)
+                        self.symbol_types[name] = type
                         success =  True
                 else:
                     if lifetime <= 0: self.remove(name)
                     else:
                         getattr(self, symbol_name)[name] = (value, lifetime)
+                        self.symbol_types[name] = type
                         success = True
             else:
                 getattr(self, symbol_name)[name] = value
+                self.symbol_types[name] = type
                 success = True
 
         debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': SET: SUCCESSFUL: {success}")
         return success
    
-    def set(self, name: str, value: Value):
-        return self._set_symbol(name, value, "symbols")
+    def set(self, name: str, value: Value, type: Value):
+        return self._set_symbol(name, value, type, "symbols")
 
-    def set_as_immutable(self, name: str, value: Value):
-        return self._set_symbol(name, value, "immutable_symbols")
+    def set_as_immutable(self, name: str, value: Value, type: Value):
+        return self._set_symbol(name, value, type, "immutable_symbols")
         
-    def set_as_temp(self, name: str, value: Value, lifetime: int):
-        return self._set_symbol(name, value, "temporary_symbols", lifetime = lifetime)
+    def set_as_temp(self, name: str, value: Value, type: Value, lifetime: int):
+        return self._set_symbol(name, value, type, "temporary_symbols", lifetime = lifetime)
         
-    def set_as_scoped(self, name: str, value: Value):
-        return self._set_symbol(name, value, "scoped_symbols")
+    def set_as_scoped(self, name: str, value: Value, type: Value):
+        return self._set_symbol(name, value, type, "scoped_symbols")
         
     def remove(self, name: str):
         debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': DELETE")
@@ -123,6 +128,8 @@ class SymbolTable:
             del self.temporary_symbols[name]
         elif name in self.scoped_symbols:
             del self.scoped_symbols[name]
+            
+        del self.symbol_types[name]
             
     def copy(self):
         copy = SymbolTable()

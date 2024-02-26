@@ -10,13 +10,14 @@ from components.utils.debug import DebugMessage
 debug_message = DebugMessage("", filename=__file__)
 
 global_symbol_table = SymbolTable()
-global_symbol_table.set_as_immutable("null", Null.null)
-global_symbol_table.set_as_immutable("false", Boolean.false)
-global_symbol_table.set_as_immutable("true", Boolean.true)
-define_builtin_functions(global_symbol_table)
 
 def set_global(name: str, value: Value):
-    global_symbol_table.set_as_immutable(name, value)
+    global_symbol_table.set_as_immutable(name, value, Value)
+    
+set_global("null", Null.null)
+set_global("false", Boolean.false)
+set_global("true", Boolean.true)
+define_builtin_functions(global_symbol_table)
 
 def run(fn: str, text: str, context_name: str, calling_external_code: bool = False):  
     # Generate tokens
