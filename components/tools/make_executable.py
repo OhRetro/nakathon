@@ -1,12 +1,6 @@
 from os import system
 
-try:
-    import nuitka
-except ImportError:
-    print("nuitka is not installed.")
-    exit(-1)
-
-def make_executable(version: list[int], flags: list[str] = []):
+def make_executable(version: list[int]):
     options = [
         "--standalone",
         "--onefile",
@@ -17,8 +11,7 @@ def make_executable(version: list[int], flags: list[str] = []):
         "--copyright=2023",
         f"--output-filename=nakathon_v{version}",
         "--output-dir=build/",
-        "--windows-icon-from-ico=logo.ico",
-        "--run" if "--run" in flags else ""
+        "--windows-icon-from-ico=logo.ico"
     ]
 
     _options = " ".join(options)

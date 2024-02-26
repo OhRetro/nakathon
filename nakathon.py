@@ -2,7 +2,7 @@ from sys import argv
 from components.wrapper import run, set_global
 from components.values.all import String
 
-VERSION = [1, 3, 0, 2]
+VERSION = [1, 4, 0]
 
 def start():
     theres_args = len(argv) > 1
@@ -43,13 +43,8 @@ def start():
         if error: print(error.as_string())
                 
     elif not is_running_a_script and theres_args:
-        if "--make-readme" in argv:
-            from components.tools.make_readme import make_readme
-            make_readme()
-            
-        if "--make-exec" in argv:
-            from components.tools.make_executable import make_executable
-            make_executable(_version)
+        if argv[1] == "--version":
+            print(f"v{_version}")
 
 if __name__ == "__main__":
     start()
