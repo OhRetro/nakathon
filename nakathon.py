@@ -2,7 +2,7 @@ from sys import argv
 from components.wrapper import run, set_global
 from components.values.all import String
 
-VERSION = [1, 3, 0]
+VERSION = [1, 3, 0, 2]
 
 def start():
     theres_args = len(argv) > 1
@@ -32,7 +32,7 @@ def start():
     elif is_running_a_script:
         fn = argv[1]
         try:
-            with open(fn, "r") as f:
+            with open(fn, "r", encoding="utf-8") as f:
                 script = f.read()
         except Exception as e:
             raise Exception(

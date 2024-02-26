@@ -1,5 +1,4 @@
-from os import system, remove, path
-from time import sleep
+from os import system
 
 try:
     import nuitka
@@ -20,7 +19,9 @@ def make_executable(version: list[int], flags: list[str] = []):
         "--copyright=2023",
         f"--output-filename=nakathon_v{version}",
         "--output-dir=build/",
-        "--windows-icon-from-ico=logo.ico"
+        "--windows-icon-from-ico=logo.ico",
+        "--remove-output" if "--keep-build" not in flags else "",
+        "--run" if "--run" in flags else ""
     ]
 
     _options = " ".join(options)
