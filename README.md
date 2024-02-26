@@ -23,10 +23,10 @@ Syntax based on other languages like JavaScript, C# and etc.
 python nakathon.py # Windows
 python3 nakathon.py # Linux, Mac
 
-# Just like python, if you run as is, you will go to the shell
+# Just like in Python, if you run as is, you will go to the shell
 # but if you put file that ends with .nkt, Nakathon will run it
-python nakathon.py .\examples\inputs.ntk # Windows
-python3 nakathon.py .\examples\inputs.ntk # Linux, Mac
+python nakathon.py .\file_name.nkt # Windows
+python3 nakathon.py ./file_name.nkt # Linux, Mac
 
 # If you have the .exe, instead of "python nakathon.py" write "nakathon.exe".
 
