@@ -10,8 +10,6 @@ def make_executable(version: list[int], flags: list[str] = []):
     options = [
         "--standalone",
         "--onefile",
-        "--disable-cache=\"all\"",
-        "--clean-cache=\"all\"",
         "--quiet",
         "--company-name=OhRetro",
         "--product-name=Nakathon",
@@ -20,7 +18,6 @@ def make_executable(version: list[int], flags: list[str] = []):
         f"--output-filename=nakathon_v{version}",
         "--output-dir=build/",
         "--windows-icon-from-ico=logo.ico",
-        "--remove-output" if "--keep-build" not in flags else "",
         "--run" if "--run" in flags else ""
     ]
 
