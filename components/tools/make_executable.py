@@ -15,7 +15,8 @@ def make_executable(version: list[int]):
         "--copyright=2023",
         f"--output-filename=nakathon_v{version}.{day_month}",
         "--output-dir=build/",
-        "--windows-icon-from-ico=logo.ico"
+        "--windows-icon-from-ico=logo.ico",
+        "--assume-yes-for-downloads"
     ]
 
     _options = " ".join(options)
