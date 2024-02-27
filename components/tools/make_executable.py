@@ -1,6 +1,10 @@
 from os import system
+from datetime import date
 
 def make_executable(version: list[int]):
+    today = date.today()
+    day_month = today.strftime("%d%m%y")
+
     options = [
         "--standalone",
         "--onefile",
@@ -9,7 +13,7 @@ def make_executable(version: list[int]):
         "--product-name=Nakathon",
         f"--file-version={version}",
         "--copyright=2023",
-        f"--output-filename=nakathon_v{version}",
+        f"--output-filename=nakathon_v{version}.{day_month}",
         "--output-dir=build/",
         "--windows-icon-from-ico=logo.ico"
     ]
