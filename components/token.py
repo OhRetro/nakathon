@@ -18,23 +18,18 @@ class Keyword(Enum):
     OR = "||"
     NOT = "not"
     IF = "if"
-    THEN = "then"
     ELSEIF = "else if"
     ELSE = "else"
     IS = "is"
     
     # Loops
     FOR = "for"
-    TO = "to"
-    STEP = "step"
     WHILE = "while"
     CONTINUE = "continue"
     BREAK = "break"
     
     # Other
     RETURN = "return"
-    END = "end"
-
 
 class TokenType(Enum):
     # General types
@@ -84,7 +79,6 @@ class TokenType(Enum):
     GENERIC = "GENERIC"
     
     EOF = "EOF"
-
 
 class Token:
     def __init__(self, type_: TokenType, value: Any = None, pos_start: Position = None, pos_end: Position = None):

@@ -146,7 +146,6 @@ class SymbolTable:
         del self.symbol_types[name]
             
     def copy(self):
-        copy = SymbolTable()
-        copy.parent = self
+        copy = SymbolTable(self)
         return copy
             

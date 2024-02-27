@@ -1,0 +1,9 @@
+var rand_number = RandomInt(1, 20)
+
+if rand_number < 10 {
+    Print(ToString(rand_number) + " < 10")
+} else if rand_number > 10 {
+    Print(ToString(rand_number) + " > 10")
+} else {
+    Print("10 == 10")
+}
