@@ -548,6 +548,7 @@ class Parser:
         self.advance()
         
         condition = res.register(self.expr())
+        
         if res.error:
             return res
 
@@ -562,6 +563,7 @@ class Parser:
             statements = res.register(self.statements())
             if res.error:
                 return res
+            
             cases.append((condition, statements, True))
             
             if self.current_tok.matches(TokenType.RBRACE):
@@ -569,11 +571,13 @@ class Parser:
                     res.register_advancement()
                     self.advance()
                     
-                    all_cases = res.register(self.if_expr_elseif_or_else())
-                    if res.error:
-                        return res
-                    new_cases, else_case = all_cases
-                    cases.extend(new_cases)
+                    if self.current_tok.matches(TokenType.KEYWORD, Keyword.ELSEIF) or self.current_tok.matches(TokenType.KEYWORD, Keyword.ELSE):
+                        all_cases = res.register(self.if_expr_elseif_or_else())
+                        if res.error:
+                            return res
+                        
+                        new_cases, else_case = all_cases
+                        cases.extend(new_cases)
                     
                 elif keyword_tok.matches(TokenType.KEYWORD, Keyword.ELSE):                
                     res.register_advancement()

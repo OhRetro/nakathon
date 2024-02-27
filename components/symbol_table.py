@@ -93,8 +93,8 @@ class SymbolTable:
         fail_type = "const"
         debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': SET: CHECKING")
         
-        #TODO REPLACE WORKAROUND
-        if self._is_typed_check(name) and not self.is_child and name != "scoped_symbols":
+        #TODO: REPLACE WORKAROUND
+        if self._is_typed_check(name) and not self.is_child and symbol_name != "scoped_symbols":
             if type != self.symbol_types[name]:
                 fail_type = "type"
                 
