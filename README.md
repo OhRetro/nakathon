@@ -58,7 +58,7 @@ The Variable/Function name can be in ``snake_case``, ``camelCase`` or ``PascalCa
 var variable_name = <value> or <expression>
 
 # You can also set a immutable, also known as a constant, variable using the 'const' keyword
-const variable_name = <value> or <expression>
+const VARIABLE_NAME = <value> or <expression>
 
 # There's also temporary variable using the 'temp' keyword
 temp variable_name <value-of-type-int> = <value> or <expression>
@@ -113,7 +113,7 @@ RandomInt(min: Number, max: Number)
 RandomFloat(min: Number, max: Number)
 
 # Misc Functions
-Run()
+Run(filename: string)
 Exit(code_number: Number = 0)
 
 ```

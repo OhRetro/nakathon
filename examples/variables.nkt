@@ -4,9 +4,9 @@ var hello_world = "Hello, world!"
 Print(hello_world)
 
 # Constant Variable
-const pi = 3.14
+const PI = 3.14
 
-Print(pi)
+Print(PI)
 
 # Temporary Variable
 temp bye_bye 2 = "I'm going to stop existing once I'm referenced 2 times"

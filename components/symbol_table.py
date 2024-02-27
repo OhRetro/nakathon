@@ -56,6 +56,14 @@ class SymbolTable:
         
         return exists
     
+    def _is_typed_check(self, name: str):
+        exists = self._exists(name, "symbol_types")
+        
+        if not exists and self.parent:
+            exists = self.parent._is_typed_check(name)
+        
+        return exists
+    
     def get(self, name: str, calling_from_parent: bool = False):
         if not calling_from_parent: debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': GET: CHECKING")
         value = self.symbols.get(name, None)
@@ -82,9 +90,15 @@ class SymbolTable:
     
     def _set_symbol(self, name: str, value: Value, type: Value, symbol_name: str, **kwargs):
         success = False
+        fail_type = "const"
         debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': SET: CHECKING")
         
-        if not self._is_immutable_check(name):
+        #TODO REPLACE WORKAROUND
+        if self._is_typed_check(name) and not self.is_child and name != "scoped_symbols":
+            if type != self.symbol_types[name]:
+                fail_type = "type"
+                
+        if not self._is_immutable_check(name) and fail_type == "const":
             if symbol_name.startswith("temp"):
                 lifetime = kwargs.get("lifetime", 0)
                 if not self._exists(name, symbol_name):
@@ -102,9 +116,9 @@ class SymbolTable:
                 getattr(self, symbol_name)[name] = value
                 self.symbol_types[name] = type
                 success = True
-
+                
         debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': SET: SUCCESSFUL: {success}")
-        return success
+        return success, fail_type
    
     def set(self, name: str, value: Value, type: Value):
         return self._set_symbol(name, value, type, "symbols")

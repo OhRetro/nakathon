@@ -1,7 +1,7 @@
 Print("Hello world!")
 Print("What's your name?")
 
-var name = InputString()
+var name = Input()
 
 Print("It's a pleasure to meet you " + name + "!")
 

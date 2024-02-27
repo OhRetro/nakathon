@@ -11,7 +11,8 @@ from .node import (Node, NumberNode, StringNode,
 from .token import TokenType, Keyword
 from .runtime import RunTimeResult
 from .error import RunTimeError
-from .utils.strings_template import IS_NOT_DEFINED_ERROR, CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR, NO_METHOD_DEFINED_ERROR
+from .utils.strings_template import (IS_NOT_DEFINED_ERROR, CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR,
+                                     NO_METHOD_DEFINED_ERROR, VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR)
 
 
 class Interpreter:
@@ -66,7 +67,7 @@ class Interpreter:
         value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
 
-    def visit_VarAssignNode(self, node: VarAssignNode, context: Context):
+    def _var_assign(self, node: VarAssignNode|ImmutableVarAssignNode|TempVarAssignNode|ScopedVarAssignNode, context: Context, method: str = "set", lifetime: int = None):
         res = RunTimeResult()
         var_name = node.var_name_tok.value
         var_type = make_value_type(node.var_type_tok.value)
@@ -74,64 +75,47 @@ class Interpreter:
         
         if res.should_return():
             return res
+        
+        if not isinstance(value, var_type):
+            return res.failure(RunTimeError(
+                node.pos_start, node.pos_end,
+                VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR.format(var_name, var_type.__qualname__),
+                context
+            ))
 
-        success = context.symbol_table.set(var_name, value, var_type)
+        success, fail_type = getattr(context.symbol_table, method)(var_name, value, var_type) if lifetime is None else getattr(context.symbol_table, method)(var_name, value, var_type, lifetime)
         
         if success: return res.success(value)
-        else: return res.failure(RunTimeError(
-            node.pos_start, node.pos_end,
-            CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR.format(var_name),
-            context
-        ))
+        elif fail_type == "const": 
+            return res.failure(RunTimeError(
+                node.pos_start, node.pos_end,
+                CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR.format(var_name),
+                context
+            ))
+        elif fail_type == "type": 
+            return res.failure(RunTimeError(
+                node.pos_start, node.pos_end,
+                f"Cannot change variable '{var_name}' value type once initialized",
+                context
+            ))
+        else: 
+            return res.failure(RunTimeError(
+                node.pos_start, node.pos_end,
+                "Unknown Fail Type",
+                context
+            ))
+
+    def visit_VarAssignNode(self, node: VarAssignNode, context: Context):
+        return self._var_assign(node, context, "set")
     
     def visit_ImmutableVarAssignNode(self, node: ImmutableVarAssignNode, context: Context):
-        res = RunTimeResult()
-        immutable_name = node.var_name_tok.value
-        immutable_type = make_value_type(node.var_type_tok.value)
-        value = res.register(self.visit(node.value_node, context))
-        if res.should_return(): return res
-
-        success = context.symbol_table.set_as_immutable(immutable_name, value, immutable_type)
-        
-        if success: return res.success(value)
-        else: return res.failure(RunTimeError(
-            node.pos_start, node.pos_end,
-            CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR.format(immutable_name),
-            context
-        ))
+        return self._var_assign(node, context, "set_as_immutable")
  
     def visit_TempVarAssignNode(self, node: TempVarAssignNode, context: Context):
-        res = RunTimeResult()
-        temp_name = node.var_name_tok.value
-        temp_type = make_value_type(node.var_type_tok.value)
-        value = res.register(self.visit(node.value_node, context))
-        if res.should_return(): return res
-
-        temp_lifetime = node.lifetime_tok.value
-        success = context.symbol_table.set_as_temp(temp_name, value, temp_type, temp_lifetime)
-        
-        if success: return res.success(value)
-        else: return res.failure(RunTimeError(
-            node.pos_start, node.pos_end,
-            CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR.format(temp_name),
-            context
-        ))
+        return self._var_assign(node, context, "set_as_temp", node.lifetime_tok.value)
 
     def visit_ScopedVarAssignNode(self, node: ScopedVarAssignNode, context: Context):
-        res = RunTimeResult()
-        scoped_name = node.var_name_tok.value
-        scoped_type = make_value_type(node.var_type_tok.value)
-        value = res.register(self.visit(node.value_node, context))
-        if res.should_return(): return res
-
-        success = context.symbol_table.set_as_scoped(scoped_name, value, scoped_type)
-        
-        if success: return res.success(value)
-        else: return res.failure(RunTimeError(
-            node.pos_start, node.pos_end,
-            CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR.format(scoped_name),
-            context
-        ))
+        return self._var_assign(node, context, "set_as_scoped")
         
     def visit_BinOpNode(self, node: BinOpNode, context: Context):
         res = RunTimeResult()
@@ -245,7 +229,7 @@ class Interpreter:
             def condition(): return i > end_value.value
 
         while condition():
-            context.symbol_table.set(node.var_name_tok.value, Number(i))
+            context.symbol_table.set(node.var_name_tok.value, Number(i), Number)
             i += step_value.value
 
             value = res.register(self.visit(node.body_node, context))

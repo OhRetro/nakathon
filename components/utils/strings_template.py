@@ -23,3 +23,4 @@ CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR = "Cannot overwrite the immutable variable 
 CANNOT_OVERWRITE_BUILTIN_FUNC_ERROR = "Cannot overwrite the builtin function '{}'"
 IS_NOT_DEFINED_ERROR = "'{}' Is not defined"
 NO_METHOD_DEFINED_ERROR = "No {} method defined"
+VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR = "Variable '{}' was declared as a '{}', but the value type is different"
