@@ -1,4 +1,5 @@
-from ..token import TokenType, Keyword
+from ..token import TokenType
+from ..keyword import Keyword
 from string import ascii_letters
 
 def expected(*token_type_or_keyword: TokenType | Keyword):

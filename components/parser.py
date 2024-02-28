@@ -1,13 +1,13 @@
 from typing import Callable
 from .error import InvalidSyntaxError
-from .token import Token, TokenType, Keyword
+from .token import Token, TokenType
+from .keyword import Keyword
 from .node import (NumberNode, StringNode, BinOpNode,
                    UnaryOpNode, VarAccessNode, VarAssignNode,
                    ImmutableVarAssignNode, TempVarAssignNode, ScopedVarAssignNode,
                    CallNode, ForNode, FuncDefNode, IfNode,
                    WhileNode, ListNode, ReturnNode, ContinueNode, BreakNode)
 from .utils.expected import expected
-
 
 class ParseResult:
     def __init__(self):
@@ -177,7 +177,7 @@ class Parser:
                     expected(TokenType.IDENTIFIER)
                 ))
                 
-            var_name = self.current_tok
+            var_name_tok = self.current_tok
             
             res.register_advancement()
             self.advance()
@@ -215,11 +215,13 @@ class Parser:
                 res.register_advancement()
                 self.advance()
 
-            if self.current_tok.type != TokenType.EQUALS:
+            if self.current_tok.type not in (TokenType.EQUALS, TokenType.PLUSE, TokenType.MINUSE, TokenType.MULE, TokenType.DIVE, TokenType.POWERE, TokenType.DIVRESTE):
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start, self.current_tok.pos_end,
-                    expected(TokenType.EQUALS)
+                    expected(TokenType.EQUALS, TokenType.PLUSE, TokenType.MINUSE, TokenType.MULE, TokenType.DIVE, TokenType.POWERE, TokenType.DIVRESTE)
                 ))
+                
+            var_assign_tok = self.current_tok
 
             res.register_advancement()
             self.advance()
@@ -228,13 +230,13 @@ class Parser:
                 return res
 
             if var_keyword_tok.value == Keyword.SETVAR:
-                node_ret = VarAssignNode(var_name, expr, var_type_tok)
+                node_ret = VarAssignNode(var_name_tok, expr, var_type_tok, var_assign_tok)
             elif var_keyword_tok.value == Keyword.SETIMMUTABLEVAR:
-                node_ret = ImmutableVarAssignNode(var_name, expr, var_type_tok)
+                node_ret = ImmutableVarAssignNode(var_name_tok, expr, var_type_tok, var_assign_tok)
             elif var_keyword_tok.value == Keyword.SETTEMPVAR:
-                node_ret = TempVarAssignNode(var_name, expr, var_type_tok, temp_lifetime)
+                node_ret = TempVarAssignNode(var_name_tok, expr, var_type_tok, var_assign_tok, temp_lifetime)
             elif var_keyword_tok.value == Keyword.SETSCOPEDVAR:
-                node_ret = ScopedVarAssignNode(var_name, expr, var_type_tok)
+                node_ret = ScopedVarAssignNode(var_name_tok, expr, var_type_tok, var_assign_tok)
 
             return res.success(node_ret)
 

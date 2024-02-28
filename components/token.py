@@ -5,32 +5,6 @@ from .utils.debug import DebugMessage
 
 debug_message = DebugMessage("")
 
-class Keyword(Enum):
-    # Variables and Methods/Functions
-    SETVAR = "var"
-    SETIMMUTABLEVAR = "const"
-    SETTEMPVAR = "temp"
-    SETSCOPEDVAR = "local"
-    SETFUNCTION = "func"
-      
-    # Conditional
-    AND = "&&"
-    OR = "||"
-    NOT = "not"
-    IF = "if"
-    ELSEIF = "else if"
-    ELSE = "else"
-    IS = "is"
-    
-    # Loops
-    FOR = "for"
-    WHILE = "while"
-    CONTINUE = "continue"
-    BREAK = "break"
-    
-    # Other
-    RETURN = "return"
-
 class TokenType(Enum):
     # General types
     KEYWORD = "keyword"
@@ -65,7 +39,15 @@ class TokenType(Enum):
     GT = ">"
     LTE = "<="
     GTE = ">="
-    ISNULL = "?="
+    ISNULL = "?=" # Yet Unused
+    
+    # Assignment operators
+    PLUSE = "+="
+    MINUSE = "-="
+    MULE = "*="
+    POWERE = "**="
+    DIVE = "/="
+    DIVRESTE = "%="
     
     # Other
     DOT = "."

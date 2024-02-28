@@ -4,9 +4,8 @@ from ..context import Context
 from ..error import RunTimeError
 from ..utils.strings_template import DIVISION_BY_ZERO_ERROR
 
-
 class Number(Value):
-    def __init__(self, value: int|float):
+    def __init__(self, value: int | float):
         super().__init__(value)
         
         self.is_int = isinstance(value, int)

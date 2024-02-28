@@ -1,9 +1,9 @@
 from sys import argv
 from components.wrapper import run, set_global
-from components.values.all import String
+from components.datatypes.all import String
 from components.utils.misc import set_console_title
 
-VERSION = [1, 4, 0]
+VERSION = [1, 4, 1]
 
 def start():
     theres_args = len(argv) > 1

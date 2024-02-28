@@ -1,5 +1,6 @@
 from .error import IllegalCharError, ExpectedCharError, Error
-from .token import TokenType, Token, Keyword
+from .token import TokenType, Token
+from .keyword import Keyword
 from .position import Position
 from string import ascii_letters
 
@@ -29,9 +30,6 @@ class Lexer:
             return None, Error(self.pos, self.pos, "LoadingError", "Script file extension must be .nkt")
         
         basic_tokens = {
-            TokenType.PLUS.value: TokenType.PLUS,
-            TokenType.DIV.value: TokenType.DIV,
-            TokenType.DIVREST.value: TokenType.DIVREST,
             TokenType.LPAREN.value: TokenType.LPAREN,
             TokenType.RPAREN.value: TokenType.RPAREN,
             TokenType.LSQUARE.value: TokenType.LSQUARE,
@@ -46,8 +44,11 @@ class Lexer:
         }
         
         advanced_tokens = {
-            TokenType.MINUS.value: self.make_minus, # Also checks for '->'
-            TokenType.MUL.value: self.make_multiplier, # Also checks for '**' 
+            TokenType.PLUS.value: self.make_plus, # Also checks for '+='
+            TokenType.MINUS.value: self.make_minus, # Also checks for '->', '-='
+            TokenType.MUL.value: self.make_multiplier, # Also checks for '*=', '**', '**='
+            TokenType.DIV.value: self.make_div, # Also checks for '/='
+            TokenType.DIVREST.value: self.make_divrest, # Also checks for '%='
             TokenType.EQUALS.value: self.make_equals, # Also checks for '=='
             TokenType.LT.value: self.make_less_than, # Also checks for '<='
             TokenType.GT.value: self.make_greater_than, # Also checks for '>='
@@ -92,6 +93,17 @@ class Lexer:
         tokens.append(Token(TokenType.EOF, pos_start=self.pos))
         return tokens, None
 
+    def make_plus(self):
+        tok_type = TokenType.PLUS
+        pos_start = self.pos.copy()
+        self.advance()
+        
+        if self.current_char == TokenType.EQUALS.value:
+                self.advance()
+                tok_type = TokenType.PLUSE
+            
+        return Token(tok_type, pos_start=pos_start, pos_end=self.pos)
+    
     def make_minus(self):
         tok_type = TokenType.MINUS
         pos_start = self.pos.copy()
@@ -100,6 +112,10 @@ class Lexer:
         if self.current_char == TokenType.ARROW.value[-1]:
             self.advance()
             tok_type = TokenType.ARROW
+            
+        elif self.current_char == TokenType.EQUALS.value:
+                self.advance()
+                tok_type = TokenType.MINUSE
             
         return Token(tok_type, pos_start=pos_start, pos_end=self.pos)
     
@@ -111,6 +127,36 @@ class Lexer:
         if self.current_char == TokenType.MUL.value:
             self.advance()
             tok_type = TokenType.POWER
+            
+            if self.current_char == TokenType.EQUALS.value:
+                self.advance()
+                tok_type = TokenType.POWERE
+                
+        elif self.current_char == TokenType.EQUALS.value:
+                self.advance()
+                tok_type = TokenType.MULE
+            
+        return Token(tok_type, pos_start=pos_start, pos_end=self.pos)
+    
+    def make_div(self):
+        tok_type = TokenType.DIV
+        pos_start = self.pos.copy()
+        self.advance()
+        
+        if self.current_char == TokenType.EQUALS.value:
+                self.advance()
+                tok_type = TokenType.DIVE
+            
+        return Token(tok_type, pos_start=pos_start, pos_end=self.pos)
+    
+    def make_divrest(self):
+        tok_type = TokenType.DIVREST
+        pos_start = self.pos.copy()
+        self.advance()
+        
+        if self.current_char == TokenType.EQUALS.value:
+                self.advance()
+                tok_type = TokenType.DIVRESTE
             
         return Token(tok_type, pos_start=pos_start, pos_end=self.pos)
     

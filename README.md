@@ -224,6 +224,29 @@ if <condition> {
 
 ```
 
+### Assign Operators
+
+```py
+# plus equals
+var var_name += 1 
+
+# minus equals
+var var_name -= 1 
+
+# multiplication equals
+var var_name *= 1 
+
+# division equals
+var var_name /= 1 
+
+# power equals
+var var_name **= 1 
+
+# rest of division equals
+var var_name %= 1 
+
+```
+
 ### For & While Loops
 
 ```py

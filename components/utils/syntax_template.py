@@ -1,4 +1,5 @@
-from ..token import TokenType, Keyword
+from ..token import TokenType
+from ..keyword import Keyword
 from .strings_template import (CONDITION, EXPRESSION, VARIABLE,
                       START_VALUE, END_VALUE, STEP_VALUE,
                       VAR_NAME_EXAMPLE, FUNC_NAME_EXAMPLE,

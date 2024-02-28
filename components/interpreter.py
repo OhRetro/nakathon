@@ -1,4 +1,4 @@
-from .values.all import (
+from .datatypes.all import (
     Number, Function, String, List, Null,
     make_value, make_value_type
 )
@@ -8,7 +8,8 @@ from .node import (Node, NumberNode, StringNode,
                    ImmutableVarAssignNode, TempVarAssignNode, BinOpNode,
                    UnaryOpNode, IfNode, ForNode, WhileNode,
                    FuncDefNode, CallNode, ReturnNode, ContinueNode, BreakNode)
-from .token import TokenType, Keyword
+from .token import TokenType
+from .keyword import Keyword
 from .runtime import RunTimeResult
 from .error import RunTimeError
 from .utils.strings_template import (IS_NOT_DEFINED_ERROR, CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR,
@@ -71,8 +72,30 @@ class Interpreter:
         res = RunTimeResult()
         var_name = node.var_name_tok.value
         var_type = make_value_type(node.var_type_tok.value)
+        var_assign = node.var_assign_tok
         value = res.register(self.visit(node.value_node, context))
         
+        symbols_name = method.removeprefix("set").removesuffix("_as_") + ("_symbols" if method != "set" else "symbols")
+        
+        if context.symbol_table._exists(var_name, symbols_name) and var_assign.type != TokenType.EQUALS:
+            current_value = context.symbol_table.get(var_name)
+
+            if var_assign.type == TokenType.PLUSE:
+                value, error = current_value.added_to(value)
+            elif var_assign.type == TokenType.MINUSE:
+                value, error = current_value.subbed_by(value)
+            elif var_assign.type == TokenType.MULE:
+                value, error = current_value.multed_by(value)
+            elif var_assign.type == TokenType.DIVE:
+                value, error = current_value.dived_by(value)
+            elif var_assign.type == TokenType.POWERE:
+                value, error = current_value.powed_by(value)
+            elif var_assign.type == TokenType.DIVRESTE:
+                value, error = current_value.rest_of_dived_by(value)
+            
+            if error:
+                return res.failure(error)
+
         if res.should_return():
             return res
         
@@ -112,7 +135,7 @@ class Interpreter:
         return self._var_assign(node, context, "set_as_immutable")
  
     def visit_TempVarAssignNode(self, node: TempVarAssignNode, context: Context):
-        return self._var_assign(node, context, "set_as_temp", node.lifetime_tok.value)
+        return self._var_assign(node, context, "set_as_temporary", node.lifetime_tok.value)
 
     def visit_ScopedVarAssignNode(self, node: ScopedVarAssignNode, context: Context):
         return self._var_assign(node, context, "set_as_scoped")

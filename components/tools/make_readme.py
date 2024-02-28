@@ -1,4 +1,4 @@
-from ..token import Keyword
+from ..keyword import Keyword
 from ..utils.syntax_template import (WHILE_SYNTAX, FOR_SYNTAX, IF_ELSEIF_ELSE_SYNTAX, FUNC_SYNTAX, LOCAL_SYNTAX,
                                              VAR_SYNTAX, CONST_SYNTAX, TEMP_SYNTAX, VALUE_EXPRESSION, FUNC_SYNTAX_IN_LINE)
 from ..wrapper import run
@@ -237,6 +237,29 @@ Exit(code_number: Number = 0)
 
 # if, else if and else
 {IF_ELSEIF_ELSE_SYNTAX}
+
+```
+
+### Assign Operators
+
+```py
+# plus equals
+{build_src_and_output("var var_name += 1", False)}
+
+# minus equals
+{build_src_and_output("var var_name -= 1", False)}
+
+# multiplication equals
+{build_src_and_output("var var_name *= 1", False)}
+
+# division equals
+{build_src_and_output("var var_name /= 1", False)}
+
+# power equals
+{build_src_and_output("var var_name **= 1", False)}
+
+# rest of division equals
+{build_src_and_output("var var_name %= 1", False)}
 
 ```
 
