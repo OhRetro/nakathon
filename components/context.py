@@ -3,7 +3,7 @@ from .position import Position
 from .symbol_table import SymbolTable
 
 context_count = 0
-debug_message = DebugMessage("", filename=__file__)
+debug_message = DebugMessage("")
 
 class Context:
     def __init__(self, display_name: str, parent= None, parent_entry_pos: Position = None):

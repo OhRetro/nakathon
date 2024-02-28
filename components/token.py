@@ -3,7 +3,7 @@ from typing import Any
 from .position import Position
 from .utils.debug import DebugMessage
 
-debug_message = DebugMessage("", filename=__file__)
+debug_message = DebugMessage("")
 
 class Keyword(Enum):
     # Variables and Methods/Functions

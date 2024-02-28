@@ -3,7 +3,7 @@ from .values.value import Value
 from .utils.debug import DebugMessage
 from .position import Position
 
-debug_message = DebugMessage("", filename=__file__)
+debug_message = DebugMessage("")
 
 class Node:
     def __init__(self, tok: Token = None, pos_start: Position = None, pos_end: Position = None, should_return_null: bool = False):

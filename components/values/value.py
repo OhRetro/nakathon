@@ -2,7 +2,7 @@ from ..utils.debug import DebugMessage
 from ..utils.strings_template import ILLEGAL_OPERATION_ERROR, NO_METHOD_DEFINED_ERROR
 from typing import Any
 
-debug_message = DebugMessage("", filename=__file__)
+debug_message = DebugMessage("")
 
 class Value:
     def __init__(self, value: Any = None):

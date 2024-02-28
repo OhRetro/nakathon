@@ -1,17 +1,35 @@
-import logging
+from logging import basicConfig, log, DEBUG
+from inspect import currentframe as i_currentframe, getouterframes as i_getouterframes
 
-logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.DEBUG)
+basicConfig(format = "[%(levelname)s]: %(message)s", level = DEBUG, encoding = "utf-8")
+
+GLOBAL_ENABLED = 1
+
+CLASSES_ENABLED = {
+    "context.py": 0,
+    "node.py": 0,
+    "symbol_table.py": 0,
+    "token.py": 0,
+    "wrapper.py": 0,
+    
+    "function.py": 0,
+    "value.py": 0
+}
 
 class DebugMessage:
-    def __init__(self, message: str, enable: bool = 0, auto_display_on_message_set: bool = False, filename: str = __file__):
-        self.filename = filename.replace("\\", "/").split("/")[-1]
+    def __init__(self, message: str, auto_display_on_message_set: bool = False):
+        curframe = i_currentframe()
+        calframe = i_getouterframes(curframe, 2)
+        self.caller = calframe[1][1].replace("\\", "/").split("/")[-1]
+        
         self.set_auto_display(auto_display_on_message_set)
-        self.set_enabled(enable)
+        self.set_enabled(CLASSES_ENABLED.get(self.caller, GLOBAL_ENABLED))
         self.set_message(message)
         
     def display(self):
         if not self.enabled: return
-        logging.log(logging.DEBUG, f"[{self.filename}]: {self.message}")
+
+        log(DEBUG, f"[{self.caller}]: {self.message}")
         return self.message
         
     def set_message(self, message):

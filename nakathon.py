@@ -1,6 +1,7 @@
 from sys import argv
 from components.wrapper import run, set_global
 from components.values.all import String
+from components.utils.misc import set_console_title
 
 VERSION = [1, 4, 0]
 
@@ -11,6 +12,8 @@ def start():
     
     set_global("NAKATHON_VERSION", String(f"v{_version}"))
 
+    set_console_title(f"Nakathon v{_version}")
+    
     if not is_running_a_script and not theres_args:
         print(f"Welcome to Nakathon v{_version}")
         while True:

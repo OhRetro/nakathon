@@ -8,7 +8,7 @@ from ..symbol_table import SymbolTable
 from ..utils.misc import index_exists, try_get, try_set, remove_none_elements
 from ..utils.debug import DebugMessage
 
-debug_message = DebugMessage("", filename=__file__)
+debug_message = DebugMessage("")
 
 class BaseFunction(Value):
     def __init__(self, name: str, display_name: str = None):
