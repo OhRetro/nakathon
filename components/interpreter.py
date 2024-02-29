@@ -364,10 +364,12 @@ class Interpreter:
                 return res
 
         return_value = res.register(value_to_call.execute(args))
+        
         if res.should_return():
             return res
         return_value = return_value.copy().set_pos(
             node.pos_start, node.pos_end).set_context(context)
+        
         return res.success(return_value)
 
     def visit_ReturnNode(self, node: ReturnNode, context: Context):

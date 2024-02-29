@@ -19,7 +19,7 @@ set_global("false", Boolean.false, Boolean)
 set_global("true", Boolean.true, Boolean)
 define_builtin_functions(global_symbol_table)
 
-def run(fn: str, text: str, context_name: str, calling_external_code: bool = False, also_return_context: bool = False):  
+def run(fn: str, text: str, context_name: str, calling_external_code: bool = False, also_return_context: bool = False, isolated_symbol_table: bool = False):  
     # Generate tokens
     lexer = Lexer(fn, text, calling_external_code)
     tokens, error = lexer.make_tokens()
@@ -35,7 +35,7 @@ def run(fn: str, text: str, context_name: str, calling_external_code: bool = Fal
     # Run Program
     interpreter = Interpreter()
     context = Context(context_name)
-    context.symbol_table = global_symbol_table
+    context.symbol_table = global_symbol_table.copy() if isolated_symbol_table else global_symbol_table
     result = interpreter.visit(ast.node, context)
     debug_message.set_message(f"Interpreter generated:\n\tValue: {result.value}\n\tError: {result.error}\n")
     if not also_return_context:

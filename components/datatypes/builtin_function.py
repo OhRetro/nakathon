@@ -233,8 +233,8 @@ class BuiltInFunction(BaseFunction):
                 exec_ctx
             ))
 
-        _, error, context = run(fn, script, "<ShellImport>", True, True)
-
+        _, error, context = run(fn, script, "<ShellImport>", True, True, True)
+        
         if error:
             return RunTimeResult().failure(RunTimeError(
                 self.pos_start, self.pos_end,
@@ -242,10 +242,10 @@ class BuiltInFunction(BaseFunction):
                 error.as_string(),
                 exec_ctx
             ))
-            
-        exec_ctx.import_from(context, name_as)
         
-        return RunTimeResult().success(Null.null)
+        exec_ctx.parent.import_from(context, name_as)
+        
+        return RunTimeResult().success(String(name_as))
     execute_IMPORT.args = [make_args_struct("filename", String), make_args_struct("name_as", String, String(""))]
     
     def execute_RUN(self, exec_ctx: Context):
@@ -264,7 +264,7 @@ class BuiltInFunction(BaseFunction):
                 exec_ctx
             ))
 
-        _, error = run(fn, script, "<ShellRun>", True)
+        _, error = run(fn, script, "<ShellRun>", True, False, True)
 
         if error:
             return RunTimeResult().failure(RunTimeError(
@@ -290,4 +290,5 @@ class BuiltInFunction(BaseFunction):
     
 def define_builtin_functions(symbol_table: SymbolTable):
     for name in BuiltInFunctionNames:
-        symbol_table.set_as_immutable(name.value, BuiltInFunction(name.name, name.value), BuiltInFunction)
+        symbol_table.set_as_builtin(f"NAKATHON_{name.name}", BuiltInFunction(name.name, f"NAKATHON_{name.name}"), BuiltInFunction)
+        symbol_table.set(name.value, BuiltInFunction(name.name, name.value), BuiltInFunction)

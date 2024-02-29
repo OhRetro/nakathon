@@ -1,5 +1,6 @@
 from .utils.debug import DebugMessage
 from .datatypes.value import Value
+from copy import deepcopy
 
 debug_message = DebugMessage("").set_auto_display(True)
 symbol_table_count = 0
@@ -13,6 +14,8 @@ class SymbolTable:
         self.immutable_symbols: dict[str, (Value, Value)] = {}
         self.temporary_symbols: dict[str, (Value, Value, int)] = {}
         self.scoped_symbols: dict[str, (Value, Value)] = {}
+        
+        self.builtin_symbols: dict[str, (Value, Value)] = {}
         
         self.parent: SymbolTable = parent
         
@@ -44,6 +47,8 @@ class SymbolTable:
             symbol_table_name = "temporary_symbols"
         elif name in self.scoped_symbols and not calling_from_parent:
             symbol_table_name = "scoped_symbols"
+        elif name in self.builtin_symbols:
+            symbol_table_name = "builtin_symbols"
             
         if symbol_table_name is None and self.parent:
             symbol_table_name = self.parent.exists_in(name, True)
@@ -58,7 +63,8 @@ class SymbolTable:
             ("symbols", 1),
             ("immutable_symbols", 1),
             ("temporary_symbols", 1),
-            ("scoped_symbols", not calling_from_parent)
+            ("scoped_symbols", not calling_from_parent),
+            ("builtin_symbols", 1)
         ]
         
         for symbols in symbols_list:
@@ -99,6 +105,9 @@ class SymbolTable:
             elif name in self.scoped_symbols and not calling_from_parent:
                 value = self.scoped_symbols.get(name, [None])[0]
 
+            elif name in self.builtin_symbols:
+                value = self.builtin_symbols.get(name, [None])[0]
+                
             if value is None and self.parent:
                 debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': GET: CHECKING IN PARENT ST {self.parent.id}")
                 value = self.parent.get(name, True)
@@ -146,6 +155,9 @@ class SymbolTable:
         
     def set_as_scoped(self, name: str, value: Value, type: Value):
         return self._set_symbol(name, value, type, "scoped_symbols")
+
+    def set_as_builtin(self, name: str, value: Value, type: Value):
+        return self._set_symbol(name, value, type, "builtin_symbols")
         
     def remove(self, name: str):
         debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': DELETE")
@@ -160,5 +172,7 @@ class SymbolTable:
             
     def copy(self):
         copy = SymbolTable(self)
+        copy.symbols = deepcopy(self.symbols)
+        copy.immutable_symbols = deepcopy(self.immutable_symbols)
         return copy
             

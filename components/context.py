@@ -29,8 +29,7 @@ class Context:
         
         for symbols in symbols_list:
             for k, v in getattr(other.symbol_table, symbols).items():
-                getattr(self.symbol_table, symbols)[f"{name_as}.{k}"] = v
-            
+                getattr(self.symbol_table, symbols)[f"{name_as}_{k}"] = v
                 
     def __repr__(self) -> str:
         return f"<Context:{self.display_name}, Parent:{self.parent}>"
