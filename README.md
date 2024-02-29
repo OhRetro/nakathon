@@ -11,7 +11,10 @@
 <p style="text-align: center;">
 An Interpreted Programming Language made with Python; <br>
 with the purpose of to learn and how an interpreted language works.<br>
-Syntax based on other languages like JavaScript, C# and etc.
+Syntax based on other languages like JavaScript, C# and etc. <br>
+    <a href="https://marketplace.visualstudio.com/items?itemName=ohretro-naka.nakathon-syntax-highlight">
+        VSCode Nakathon Syntax Highlight Extension
+    </a>
 </p>
 
 ## Usage
