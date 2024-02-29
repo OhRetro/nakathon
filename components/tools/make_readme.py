@@ -138,6 +138,7 @@ RandomInt(min: Number, max: Number)
 RandomFloat(min: Number, max: Number)
 
 # Misc Functions
+Import(filename: string)
 Run(filename: string)
 Exit(code_number: Number = 0)
 
@@ -283,3 +284,4 @@ def make_readme():
     
 if __name__ == "__main__":
     make_readme()
+    

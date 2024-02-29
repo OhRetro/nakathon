@@ -1,0 +1,4 @@
+# this is meant to be imported from the imports_run.nkt file
+func Hello(name: String) {
+    return "Hello " + name + "!"
+}
