@@ -15,11 +15,14 @@ from .utils.strings_template import (IS_NOT_DEFINED_ERROR, CANNOT_OVERWRITE_IMMU
                                      NO_METHOD_DEFINED_ERROR, VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR,
                                      UNKNOWN_FAIL_TYPE_ERROR, VAR_TYPE_ALREADY_DECLARED_CANNOT_CHANGE_ERROR,
                                      WAS_NOT_INITIALIZED_ERROR)
+from .utils.debug import DebugMessage
 
+debug_message = DebugMessage("").set_auto_display(True)
 
 class Interpreter:
     def visit(self, node: Node, context: Context):
         method_name = f'visit_{type(node).__name__}'
+        debug_message.set_message(f"VISIT: {method_name}")
         method = getattr(self, method_name, self.no_visit_method)
         return method(node, context)
 

@@ -3,10 +3,12 @@ from inspect import currentframe as i_currentframe, getouterframes as i_getouter
 
 basicConfig(format = "[%(levelname)s]: %(message)s", level = DEBUG, encoding = "utf-8")
 
-GLOBAL_ENABLED = 1
+DEFAULT_ENABLED = 1
+ALL_USES_DEFAULT = 0
 
-CLASSES_ENABLED = {
+COMPONENTS_ENABLED = {
     "context.py": 0,
+    "interpreter.py": 0,
     "node.py": 0,
     "symbol_table.py": 0,
     "token.py": 0,
@@ -23,13 +25,15 @@ class DebugMessage:
         self.caller = calframe[1][1].replace("\\", "/").split("/")[-1]
         
         self.set_auto_display(auto_display_on_message_set)
-        self.set_enabled(CLASSES_ENABLED.get(self.caller, GLOBAL_ENABLED))
+        self.set_enabled(COMPONENTS_ENABLED.get(self.caller, DEFAULT_ENABLED) if not ALL_USES_DEFAULT else DEFAULT_ENABLED)
         self.set_message(message)
         
     def display(self):
         if not self.enabled: return
-
-        log(DEBUG, f"[{self.caller}]: {self.message}")
+        curframe = i_currentframe()
+        calframe = i_getouterframes(curframe, 2)
+ 
+        log(DEBUG, f"[{self.caller}]: [{calframe[2][3]}]: {self.message}")
         return self.message
         
     def set_message(self, message):
