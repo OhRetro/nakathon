@@ -3,6 +3,10 @@ var hello_world = "Hello, world!"
 
 Print(hello_world)
 
+hello_world = "Hello world!" 
+
+Print(hello_world)
+
 # Constant Variable
 const PI = 3.14
 
@@ -25,11 +29,11 @@ local local_var = "Hello"
 
 Print(local_var)
 
-func hi() {
+func Hi() {
     local local_var = "hi"
     
     Print(local_var)
 }
 
-hi()
+Hi()
 Print(local_var)

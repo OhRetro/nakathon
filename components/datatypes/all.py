@@ -9,13 +9,16 @@ from .builtin_function import BuiltInFunction
 
 def make_value_type(name: str):
     map = {
-        "Any": Value,
         "Value": Value,
+        "Any": Value,
         "Number": Number,
+        "Int": Number,
         "Float": Number,
         "String": String,
         "List": List,
         "Boolean": Boolean,
+        "Bool": Boolean,
+        "Null": Null,
         "Function": Function
     }
         

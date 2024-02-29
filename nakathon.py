@@ -3,7 +3,7 @@ from components.wrapper import run, set_global
 from components.datatypes.all import String
 from components.utils.misc import set_console_title
 
-VERSION = [1, 4, 1]
+VERSION = [1, 5, 0]
 
 def start():
     theres_args = len(argv) > 1

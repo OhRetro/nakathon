@@ -4,16 +4,18 @@ from .datatypes.all import (
 )
 from .context import Context
 from .node import (Node, NumberNode, StringNode,
-                   ListNode, VarAccessNode, VarAssignNode, ScopedVarAssignNode,
+                   ListNode, VarAccessNode, VarAssignNode, ScopedVarAssignNode, VarReassignNode,
                    ImmutableVarAssignNode, TempVarAssignNode, BinOpNode,
                    UnaryOpNode, IfNode, ForNode, WhileNode,
                    FuncDefNode, CallNode, ReturnNode, ContinueNode, BreakNode)
-from .token import TokenType
+from .token import Token, TokenType
 from .keyword import Keyword
 from .runtime import RunTimeResult
 from .error import RunTimeError
-from .utils.strings_template import (IS_NOT_DEFINED_ERROR, CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR,
-                                     NO_METHOD_DEFINED_ERROR, VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR)
+from .utils.strings_template import (IS_NOT_DEFINED_ERROR, CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR, VAR_TYPE_INVALID_ERROR,
+                                     NO_METHOD_DEFINED_ERROR, VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR,
+                                     UNKNOWN_FAIL_TYPE_ERROR, VAR_TYPE_ALREADY_DECLARED_CANNOT_CHANGE_ERROR,
+                                     WAS_NOT_INITIALIZED_ERROR)
 
 
 class Interpreter:
@@ -68,15 +70,41 @@ class Interpreter:
         value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
 
-    def _var_assign(self, node: VarAssignNode|ImmutableVarAssignNode|TempVarAssignNode|ScopedVarAssignNode, context: Context, method: str = "set", lifetime: int = None):
+    def visit_VarReassignNode(self, node: VarReassignNode, context: Context):
+        res = RunTimeResult()
+        var_name = node.var_name_tok.value
+        var_symbols_table = context.symbol_table.exists_in(var_name)
+        
+        if var_symbols_table is not None:
+            var_type = getattr(context.symbol_table, var_symbols_table)[var_name][1]
+            var_assign = node.var_assign_type_tok
+            method = f"set_as_{var_symbols_table.removesuffix('_symbols')}" if var_symbols_table != "symbols" else "set"
+
+            lifetime = None
+            
+            if var_symbols_table == "temporary_symbols":
+                lifetime = getattr(context.symbol_table, var_symbols_table)[var_name][2]
+                lifetime += -1 # if var_assign.type != TokenType.EQUALS else -1
+                
+            type_token = Token(TokenType.IDENTIFIER, var_type.__qualname__)
+                
+            return self._var_assign(VarAssignNode(node.var_name_tok, node.value_node, type_token, var_assign), context, method, lifetime)
+        else:
+            return res.failure(RunTimeError(
+                node.pos_start, node.pos_end,
+                WAS_NOT_INITIALIZED_ERROR.format(var_name),
+                context
+            ))
+    
+    def _var_assign(self, node: VarAssignNode, context: Context, method: str = "set", lifetime: int = None):
         res = RunTimeResult()
         var_name = node.var_name_tok.value
         var_type = make_value_type(node.var_type_tok.value)
-        var_assign = node.var_assign_tok
+        var_assign = node.var_assign_type_tok
         value = res.register(self.visit(node.value_node, context))
         
-        symbols_name = method.removeprefix("set").removesuffix("_as_") + ("_symbols" if method != "set" else "symbols")
-        
+        symbols_name = method.removeprefix("set").replace("_as_", "") + ("_symbols" if method != "set" else "symbols")
+
         if context.symbol_table._exists(var_name, symbols_name) and var_assign.type != TokenType.EQUALS:
             current_value = context.symbol_table.get(var_name)
 
@@ -99,13 +127,20 @@ class Interpreter:
         if res.should_return():
             return res
         
+        if var_type is None:
+            return res.failure(RunTimeError(
+                node.pos_start, node.pos_end,
+                VAR_TYPE_INVALID_ERROR.format(var_name),
+                context
+            ))
+            
         if not isinstance(value, var_type):
             return res.failure(RunTimeError(
                 node.pos_start, node.pos_end,
                 VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR.format(var_name, var_type.__qualname__),
                 context
             ))
-
+        
         success, fail_type = getattr(context.symbol_table, method)(var_name, value, var_type) if lifetime is None else getattr(context.symbol_table, method)(var_name, value, var_type, lifetime)
         
         if success: return res.success(value)
@@ -118,13 +153,13 @@ class Interpreter:
         elif fail_type == "type": 
             return res.failure(RunTimeError(
                 node.pos_start, node.pos_end,
-                f"Cannot change variable '{var_name}' value type once initialized",
+                VAR_TYPE_ALREADY_DECLARED_CANNOT_CHANGE_ERROR.format(var_name),
                 context
             ))
         else: 
             return res.failure(RunTimeError(
                 node.pos_start, node.pos_end,
-                "Unknown Fail Type",
+                UNKNOWN_FAIL_TYPE_ERROR,
                 context
             ))
 
@@ -139,7 +174,7 @@ class Interpreter:
 
     def visit_ScopedVarAssignNode(self, node: ScopedVarAssignNode, context: Context):
         return self._var_assign(node, context, "set_as_scoped")
-        
+    
     def visit_BinOpNode(self, node: BinOpNode, context: Context):
         res = RunTimeResult()
         left = res.register(self.visit(node.left_node, context))

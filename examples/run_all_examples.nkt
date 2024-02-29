@@ -1,0 +1,6 @@
+Run("./examples/conditions.nkt")
+Run("./examples/for_while_loop.nkt")
+Run("./examples/functions.nkt")
+Run("./examples/inputs.nkt")
+Run("./examples/randoms.nkt")
+Run("./examples/variables.nkt")

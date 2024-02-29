@@ -11,12 +11,12 @@ debug_message = DebugMessage("").set_auto_display(True)
 
 global_symbol_table = SymbolTable()
 
-def set_global(name: str, value: Value):
-    global_symbol_table.set_as_immutable(name, value, Value)
+def set_global(name: str, value: Value, type: Value = Value):
+    global_symbol_table.set_as_immutable(name, value, type)
     
-set_global("null", Null.null)
-set_global("false", Boolean.false)
-set_global("true", Boolean.true)
+set_global("null", Null.null, Null)
+set_global("false", Boolean.false, Boolean)
+set_global("true", Boolean.true, Boolean)
 define_builtin_functions(global_symbol_table)
 
 def run(fn: str, text: str, context_name: str, calling_external_code: bool = False):  

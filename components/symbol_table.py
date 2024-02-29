@@ -18,10 +18,28 @@ class SymbolTable:
         
         symbol_table_count += 1
         debug_message.set_message(f"ST {self.id}: CREATED")
-    
+
     def _exists(self, name: str, symbols_name: str, extra_condition: bool = True):
         return name in getattr(self, symbols_name) and extra_condition
-    
+
+    def exists_in(self, name: str, calling_from_parent: bool = False):
+        debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': CHECKING SYMBOL TYPE")
+        symbol_table_name = None
+        
+        if name in self.symbols:
+            symbol_table_name = "symbols"
+        elif name in self.immutable_symbols:
+            symbol_table_name = "immutable_symbols"
+        elif name in self.temporary_symbols:
+            symbol_table_name = "temporary_symbols"
+        elif name in self.scoped_symbols and not calling_from_parent:
+            symbol_table_name = "scoped_symbols"
+            
+        if symbol_table_name is None and self.parent:
+            symbol_table_name = self.parent.exists_in(name, True)
+            
+        return symbol_table_name
+            
     def exists(self, name: str, calling_from_parent: bool = False):
         exists = False
         if not calling_from_parent: debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: CHECKING")
@@ -66,7 +84,7 @@ class SymbolTable:
                 
                 if value is not None:
                     new_lifetime = self.temporary_symbols[name][2] - 1 or 0
-                    self.set_as_temp(name, value, type, new_lifetime)
+                    self.set_as_temporary(name, value, type, new_lifetime)
                     
             elif name in self.scoped_symbols and not calling_from_parent:
                 value = self.scoped_symbols.get(name, [None])[0]
@@ -129,8 +147,6 @@ class SymbolTable:
             del self.temporary_symbols[name]
         elif name in self.scoped_symbols:
             del self.scoped_symbols[name]
-            
-        del self.symbol_types[name]
             
     def copy(self):
         copy = SymbolTable(self)

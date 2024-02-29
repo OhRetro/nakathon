@@ -100,13 +100,14 @@ class BuiltInFunction(BaseFunction):
 
     def execute_INPUTNUMBER(self, exec_ctx: Context):
         text = input(exec_ctx.symbol_table.get("prompt").__print_repr__())
+        success = False
         try:
             number = int(text) if "." not in text else float(text)
             success = True
         except ValueError:
             pass
 
-        return RunTimeResult().success(Number(number) if success else Null.nill)
+        return RunTimeResult().success(Number(number) if success else Null.null)
     execute_INPUTNUMBER.args = [make_args_struct("prompt", String, String("> "))]
 
     def execute_CLEAR(self, exec_ctx: Context):

@@ -4,9 +4,10 @@ from .token import Token, TokenType
 from .keyword import Keyword
 from .node import (NumberNode, StringNode, BinOpNode,
                    UnaryOpNode, VarAccessNode, VarAssignNode,
-                   ImmutableVarAssignNode, TempVarAssignNode, ScopedVarAssignNode,
+                   ImmutableVarAssignNode, TempVarAssignNode, ScopedVarAssignNode, VarReassignNode,
                    CallNode, ForNode, FuncDefNode, IfNode,
                    WhileNode, ListNode, ReturnNode, ContinueNode, BreakNode)
+from .utils.strings_template import CANNOT_DECLARE_TYPE_AFTER_DECLARED_ERROR
 from .utils.expected import expected
 
 class ParseResult:
@@ -221,7 +222,7 @@ class Parser:
                     expected(TokenType.EQUALS, TokenType.PLUSE, TokenType.MINUSE, TokenType.MULE, TokenType.DIVE, TokenType.POWERE, TokenType.DIVRESTE)
                 ))
                 
-            var_assign_tok = self.current_tok
+            var_assign_type_tok = self.current_tok
 
             res.register_advancement()
             self.advance()
@@ -230,16 +231,43 @@ class Parser:
                 return res
 
             if var_keyword_tok.value == Keyword.SETVAR:
-                node_ret = VarAssignNode(var_name_tok, expr, var_type_tok, var_assign_tok)
+                node_ret = VarAssignNode(var_name_tok, expr, var_type_tok, var_assign_type_tok)
             elif var_keyword_tok.value == Keyword.SETIMMUTABLEVAR:
-                node_ret = ImmutableVarAssignNode(var_name_tok, expr, var_type_tok, var_assign_tok)
+                node_ret = ImmutableVarAssignNode(var_name_tok, expr, var_type_tok, var_assign_type_tok)
             elif var_keyword_tok.value == Keyword.SETTEMPVAR:
-                node_ret = TempVarAssignNode(var_name_tok, expr, var_type_tok, var_assign_tok, temp_lifetime)
+                node_ret = TempVarAssignNode(var_name_tok, expr, var_type_tok, var_assign_type_tok, temp_lifetime)
             elif var_keyword_tok.value == Keyword.SETSCOPEDVAR:
-                node_ret = ScopedVarAssignNode(var_name_tok, expr, var_type_tok, var_assign_tok)
+                node_ret = ScopedVarAssignNode(var_name_tok, expr, var_type_tok, var_assign_type_tok)
 
             return res.success(node_ret)
 
+        if self.current_tok.type == TokenType.IDENTIFIER:                
+            var_name_tok = self.current_tok
+            
+            res.register_advancement()
+            self.advance()
+
+            if self.current_tok.type in (TokenType.EQUALS, TokenType.PLUSE, TokenType.MINUSE, TokenType.MULE, TokenType.DIVE, TokenType.POWERE, TokenType.DIVRESTE):
+                var_assign_type_tok = self.current_tok
+
+                res.register_advancement()
+                self.advance()
+                
+                expr = res.register(self.expr())
+                if res.error:
+                    return res
+
+                return res.success(VarReassignNode(var_name_tok, expr, var_assign_type_tok))
+            
+            elif self.current_tok.type == TokenType.COLON:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    CANNOT_DECLARE_TYPE_AFTER_DECLARED_ERROR
+                ))
+            
+            else:
+                self.reverse()
+        
         node = res.register(self.bin_op(
             self.comp_expr, ((TokenType.KEYWORD, Keyword.AND), (TokenType.KEYWORD, Keyword.OR))))
 

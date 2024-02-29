@@ -47,27 +47,35 @@ class VarAccessNode(Node):
         super().__init__(var_name_tok)
 
 class VarAssignNode(Node):
-    def __init__(self, var_name_tok: Token, value_node: Node, var_type_tok: Value, var_assign_tok: Token):
+    def __init__(self, var_name_tok: Token, value_node: Node, var_type_tok: Value, var_assign_type_tok: Token):
         self.var_name_tok = var_name_tok
         self.var_type_tok = var_type_tok
-        self.var_assign_tok = var_assign_tok
+        self.var_assign_type_tok = var_assign_type_tok
         self.value_node = value_node
         super().__init__(var_name_tok)
         self.display = f"{self.var_name_tok}:{self.var_type_tok.value}:{self.value_node}"
         self.pos_end = self.value_node.pos_end
 
 class ImmutableVarAssignNode(VarAssignNode):
-    def __init__(self, var_name_tok: Token, value_node: Node, var_type_tok: Value, var_assign_tok: Token):
-        super().__init__(var_name_tok, value_node, var_type_tok, var_assign_tok)
+    def __init__(self, var_name_tok: Token, value_node: Node, var_type_tok: Value, var_assign_type_tok: Token):
+        super().__init__(var_name_tok, value_node, var_type_tok, var_assign_type_tok)
 
 class TempVarAssignNode(VarAssignNode):
-    def __init__(self, var_name_tok: Token, value_node: Node, var_type_tok: Value, var_assign_tok: Token, lifetime_tok: Token):
-        super().__init__(var_name_tok, value_node, var_type_tok, var_assign_tok)
+    def __init__(self, var_name_tok: Token, value_node: Node, var_type_tok: Value, var_assign_type_tok: Token, lifetime_tok: Token):
+        super().__init__(var_name_tok, value_node, var_type_tok, var_assign_type_tok)
         self.lifetime_tok = lifetime_tok
 
 class ScopedVarAssignNode(VarAssignNode):
-    def __init__(self, var_name_tok: Token, value_node: Node, var_type_tok: Value, var_assign_tok: Token):
-        super().__init__(var_name_tok, value_node, var_type_tok, var_assign_tok)
+    def __init__(self, var_name_tok: Token, value_node: Node, var_type_tok: Value, var_assign_type_tok: Token):
+        super().__init__(var_name_tok, value_node, var_type_tok, var_assign_type_tok)
+
+class VarReassignNode(Node):
+    def __init__(self, var_name_tok: Token, value_node: Node, var_assign_type_tok: Token):
+        self.var_name_tok = var_name_tok
+        self.value_node = value_node
+        self.var_assign_type_tok = var_assign_type_tok
+        super().__init__(var_name_tok)
+        self.pos_end = self.value_node.pos_end
 
 class BinOpNode(Node):
     def __init__(self, left_node: Node, op_tok: Token, right_node: Node):

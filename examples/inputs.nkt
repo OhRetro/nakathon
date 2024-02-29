@@ -9,4 +9,9 @@ Print("Tell me, what's your favorite number?")
 
 var number = InputNumber()
 
-Print(ToString(number) + " is your favorite number! mine too!")
+if number == null {
+    Print("You have no favorite number? ok then")
+    
+} else {
+    Print(ToString(number) + " is your favorite number! mine too!")
+}
