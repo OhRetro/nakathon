@@ -148,7 +148,7 @@ def make_out_args(input_arg_values: list[Value], default_arg_values: list[Value]
         if index_exists(default_arg_values, i) and try_get(default_arg_values, i):
             new_args[i] = default_arg_values[i]
             
-        if index_exists(input_arg_values, i) and try_get(new_args, i) is None:
+        if index_exists(input_arg_values, i) and (try_get(new_args, i) is None or try_get(input_arg_values, i) != try_get(default_arg_values, i)):
             try_set(new_args, i, try_get(input_arg_values, i))
     
     debug_message.set_message(f"{function_name}: ARG VALUES: NEW: {new_args}")

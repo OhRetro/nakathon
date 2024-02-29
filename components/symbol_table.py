@@ -18,6 +18,16 @@ class SymbolTable:
         
         symbol_table_count += 1
         debug_message.set_message(f"ST {self.id}: CREATED")
+        
+    def merge(self, other):
+        symbols_list = [
+            "symbols",
+            "immutable_symbols"
+        ]
+        
+        for symbols in symbols_list:
+            for k, v in getattr(other, symbols).items():
+                getattr(self, symbols)[k] = v
 
     def _exists(self, name: str, symbols_name: str, extra_condition: bool = True):
         return name in getattr(self, symbols_name) and extra_condition

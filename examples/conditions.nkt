@@ -1,5 +1,5 @@
-temp state1 6 = true
-temp state2 6 = true
+temp state1: Bool 6 = true
+temp state2: Boolean 6 = true
 
 if state1 {
     Print("State 1 is true")

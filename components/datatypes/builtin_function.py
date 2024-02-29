@@ -41,6 +41,7 @@ class BuiltInFunctionNames(Enum):
     RANDOMINT = "RandomInt"
     RANDOMFLOAT = "RandomFloat"
     
+    IMPORT = "Import"
     RUN = "Run"
     EXIT = "Exit"
 
@@ -208,20 +209,51 @@ class BuiltInFunction(BaseFunction):
         max: Number = exec_ctx.symbol_table.get("max")
         return RunTimeResult().success(Number(uniform(min.value, max.value)))
     execute_RANDOMFLOAT.args = [make_args_struct("min", Number), make_args_struct("max", Number)]
+
+    def execute_IMPORT(self, exec_ctx: Context):
+        from ..wrapper import run
+        fn: String = exec_ctx.symbol_table.get("filename")
+        name_as: String = exec_ctx.symbol_table.get("name_as")
+
+        fn: str = fn.value
+        name_as = name_as.value.replace(" ", "_")
+
+        if name_as == "":
+            name_as = fn.replace("\\", "/").split("/")[-1].removesuffix(".nkt")
+        
+        fn += ".nkt" if not fn.endswith(".nkt") else ""
+        
+        try:
+            with open(fn, "r", encoding="utf-8") as f:
+                script = f.read()
+        except Exception as e:
+            return RunTimeResult().failure(RunTimeError(
+                self.pos_start, self.pos_end,
+                f"Failed to load \"{fn}\"\n" + str(e),
+                exec_ctx
+            ))
+
+        _, error, context = run(fn, script, "<ShellImport>", True, True)
+
+        if error:
+            return RunTimeResult().failure(RunTimeError(
+                self.pos_start, self.pos_end,
+                f"Failed to finish importing \"{fn}\"\n" +
+                error.as_string(),
+                exec_ctx
+            ))
+            
+        exec_ctx.import_from(context, name_as)
+        
+        return RunTimeResult().success(Null.null)
+    execute_IMPORT.args = [make_args_struct("filename", String), make_args_struct("name_as", String, String(""))]
     
     def execute_RUN(self, exec_ctx: Context):
         from ..wrapper import run
         fn: String = exec_ctx.symbol_table.get("filename")
-
-        if not isinstance(fn, String):
-            return RunTimeResult().failure(RunTimeError(
-                self.pos_start, self.pos_end,
-                "Arg must be string",
-                exec_ctx
-            ))
-
         fn = fn.value
-
+        fn += ".nkt" if not fn.endswith(".nkt") else ""
+        
         try:
             with open(fn, "r", encoding="utf-8") as f:
                 script = f.read()
@@ -241,7 +273,7 @@ class BuiltInFunction(BaseFunction):
                 error.as_string(),
                 exec_ctx
             ))
-
+        
         return RunTimeResult().success(Null.null)
     execute_RUN.args = [make_args_struct("filename", String)]
     

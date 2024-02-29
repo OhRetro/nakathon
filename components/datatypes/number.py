@@ -72,13 +72,13 @@ class Number(Value):
         return self.illegal_operation(other)
 
     def get_comparison_eq(self, other):
-        if isinstance(other, Number):
+        if isinstance(other, Value):
             return Boolean(self.value == other.value).set_context(self.context), None
         
         return self.illegal_operation(other)
 
     def get_comparison_ne(self, other):
-        if isinstance(other, Number):
+        if isinstance(other, Value):
             return Boolean(self.value != other.value).set_context(self.context), None
         
         return self.illegal_operation(other)
@@ -108,13 +108,13 @@ class Number(Value):
         return self.illegal_operation(other)
 
     def anded_by(self, other):
-        if isinstance(other, Number):
+        if isinstance(other, Value):
             return Boolean(self.value and other.value).set_context(self.context), None
         
         return self.illegal_operation(other)
 
     def ored_by(self, other):
-        if isinstance(other, Number):
+        if isinstance(other, Value):
             return Boolean(self.value or other.value).set_context(self.context), None
         
         return self.illegal_operation(other)

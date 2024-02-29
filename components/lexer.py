@@ -6,7 +6,7 @@ from string import ascii_letters
 
 DIGITS = "0123456789"
 LETTERS = ascii_letters
-SPECIAL_CHARACTERS = "&|"
+SPECIAL_CHARACTERS = "&|."
 LETTERS_DIGITS = LETTERS + DIGITS
 
 class Lexer:
