@@ -3,8 +3,7 @@ from .error import InvalidSyntaxError
 from .token import Token, TokenType
 from .keyword import Keyword
 from .node import (NumberNode, StringNode, BinOpNode,
-                   UnaryOpNode, VarAccessNode, VarAssignNode,
-                   ImmutableVarAssignNode, TempVarAssignNode, ScopedVarAssignNode, VarReassignNode,
+                   UnaryOpNode, VarAccessNode, VarAssignNode, VarReassignNode,
                    CallNode, ForNode, FuncDefNode, IfNode,
                    WhileNode, ListNode, ReturnNode, ContinueNode, BreakNode)
 from .utils.strings_template import CANNOT_DECLARE_TYPE_AFTER_DECLARED_ERROR
@@ -166,8 +165,8 @@ class Parser:
             self.current_tok.matches(TokenType.KEYWORD, Keyword.SETSCOPEDVAR)):
             
             var_keyword_tok = self.current_tok
-            var_type_tok = None
-            var_type_specified = False
+            var_value_type_tok = None
+            var_value_type_specified = False
 
             res.register_advancement()
             self.advance()
@@ -193,16 +192,17 @@ class Parser:
                         expected(TokenType.IDENTIFIER)
                     ))
                     
-                var_type_tok = self.current_tok
+                var_value_type_tok = self.current_tok
                 
-                var_type_specified = True
+                var_value_type_specified = True
                 
                 if var_keyword_tok.value == Keyword.SETTEMPVAR:
                     res.register_advancement()
                     self.advance()
             else:
-                var_type_tok = Token(TokenType.IDENTIFIER, "Any")
+                var_value_type_tok = Token(TokenType.IDENTIFIER, "Any")
             
+            var_lifetime = None
             if var_keyword_tok.value == Keyword.SETTEMPVAR:
                 if self.current_tok.type != TokenType.INT:
                     return res.failure(InvalidSyntaxError(
@@ -210,9 +210,9 @@ class Parser:
                         expected(TokenType.INT)
                     ))
 
-                temp_lifetime = self.current_tok
+                var_lifetime = self.current_tok.value
 
-            if var_type_specified or var_keyword_tok.value == Keyword.SETTEMPVAR:
+            if var_value_type_specified or var_keyword_tok.value == Keyword.SETTEMPVAR:
                 res.register_advancement()
                 self.advance()
 
@@ -231,15 +231,15 @@ class Parser:
                 return res
 
             if var_keyword_tok.value == Keyword.SETVAR:
-                node_ret = VarAssignNode(var_name_tok, expr, var_type_tok, var_assign_type_tok)
+                var_method = "set"
             elif var_keyword_tok.value == Keyword.SETIMMUTABLEVAR:
-                node_ret = ImmutableVarAssignNode(var_name_tok, expr, var_type_tok, var_assign_type_tok)
+                var_method = "set_as_immutable"
             elif var_keyword_tok.value == Keyword.SETTEMPVAR:
-                node_ret = TempVarAssignNode(var_name_tok, expr, var_type_tok, var_assign_type_tok, temp_lifetime)
+                var_method = "set_as_temporary"
             elif var_keyword_tok.value == Keyword.SETSCOPEDVAR:
-                node_ret = ScopedVarAssignNode(var_name_tok, expr, var_type_tok, var_assign_type_tok)
+                var_method = "set_as_scoped"
 
-            return res.success(node_ret)
+            return res.success(VarAssignNode(var_name_tok, expr, var_value_type_tok, var_assign_type_tok, var_method, var_lifetime))
 
         if self.current_tok.type == TokenType.IDENTIFIER:                
             var_name_tok = self.current_tok

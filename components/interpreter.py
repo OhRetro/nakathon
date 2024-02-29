@@ -4,9 +4,8 @@ from .datatypes.all import (
 )
 from .context import Context
 from .node import (Node, NumberNode, StringNode,
-                   ListNode, VarAccessNode, VarAssignNode, ScopedVarAssignNode, VarReassignNode,
-                   ImmutableVarAssignNode, TempVarAssignNode, BinOpNode,
-                   UnaryOpNode, IfNode, ForNode, WhileNode,
+                   ListNode, VarAccessNode, VarAssignNode, VarReassignNode,
+                   BinOpNode, UnaryOpNode, IfNode, ForNode, WhileNode,
                    FuncDefNode, CallNode, ReturnNode, ContinueNode, BreakNode)
 from .token import Token, TokenType
 from .keyword import Keyword
@@ -77,18 +76,18 @@ class Interpreter:
         
         if var_symbols_table is not None:
             var_type = getattr(context.symbol_table, var_symbols_table)[var_name][1]
-            var_assign = node.var_assign_type_tok
+
             method = f"set_as_{var_symbols_table.removesuffix('_symbols')}" if var_symbols_table != "symbols" else "set"
 
             lifetime = None
             
             if var_symbols_table == "temporary_symbols":
                 lifetime = getattr(context.symbol_table, var_symbols_table)[var_name][2]
-                lifetime += -1 # if var_assign.type != TokenType.EQUALS else -1
+                lifetime += -1
                 
             type_token = Token(TokenType.IDENTIFIER, var_type.__qualname__)
                 
-            return self._var_assign(VarAssignNode(node.var_name_tok, node.value_node, type_token, var_assign), context, method, lifetime)
+            return self._var_assign(VarAssignNode(node.var_name_tok, node.value_node, type_token, node.var_assign_type_tok, method, lifetime), context, method, lifetime)
         else:
             return res.failure(RunTimeError(
                 node.pos_start, node.pos_end,
@@ -96,10 +95,10 @@ class Interpreter:
                 context
             ))
     
-    def _var_assign(self, node: VarAssignNode, context: Context, method: str = "set", lifetime: int = None):
+    def _var_assign(self, node: VarAssignNode, context: Context, method: str, lifetime: int = None):
         res = RunTimeResult()
         var_name = node.var_name_tok.value
-        var_type = make_value_type(node.var_type_tok.value)
+        var_type = make_value_type(node.var_value_type_tok.value)
         var_assign = node.var_assign_type_tok
         value = res.register(self.visit(node.value_node, context))
         
@@ -164,16 +163,7 @@ class Interpreter:
             ))
 
     def visit_VarAssignNode(self, node: VarAssignNode, context: Context):
-        return self._var_assign(node, context, "set")
-    
-    def visit_ImmutableVarAssignNode(self, node: ImmutableVarAssignNode, context: Context):
-        return self._var_assign(node, context, "set_as_immutable")
- 
-    def visit_TempVarAssignNode(self, node: TempVarAssignNode, context: Context):
-        return self._var_assign(node, context, "set_as_temporary", node.lifetime_tok.value)
-
-    def visit_ScopedVarAssignNode(self, node: ScopedVarAssignNode, context: Context):
-        return self._var_assign(node, context, "set_as_scoped")
+        return self._var_assign(node, context, node.method, node.lifetime)
     
     def visit_BinOpNode(self, node: BinOpNode, context: Context):
         res = RunTimeResult()

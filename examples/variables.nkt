@@ -1,5 +1,5 @@
 # Variable
-var hello_world = "Hello, world!" 
+var hello_world: String = "Hello, world!" 
 
 Print(hello_world)
 
@@ -8,12 +8,12 @@ hello_world = "Hello world!"
 Print(hello_world)
 
 # Constant Variable
-const PI = 3.14
+const PI: Number = 3.14
 
 Print(PI)
 
 # Temporary Variable
-temp bye_bye 2 = "I'm going to stop existing once I'm referenced 2 times"
+temp bye_bye: String 2 = "I'm going to stop existing once I'm referenced 2 times"
 
 Print(bye_bye)
 Print(bye_bye)
