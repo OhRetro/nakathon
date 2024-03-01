@@ -1,5 +1,6 @@
 from .datatypes.all import (
     Number, Function, String, List, Null,
+    BaseFunction,
     make_value, make_value_type
 )
 from .context import Context
@@ -11,7 +12,7 @@ from .token import Token, TokenType
 from .keyword import Keyword
 from .runtime import RunTimeResult
 from .error import RunTimeError
-from .utils.strings_template import (IS_NOT_DEFINED_ERROR, CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR, VAR_TYPE_INVALID_ERROR,
+from .utils.strings_template import (IS_NOT_DEFINED_ERROR, CANNOT_OVERWRITE_IMMUTABLE_BUILTIN_VAR_FUNC_ERROR, VAR_TYPE_INVALID_ERROR,
                                      NO_METHOD_DEFINED_ERROR, VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR,
                                      UNKNOWN_FAIL_TYPE_ERROR, VAR_TYPE_ALREADY_DECLARED_CANNOT_CHANGE_ERROR,
                                      WAS_NOT_INITIALIZED_ERROR)
@@ -136,10 +137,10 @@ class Interpreter:
                 context
             ))
             
-        if not isinstance(value, var_type):
+        if not isinstance(value, var_type) and not issubclass(value.__class__, BaseFunction):
             return res.failure(RunTimeError(
                 node.pos_start, node.pos_end,
-                VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR.format(var_name, var_type.__qualname__),
+                VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR.format(var_name, var_type.__qualname__, value),
                 context
             ))
         
@@ -149,7 +150,7 @@ class Interpreter:
         elif fail_type == "const": 
             return res.failure(RunTimeError(
                 node.pos_start, node.pos_end,
-                CANNOT_OVERWRITE_IMMUTABLE_VAR_ERROR.format(var_name),
+                CANNOT_OVERWRITE_IMMUTABLE_BUILTIN_VAR_FUNC_ERROR.format(var_name),
                 context
             ))
         elif fail_type == "type": 

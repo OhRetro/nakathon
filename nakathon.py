@@ -1,6 +1,6 @@
 from sys import argv
 from components.utils.misc import get_abs_path
-from components.wrapper import run, set_global
+from components.wrapper import run, set_builtin
 from components.datatypes.all import String
 from components.utils.misc import set_console_title
 
@@ -11,7 +11,7 @@ def start():
     is_running_a_script = theres_args and not argv[1].startswith("--")
     _version = ".".join([str(x) for x in VERSION])
     
-    set_global("NAKATHON_VERSION", String(f"v{_version}"))
+    set_builtin("NAKATHON_VERSION", String(f"v{_version}"))
 
     set_console_title(f"Nakathon v{_version}")
     
@@ -21,7 +21,7 @@ def start():
             try:
                 text = input("Nakathon Shell > ")
                 if not text.strip(): continue 
-                result, error = run("<stdin>", text, "<Shell>")
+                result, error, _ = run("<stdin>", text, "<Shell>")
                     
                 if error: print(error.as_string())
                 elif result: 
@@ -43,9 +43,12 @@ def start():
                 f"Failed to load script \"{fn}\"\n" + str(e)
             )
 
-        _, error = run(fn, script, "<External>", True, cwd=get_abs_path(fn))
-        if error: print(error.as_string())
-                
+        try:
+            _, error, _ = run(fn, script, "<External>", True, cwd=get_abs_path(fn))
+            if error: print(error.as_string())
+        except KeyboardInterrupt:
+            print("\nExiting...")
+        
     elif not is_running_a_script and theres_args:
         if argv[1] == "--version":
             print(f"v{_version}")

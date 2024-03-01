@@ -78,11 +78,11 @@ class SymbolTable:
         if not calling_from_parent: debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: {exists}")
         return exists
 
-    def _is_immutable_check(self, name: str):
-        exists = self._exists(name, "immutable_symbols")
+    def _is_immutable_or_builtin_check(self, name: str):
+        exists = self._exists(name, "immutable_symbols") or self._exists(name, "builtin_symbols")
         
         if not exists and self.parent:
-            exists = self.parent._is_immutable_check(name)
+            exists = self.parent._is_immutable_or_builtin_check(name)
         
         return exists
     
@@ -121,11 +121,10 @@ class SymbolTable:
         
         if self._exists(name, symbols_name):
             current_type = getattr(self, symbols_name)[name][1]
-
             if type != current_type:
                 fail_type = "type"
         
-        if not self._is_immutable_check(name) and fail_type == "const":
+        if not self._is_immutable_or_builtin_check(name) and fail_type == "const":
             if symbols_name.startswith("temp"):
                 lifetime = kwargs.get("lifetime", 0)
                 if not self._exists(name, symbols_name):

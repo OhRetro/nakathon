@@ -217,10 +217,10 @@ class BuiltInFunction(BaseFunction):
         from ..wrapper import run
         fn = exec_ctx.symbol_table.get("filename").value
         cwd = exec_ctx.symbol_table.get("NAKATHON_CWD").value
-        name_as = exec_ctx.symbol_table.get("name_as").value.replace(" ", "_")
+        namespace = exec_ctx.symbol_table.get("namespace").value.replace(" ", "_")
 
-        if name_as == "":
-            name_as = fn.replace("\\", "/").split("/")[-1].removesuffix(".nkt")
+        if namespace == "":
+            namespace = fn.replace("\\", "/").split("/")[-1].removesuffix(".nkt")
         
         fn += ".nkt" if not fn.endswith(".nkt") else ""
         
@@ -237,7 +237,7 @@ class BuiltInFunction(BaseFunction):
                 exec_ctx
             ))
 
-        _, error, context = run(fn, script, "<ShellImport>", True, True, True, cwd=import_cwd)
+        _, error, context = run(fn, script, "<Import>", True, True, cwd=import_cwd)
         
         if error:
             return RunTimeResult().failure(RunTimeError(
@@ -247,13 +247,13 @@ class BuiltInFunction(BaseFunction):
                 exec_ctx
             ))
         
-        if name_as != "*":
-            exec_ctx.parent.import_from(context, name_as)
+        if namespace != "*":
+            exec_ctx.parent.import_from(context, namespace)
         else:
             exec_ctx.parent.merge(context)
         
-        return RunTimeResult().success(String(name_as))
-    execute_IMPORT.args = [make_args_struct("filename", String), make_args_struct("name_as", String, String(""))]
+        return RunTimeResult().success(String(namespace))
+    execute_IMPORT.args = [make_args_struct("filename", String), make_args_struct("namespace", String, String(""))]
     
     def execute_RUN(self, exec_ctx: Context):
         from ..wrapper import run
@@ -275,7 +275,7 @@ class BuiltInFunction(BaseFunction):
                 exec_ctx
             ))
 
-        _, error = run(fn, script, "<ShellRun>", True, False, True, cwd=run_cwd)
+        _, error, _ = run(fn, script, "<Run>", True, True, cwd=run_cwd)
 
         if error:
             return RunTimeResult().failure(RunTimeError(
@@ -302,4 +302,4 @@ class BuiltInFunction(BaseFunction):
 def define_builtin_functions(symbol_table: SymbolTable):
     for name in BuiltInFunctionNames:
         symbol_table.set_as_builtin(f"NAKATHON_{name.name}", BuiltInFunction(name.name, f"NAKATHON_{name.name}"), BuiltInFunction)
-        symbol_table.set(name.value, BuiltInFunction(name.name, name.value), BuiltInFunction)
+        symbol_table.set(name.value, BuiltInFunction(name.name, name.value), Function)

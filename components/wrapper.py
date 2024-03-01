@@ -12,32 +12,32 @@ debug_message = DebugMessage("").set_auto_display(True)
 
 global_symbol_table = SymbolTable()
 
-def set_global(name: str, value: Value, type: Value = Value):
-    global_symbol_table.set_as_immutable(name, value, type)
+def set_builtin(name: str, value: Value, type: Value = Value):
+    global_symbol_table.set_as_builtin(name, value, type)
     
-set_global("null", Null.null, Null)
-set_global("false", Boolean.false, Boolean)
-set_global("true", Boolean.true, Boolean)
+set_builtin("null", Null.null, Null)
+set_builtin("false", Boolean.false, Boolean)
+set_builtin("true", Boolean.true, Boolean)
 define_builtin_functions(global_symbol_table)
 
-def run(fn: str, text: str, context_name: str, calling_external_code: bool = False, also_return_context: bool = False, isolated_symbol_table: bool = False, **kwargs):
+def run(fn: str, text: str, context_name: str, calling_external_code: bool = False, isolated_symbol_table: bool = False, **kwargs):
     _cwd = getcwd()
     if "cwd" in kwargs:
         _cwd = kwargs["cwd"]
         
-    set_global("NAKATHON_CWD", String(_cwd.replace("\\", "/")), String)
+    set_builtin("NAKATHON_CWD", String(_cwd.replace("\\", "/")), String)
         
     # Generate tokens
     lexer = Lexer(fn, text, calling_external_code)
     tokens, error = lexer.make_tokens()
     debug_message.set_message(f"Lexer generated:\n\tTokens: {tokens}\n\tError: {error}\n")
-    if error: return None, error
+    if error: return None, error, None
 
     # Generate AST
     parser = Parser(tokens)
     ast = parser.parse()
     debug_message.set_message(f"Parser generated:\n\tNode: {ast.node}\n\tError: {ast.error}\n")
-    if ast.error: return None, ast.error
+    if ast.error: return None, ast.error, None
     
     # Run Program
     interpreter = Interpreter()
@@ -45,7 +45,5 @@ def run(fn: str, text: str, context_name: str, calling_external_code: bool = Fal
     context.symbol_table = global_symbol_table.copy() if isolated_symbol_table else global_symbol_table
     result = interpreter.visit(ast.node, context)
     debug_message.set_message(f"Interpreter generated:\n\tValue: {result.value}\n\tError: {result.error}\n")
-    if not also_return_context:
-        return result.value, result.error
-    else:
-        return result.value, result.error, context
+
+    return result.value, result.error, context
