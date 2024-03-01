@@ -1,9 +1,10 @@
+from os import getcwd
 from components.lexer import Lexer
 from components.parser import Parser
 from components.interpreter import Interpreter
 from components.context import Context
 from components.symbol_table import SymbolTable
-from components.datatypes.all import Value, Boolean, Null
+from components.datatypes.all import Value, Boolean, Null, String
 from components.datatypes.builtin_function import define_builtin_functions
 from components.utils.debug import DebugMessage
 
@@ -19,7 +20,13 @@ set_global("false", Boolean.false, Boolean)
 set_global("true", Boolean.true, Boolean)
 define_builtin_functions(global_symbol_table)
 
-def run(fn: str, text: str, context_name: str, calling_external_code: bool = False, also_return_context: bool = False, isolated_symbol_table: bool = False):  
+def run(fn: str, text: str, context_name: str, calling_external_code: bool = False, also_return_context: bool = False, isolated_symbol_table: bool = False, **kwargs):
+    _cwd = getcwd()
+    if "cwd" in kwargs:
+        _cwd = kwargs["cwd"]
+        
+    set_global("NAKATHON_CWD", String(_cwd.replace("\\", "/")), String)
+        
     # Generate tokens
     lexer = Lexer(fn, text, calling_external_code)
     tokens, error = lexer.make_tokens()

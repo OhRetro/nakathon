@@ -20,7 +20,7 @@ class Boolean(Value):
         return self.value is True
     
     def notted(self):
-        return Boolean(True if self.value == 0 else False).set_context(self.context), None
+        return Boolean(True if not self.value else False).set_context(self.context), None
 
     def copy(self):
         copy = Boolean(self.value)

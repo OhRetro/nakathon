@@ -17,30 +17,6 @@ class Null(Value):
         
         return self.illegal_operation(other)
 
-    def get_comparison_lt(self, other):
-        if isinstance(other, Value):
-            return Boolean(self.value < other.value).set_context(self.context), None
-        
-        return self.illegal_operation(other)
-
-    def get_comparison_gt(self, other):
-        if isinstance(other, Value):
-            return Boolean(self.value > other.value).set_context(self.context), None
-        
-        return self.illegal_operation(other)
-
-    def get_comparison_lte(self, other):
-        if isinstance(other, Value):
-            return Boolean(self.value <= other.value).set_context(self.context), None
-        
-        return self.illegal_operation(other)
-
-    def get_comparison_gte(self, other):
-        if isinstance(other, Value):
-            return Boolean(self.value >= other.value).set_context(self.context), None
-        
-        return self.illegal_operation(other)
-
     def anded_by(self, other):
         if isinstance(other, Value):
             return Boolean(self.value and other.value).set_context(self.context), None
@@ -54,7 +30,7 @@ class Null(Value):
         return self.illegal_operation(other)
 
     def notted(self):
-        return Boolean(True if self.value == 0 else False).set_context(self.context), None
+        return Boolean(True if self.value != None else False).set_context(self.context), None
     
     def copy(self):
         copy = Null()

@@ -1,4 +1,5 @@
 from sys import argv
+from components.utils.misc import get_abs_path
 from components.wrapper import run, set_global
 from components.datatypes.all import String
 from components.utils.misc import set_console_title
@@ -42,7 +43,7 @@ def start():
                 f"Failed to load script \"{fn}\"\n" + str(e)
             )
 
-        _, error = run(fn, script, "<External>", True)
+        _, error = run(fn, script, "<External>", True, cwd=get_abs_path(fn))
         if error: print(error.as_string())
                 
     elif not is_running_a_script and theres_args:

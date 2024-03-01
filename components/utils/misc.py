@@ -1,4 +1,5 @@
 from os import name as os_name
+from os.path import abspath, dirname
 
 def set_console_title(title):
     if os_name == "nt":
@@ -47,4 +48,6 @@ def try_del(list_or_tuple: list | tuple, index):
 
 def remove_none_elements(list: list) -> list:
     return [item for item in list if item is not None]
-        
+
+def get_abs_path(path: str):
+    return dirname(abspath(path))

@@ -2,23 +2,27 @@
 # Using Run will run the script in a isolated context, 
 # meaning that variables and functions from the script won't carry over,
 # but using Import will carry over variables and functions;
-# also the imported variables and functions will have an suffix;
-# the default suffix will be the name of the imported script
+# also the imported variables and functions will have an prefix;
+# the default prefix will be the name of the imported script
 # examples below
 
 # Syntax may change in the future
 
-Import("examples/imports_example") # -> imports_example_
+# No prefix specified
+Import("imports_example") # -> imports_example_
 
-var a = imports_example_Hello("Gabriel")
+imports_example_Hello("Gabriel")
 
-Print(a)
+# prefix specified
+Import("imports_example", "ie") # -> ie_
 
-Import("examples/imports_example", "ie") # -> ie_
+ie_Hello("Naka")
 
-var a = ie_Hello("Naka")
+# Everthing imported
+Import("imports_example", "*") # -> No prefix is added
 
-Print(a)
+Hello("OhRetro")
 
+# Run function
 Print("\nRunning functions.nkt:")
-Run("examples/functions")
+Run("functions")
