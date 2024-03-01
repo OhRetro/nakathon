@@ -104,7 +104,7 @@ The Variable/Function name can be in ``snake_case``, ``camelCase`` or ``PascalCa
 
 ```py
 # Print, used to print the value inside the function
-Print({VALUE_EXPRESSION})
+Print(value: Any)
 
 # Input, used to get user input text
 Input(prompt: String = "> ")
@@ -116,15 +116,15 @@ InputNumber(prompt: String = "> ")
 Clear()
 
 # To Functions, used to convert a value into a string
-ToString({VALUE_EXPRESSION})
+ToString(value: Any)
 
 # Is Functions, used to know if the inputed value is that data type
-IsNumber({VALUE_EXPRESSION})
-IsString({VALUE_EXPRESSION})
-IsList({VALUE_EXPRESSION})
-IsFunction({VALUE_EXPRESSION})
-IsBoolean({VALUE_EXPRESSION})
-IsNull({VALUE_EXPRESSION})
+IsNumber(value: Any)
+IsString(value: Any)
+IsList(value: Any)
+IsFunction(value: Any)
+IsBoolean(value: Any)
+IsNull(value: Any)
 
 # List Functions, used to alter a list type (examples are down below)
 ListAppend(list: List, value: Value)
@@ -138,7 +138,7 @@ RandomInt(min: Number, max: Number)
 RandomFloat(min: Number, max: Number)
 
 # Misc Functions
-Import(filename: string)
+Import(filename: string, namespace: string)
 Run(filename: string)
 Exit(code_number: Number = 0)
 

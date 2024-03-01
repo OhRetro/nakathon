@@ -82,7 +82,7 @@ func FunctionName() {
 
 ```py
 # Print, used to print the value inside the function
-Print(<value> or <expression>)
+Print(value: Any)
 
 # Input, used to get user input text
 Input(prompt: String = "> ")
@@ -94,15 +94,15 @@ InputNumber(prompt: String = "> ")
 Clear()
 
 # To Functions, used to convert a value into a string
-ToString(<value> or <expression>)
+ToString(value: Any)
 
 # Is Functions, used to know if the inputed value is that data type
-IsNumber(<value> or <expression>)
-IsString(<value> or <expression>)
-IsList(<value> or <expression>)
-IsFunction(<value> or <expression>)
-IsBoolean(<value> or <expression>)
-IsNull(<value> or <expression>)
+IsNumber(value: Any)
+IsString(value: Any)
+IsList(value: Any)
+IsFunction(value: Any)
+IsBoolean(value: Any)
+IsNull(value: Any)
 
 # List Functions, used to alter a list type (examples are down below)
 ListAppend(list: List, value: Value)
@@ -116,6 +116,7 @@ RandomInt(min: Number, max: Number)
 RandomFloat(min: Number, max: Number)
 
 # Misc Functions
+Import(filename: string, namespace: string)
 Run(filename: string)
 Exit(code_number: Number = 0)
 
