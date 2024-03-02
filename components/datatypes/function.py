@@ -1,6 +1,6 @@
 from .value import Value
 from .null import Null
-from ..node import Node
+from ..node import ListNode
 from ..context import Context
 from ..runtime import RunTimeResult
 from ..error import RunTimeError
@@ -92,7 +92,7 @@ class BaseFunction(Value):
         return f"<{self.__class__.__qualname__}:{self.name}>"
 
 class Function(BaseFunction):
-    def __init__(self, name: str, body_node: Node, arg_names: list[str], arg_types: list[Value], arg_default_values: list[Value], should_auto_return: bool = False):
+    def __init__(self, name: str, body_node: ListNode, arg_names: list[str], arg_types: list[Value], arg_default_values: list[Value], should_auto_return: bool = False):
         self.body_node = body_node
         self.arg_names = arg_names
         self.arg_types = arg_types

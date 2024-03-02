@@ -1,10 +1,10 @@
 from .datatypes.all import (
     Number, Function, String, List, Null,
-    BaseFunction,
+    BaseFunction, Class,
     make_value, make_value_type
 )
 from .context import Context
-from .node import (Node, NumberNode, StringNode,
+from .node import (Node, NumberNode, StringNode, ClassNode,
                    ListNode, VarAccessNode, VarAssignNode, VarReassignNode,
                    BinOpNode, UnaryOpNode, IfNode, ForNode, WhileNode,
                    FuncDefNode, CallNode, ReturnNode, ContinueNode, BreakNode)
@@ -175,7 +175,8 @@ class Interpreter:
         if res.should_return():
             return res
         right = res.register(self.visit(node.right_node, context))
-        if res.should_return():
+        
+        if res.should_return() and node.op_tok.type != TokenType.DOT:
             return res
 
         if node.op_tok.type == TokenType.PLUS:
@@ -206,6 +207,8 @@ class Interpreter:
             result, error = left.anded_by(right)
         elif node.op_tok.matches(TokenType.KEYWORD, Keyword.OR):
             result, error = left.ored_by(right)
+        elif node.op_tok.type == TokenType.DOT:
+            result, error = left.dotted(node.right_node)
 
         if error:
             return res.failure(error)
@@ -331,21 +334,31 @@ class Interpreter:
             List(elements).set_context(context).set_pos(
                 node.pos_start, node.pos_end)
         )
-
+        
+    def visit_ClassNode(self, node: ClassNode, context: Context):
+        res = RunTimeResult()
+        
+        class_name = node.class_name_tok.value
+        body_node = node.body_node
+        
+        class_value = Class(class_name, body_node).set_context(context).set_pos(node.pos_start, node.pos_end)
+        
+        context.symbol_table.set(class_name, class_value, Class)
+        return res.success(class_value)
+    
     def visit_FuncDefNode(self, node: FuncDefNode, context: Context):
         res = RunTimeResult()
 
-        func_name = node.var_name_tok.value if node.var_name_tok else None
+        func_name = node.func_name_tok.value if node.func_name_tok else None
         body_node = node.body_node
         
         arg_names = [arg_name.value for arg_name in node.arg_name_toks]
         arg_types = [make_value_type(arg_type.value) for arg_type in node.arg_type_toks]
         arg_default_values = [make_value(arg_default_value.value) for arg_default_value in node.arg_default_value_toks]
         
-        func_value = Function(func_name, body_node, arg_names, arg_types, arg_default_values, node.should_auto_return).set_context(
-            context).set_pos(node.pos_start, node.pos_end)
+        func_value = Function(func_name, body_node, arg_names, arg_types, arg_default_values, node.should_auto_return).set_context(context).set_pos(node.pos_start, node.pos_end)
 
-        if node.var_name_tok:
+        if node.func_name_tok:
             context.symbol_table.set(func_name, func_value, Function)
 
         return res.success(func_value)

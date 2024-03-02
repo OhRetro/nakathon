@@ -10,6 +10,7 @@ COMPONENTS_ENABLED = {
     "context.py": 0,
     "interpreter.py": 0,
     "node.py": 0,
+    "parser.py": 0,
     "symbol_table.py": 0,
     "token.py": 0,
     "wrapper.py": 0,

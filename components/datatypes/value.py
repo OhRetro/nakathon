@@ -62,6 +62,9 @@ class Value:
 
     def notted(self, other):
         return self.illegal_operation(other)
+    
+    def dotted(self, other):
+        return self.illegal_operation(other)
 
     def execute(self, args):
         from ..runtime import RunTimeResult
@@ -90,5 +93,5 @@ class Value:
         return repr(self)
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}:{self.value}>"
+        return f"<{self.__class__.__qualname__}:{self.value}>"
     

@@ -6,6 +6,7 @@ from .boolean import Boolean
 from .null import Null
 from .function import Function, BaseFunction
 from .builtin_function import BuiltInFunction
+from .class_ import Class
 
 def make_value_type(name: str):
     map = {
@@ -21,7 +22,8 @@ def make_value_type(name: str):
         "Null": Null,
         "BaseFunction": Function,
         "Function": Function,
-        "BuiltInFunction": Function
+        "BuiltInFunction": Function,
+        "Class": Class
     }
     
     return map.get(name, None)
@@ -41,13 +43,16 @@ def make_value(value):
     return None
 
 __all__ = [
-    Value,
-    Number,
-    String,
-    List,
-    Boolean,
-    Null,
-    BaseFunction,
-    Function,
-    BuiltInFunction
+    "make_value_type",
+    "make_value"
+    "Value",
+    "Number",
+    "String",
+    "List",
+    "Boolean",
+    "Null",
+    "BaseFunction",
+    "Function",
+    "BuiltInFunction",
+    "Class"
 ]

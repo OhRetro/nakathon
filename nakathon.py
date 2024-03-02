@@ -4,7 +4,7 @@ from components.wrapper import run, set_builtin
 from components.datatypes.all import String
 from components.utils.misc import set_console_title
 
-VERSION = [1, 5, 0]
+VERSION = [1, 6, 0]
 
 def start():
     theres_args = len(argv) > 1
@@ -37,11 +37,13 @@ def start():
         fn = argv[1]
         try:
             with open(fn, "r", encoding="utf-8") as f:
-                script = f.read()
+                script = f.read().strip()
         except Exception as e:
             raise Exception(
                 f"Failed to load script \"{fn}\"\n" + str(e)
             )
+            
+        if not script: return
 
         try:
             _, error, _ = run(fn, script, "<External>", True, cwd=get_abs_path(fn))

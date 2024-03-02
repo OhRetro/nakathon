@@ -2,12 +2,15 @@ from typing import Callable
 from .error import InvalidSyntaxError
 from .token import Token, TokenType
 from .keyword import Keyword
-from .node import (NumberNode, StringNode, BinOpNode,
+from .node import (NumberNode, StringNode, BinOpNode, ClassNode,
                    UnaryOpNode, VarAccessNode, VarAssignNode, VarReassignNode,
                    CallNode, ForNode, FuncDefNode, IfNode,
                    WhileNode, ListNode, ReturnNode, ContinueNode, BreakNode)
 from .utils.strings_template import CANNOT_DECLARE_TYPE_AFTER_DECLARED_ERROR
 from .utils.expected import expected
+from .utils.debug import DebugMessage
+
+debug_message = DebugMessage("", True)
 
 class ParseResult:
     def __init__(self):
@@ -79,6 +82,7 @@ class Parser:
     ###################################
 
     def statements(self):
+        debug_message.set_message("")
         res = ParseResult()
         statements = []
         pos_start = self.current_tok.pos_start.copy()
@@ -121,6 +125,7 @@ class Parser:
         ))
 
     def statement(self):
+        debug_message.set_message("")
         res = ParseResult()
         pos_start = self.current_tok.pos_start.copy()
         
@@ -157,6 +162,7 @@ class Parser:
         return res.success(expr)
 
     def expr(self):
+        debug_message.set_message("")
         res = ParseResult()
 
         if (self.current_tok.matches(TokenType.KEYWORD, Keyword.SETVAR) or
@@ -283,6 +289,7 @@ class Parser:
         return res.success(node)
 
     def comp_expr(self):
+        debug_message.set_message("")
         res = ParseResult()
 
         if self.current_tok.matches(TokenType.KEYWORD, Keyword.NOT):
@@ -308,12 +315,15 @@ class Parser:
         return res.success(node)
 
     def arith_expr(self):
+        debug_message.set_message("")
         return self.bin_op(self.term, (TokenType.PLUS, TokenType.MINUS))
 
     def term(self):
+        debug_message.set_message("")
         return self.bin_op(self.factor, (TokenType.MUL, TokenType.DIV, TokenType.DIVREST))
 
     def factor(self):
+        debug_message.set_message("")
         res = ParseResult()
         tok = self.current_tok
 
@@ -328,9 +338,11 @@ class Parser:
         return self.power()
 
     def power(self):
-        return self.bin_op(self.call, (TokenType.POWER, ), self.factor)
+        debug_message.set_message("")
+        return self.bin_op(self.call, (TokenType.POWER, TokenType.DOT), self.factor)
 
     def call(self):
+        debug_message.set_message("")
         res = ParseResult()
         atom = res.register(self.atom())
         if res.error:
@@ -375,6 +387,7 @@ class Parser:
         return res.success(atom)
 
     def atom(self):
+        debug_message.set_message("")
         res = ParseResult()
         tok = self.current_tok
 
@@ -439,6 +452,12 @@ class Parser:
                 return res
             return res.success(func_def)
 
+        elif tok.matches(TokenType.KEYWORD, Keyword.SETCLASS):
+            class_set = res.register(self.class_set())
+            if res.error:
+                return res
+            return res.success(class_set)
+        
         return res.failure(InvalidSyntaxError(
             tok.pos_start, tok.pos_end,
             expected(TokenType.INT, TokenType.FLOAT, TokenType.IDENTIFIER,
@@ -447,6 +466,7 @@ class Parser:
         ))
 
     def list_expr(self):
+        debug_message.set_message("")
         res = ParseResult()
         element_nodes = []
         pos_start = self.current_tok.pos_start.copy()
@@ -498,6 +518,8 @@ class Parser:
         ))
 
     def if_expr(self):
+        debug_message.set_message("")
+        
         res = ParseResult()
         all_cases = res.register(self.if_expr_cases(Keyword.IF))
         if res.error:
@@ -506,9 +528,12 @@ class Parser:
         return res.success(IfNode(cases, else_case))
 
     def elseif_expr(self):
+        debug_message.set_message("")
         return self.if_expr_cases(Keyword.ELSEIF)
 
     def else_expr(self):
+        debug_message.set_message("")
+        
         res = ParseResult()
         else_case = None
 
@@ -545,6 +570,8 @@ class Parser:
         return res.success(else_case)
 
     def if_expr_elseif_or_else(self):
+        debug_message.set_message("")
+        
         res = ParseResult()
         cases, else_case = [], None
 
@@ -562,6 +589,8 @@ class Parser:
         return res.success((cases, else_case))
 
     def if_expr_cases(self, case_keyword):
+        debug_message.set_message("")
+        
         res = ParseResult()
         cases = []
         else_case = None
@@ -641,6 +670,8 @@ class Parser:
         return res.success((cases, else_case))
 
     def for_expr(self):
+        debug_message.set_message("")
+        
         res = ParseResult()
 
         if not self.current_tok.matches(TokenType.KEYWORD, Keyword.FOR):
@@ -742,6 +773,8 @@ class Parser:
         return res.success(ForNode(var_name, start_value, end_value, step_value, body, False))
 
     def while_expr(self):
+        debug_message.set_message("")
+        
         res = ParseResult()
 
         if not self.current_tok.matches(TokenType.KEYWORD, Keyword.WHILE):
@@ -800,7 +833,61 @@ class Parser:
             
         return res.success(WhileNode(condition, body, False))
 
+    def class_set(self):
+        debug_message.set_message("")
+        
+        res = ParseResult()
+        
+        pos_start = self.current_tok.pos_start
+        
+        if not self.current_tok.matches(TokenType.KEYWORD, Keyword.SETCLASS):
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                expected(Keyword.SETCLASS)
+            ))
+
+        res.register_advancement()
+        self.advance()
+
+        if self.current_tok.type != TokenType.IDENTIFIER:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                expected(TokenType.IDENTIFIER)
+            ))
+
+        class_name_tok = self.current_tok
+
+        res.register_advancement()
+        self.advance()
+
+        if self.current_tok.type != TokenType.LBRACE:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                expected(TokenType.LBRACE)
+            ))
+
+        res.register_advancement()
+        self.advance()
+
+        body = res.register(self.statements())
+
+        if res.error:
+            return res
+
+        if self.current_tok.type != TokenType.RBRACE:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                expected(TokenType.RBRACE)
+            ))
+
+        res.register_advancement()
+        self.advance()
+        
+        return res.success(ClassNode(class_name_tok, body, pos_start, self.current_tok.pos_end))
+
     def func_def(self):
+        debug_message.set_message("")
+        
         res = ParseResult()
 
         if not self.current_tok.matches(TokenType.KEYWORD, Keyword.SETFUNCTION):
@@ -813,7 +900,7 @@ class Parser:
         self.advance()
 
         if self.current_tok.type == TokenType.IDENTIFIER:
-            var_name_tok = self.current_tok
+            func_name_tok = self.current_tok
             res.register_advancement()
             self.advance()
             if self.current_tok.type != TokenType.LPAREN:
@@ -822,7 +909,7 @@ class Parser:
                     expected(TokenType.LPAREN)
                 ))
         else:
-            var_name_tok = None
+            func_name_tok = None
             if self.current_tok.type != TokenType.LPAREN:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start, self.current_tok.pos_end,
@@ -923,7 +1010,7 @@ class Parser:
                 return res
 
             return res.success(FuncDefNode(
-                var_name_tok,
+                func_name_tok,
                 arg_name_toks,
                 arg_type_toks,
                 arg_default_value_toks,
@@ -954,7 +1041,7 @@ class Parser:
         self.advance()
 
         return res.success(FuncDefNode(
-            var_name_tok,
+            func_name_tok,
             arg_name_toks,
             arg_type_toks,
             arg_default_value_toks,
@@ -967,10 +1054,13 @@ class Parser:
     def bin_op(self, func_a: Callable, ops: tuple[TokenType | Keyword], func_b: Callable = None):
         if func_b is None:
             func_b = func_a
+            
+        debug_message.set_message(f"{func_a.__name__}, {ops}, {func_b.__name__}")
 
         res = ParseResult()
         left = res.register(func_a())
         if res.error:
+            debug_message.set_message("Error")
             return res
 
         while self.current_tok.type in ops or (self.current_tok.type, self.current_tok.value) in ops:
@@ -979,6 +1069,7 @@ class Parser:
             self.advance()
             right = res.register(func_b())
             if res.error:
+                debug_message.set_message("Error")
                 return res
             left = BinOpNode(left, op_tok, right)
 

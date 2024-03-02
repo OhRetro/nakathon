@@ -279,11 +279,29 @@ class Lexer:
         return Token(tok_type, pos_start=pos_start, pos_end=self.pos)
             
     def skip_comment(self):
-        self.advance()
+        sign_count = 0
+        for _ in range(3):
+            if self.current_char == TokenType.COMMENT.value:
+                sign_count += 1
+            self.advance()
+            if self.current_char != TokenType.COMMENT.value: break
         
-        while self.current_char != TokenType.NEWLINE.value:
+        block_mode = sign_count == 3
+        check_pass = 0
+        
+        while True:
             self.advance()
             
-            if self.current_char is None: break
+            if not block_mode:
+                if self.current_char is None or self.current_char == TokenType.NEWLINE.value: break
+                
+            else:
+                if self.current_char == TokenType.COMMENT.value:
+                    check_pass += 1
+                elif check_pass >= 3: break
+                else: check_pass = 0
+            
+                if self.current_char is None: break
 
         self.advance()
+        

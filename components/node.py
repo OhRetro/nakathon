@@ -58,7 +58,6 @@ class VarAssignNode(Node):
         self.display = f"{self.var_name_tok}:{self.var_value_type_tok.value}:{self.value_node}"
         self.pos_end = self.value_node.pos_end
 
-
 class VarReassignNode(Node):
     def __init__(self, var_name_tok: Token, value_node: Node, var_assign_type_tok: Token):
         self.var_name_tok = var_name_tok
@@ -110,17 +109,23 @@ class WhileNode(Node):
         super().__init__(condition_node, should_return_null = should_return_null)
         self.pos_end = self.body_node.pos_end
 
+class ClassNode(Node):
+    def __init__(self, class_name_tok: Token, body_node: ListNode, pos_start: Position, pos_end: Position):
+        self.class_name_tok = class_name_tok
+        self.body_node = body_node
+        super().__init__(class_name_tok, pos_start, pos_end)
+        
 class FuncDefNode(Node):
-    def __init__(self, var_name_tok: Token, arg_name_toks: list[Token], arg_type_toks: list[Token], arg_default_value_toks: list[Token], body_node: Node, should_auto_return: bool):
-        self.var_name_tok = var_name_tok
+    def __init__(self, func_name_tok: Token, arg_name_toks: list[Token], arg_type_toks: list[Token], arg_default_value_toks: list[Token], body_node: ListNode, should_auto_return: bool):
+        self.func_name_tok = func_name_tok
         self.arg_name_toks = arg_name_toks
         self.arg_type_toks = arg_type_toks
         self.arg_default_value_toks = arg_default_value_toks
         self.body_node = body_node
         self.should_auto_return = should_auto_return
         
-        if self.var_name_tok:
-            to_tok_base = self.var_name_tok
+        if self.func_name_tok:
+            to_tok_base = self.func_name_tok
         elif len(arg_name_toks) > 0:
             to_tok_base = self.arg_name_toks[0]
         else:

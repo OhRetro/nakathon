@@ -7,6 +7,7 @@ class Keyword(Enum):
     SETTEMPVAR = "temp"
     SETSCOPEDVAR = "local"
     SETFUNCTION = "func"
+    SETCLASS = "class"
       
     # Conditional
     AND = "&&"
@@ -25,3 +26,4 @@ class Keyword(Enum):
     
     # Other
     RETURN = "return"
+    SELFREF = "self"

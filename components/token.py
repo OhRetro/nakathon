@@ -57,6 +57,7 @@ class TokenType(Enum):
     COLON = ":"
     NEWLINE = "\n"
     COMMENT = "#"
+    COMMENTBLOCK = "###"
     
     GENERIC = "GENERIC"
     
