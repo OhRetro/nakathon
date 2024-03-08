@@ -303,3 +303,4 @@ def define_builtin_functions(symbol_table: SymbolTable):
     for name in BuiltInFunctionNames:
         symbol_table.set_as_builtin(f"NAKATHON_{name.name}", BuiltInFunction(name.name, f"NAKATHON_{name.name}"), BuiltInFunction)
         symbol_table.set(name.value, BuiltInFunction(name.name, name.value), Function)
+        

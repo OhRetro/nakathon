@@ -8,7 +8,8 @@ class Class(Value):
     def __init__(self, name: str, body_node: ListNode):
         self.name = name
         self.body_node = body_node
-        super().__init__()
+        self.symbol_table = None
+        super().__init__(name)
 
     def generate_new_context(self):
         new_context = Context(self.name, self.context, self.pos_start)
@@ -23,7 +24,7 @@ class Class(Value):
         exec_ctx = self.generate_new_context()
         
         if isinstance(other, VarAccessNode):
-            value = res.register(interpreter.visit(self.body_node, exec_ctx))
+            value: Value = res.register(interpreter.visit(self.body_node, exec_ctx))
 
             class_symbol_name = other.var_name_tok.value
           
@@ -50,6 +51,3 @@ class Class(Value):
         copy.set_context(self.context)
         return copy
     
-    def __repr__(self):
-        return f"<{self.__class__.__qualname__}:{self.name}>"
-

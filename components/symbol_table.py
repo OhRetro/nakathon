@@ -86,17 +86,19 @@ class SymbolTable:
         
         return exists
     
-    def get(self, name: str, calling_from_parent: bool = False):
+    def _get(self, name: str, calling_from_parent: bool = False):
         if not calling_from_parent: debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': GET: CHECKING")
         value = self.symbols.get(name, [None])[0]
+        type = self.symbols.get(name, [None, None])[1]
         
         if value is None:
             if name in self.immutable_symbols:
                 value = self.immutable_symbols.get(name, [None])[0]
+                type = self.immutable_symbols.get(name, [None, None])[1]
             
             elif name in self.temporary_symbols:
                 value = self.temporary_symbols.get(name, [None])[0]
-                type = self.temporary_symbols.get(name, [None])[1]
+                type = self.temporary_symbols.get(name, [None, None])[1]
                 
                 if value is not None:
                     new_lifetime = self.temporary_symbols[name][2] - 1 or 0
@@ -104,15 +106,24 @@ class SymbolTable:
                     
             elif name in self.scoped_symbols and not calling_from_parent:
                 value = self.scoped_symbols.get(name, [None])[0]
+                type = self.scoped_symbols.get(name, [None, None])[1]
 
             elif name in self.builtin_symbols:
                 value = self.builtin_symbols.get(name, [None])[0]
+                type = self.builtin_symbols.get(name, [None, None])[1]
                 
             if value is None and self.parent:
                 debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': GET: CHECKING IN PARENT ST {self.parent.id}")
-                value = self.parent.get(name, True)
+                value = self.parent._get(name, True)[0]
+                type = self.parent._get(name, True)[1]
                 
-        return value
+        return value, type
+
+    def get(self, name: str, calling_from_parent: bool = False):
+        return self._get(name, calling_from_parent)[0]
+    
+    def get_type(self, name: str, calling_from_parent: bool = False):
+        return self._get(name, calling_from_parent)[1]
     
     def _set_symbol(self, name: str, value: Value, type: Value, symbols_name: str, **kwargs):
         success = False

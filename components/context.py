@@ -1,7 +1,6 @@
 from .utils.debug import DebugMessage
 from .position import Position
 from .symbol_table import SymbolTable
-from pprint import pprint
 
 context_count = 0
 debug_message = DebugMessage("")

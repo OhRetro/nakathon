@@ -79,10 +79,10 @@ class Interpreter:
         var_symbols_table = context.symbol_table.exists_in(var_name)
         
         if var_symbols_table is not None:
-            var_type = getattr(context.symbol_table, var_symbols_table)[var_name][1]
+            var_type = context.symbol_table.get_type(var_name)
 
             method = f"set_as_{var_symbols_table.removesuffix('_symbols')}" if var_symbols_table != "symbols" else "set"
-
+            
             lifetime = None
             
             if var_symbols_table == "temporary_symbols":
@@ -140,7 +140,7 @@ class Interpreter:
         if not isinstance(value, var_type) and not issubclass(value.__class__, BaseFunction):
             return res.failure(RunTimeError(
                 node.pos_start, node.pos_end,
-                VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR.format(var_name, var_type.__qualname__, value),
+                VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR.format(var_name, var_type.__qualname__, value.__class__.__qualname__),
                 context
             ))
         
