@@ -1,8 +1,7 @@
 from sys import argv
-from components.utils.misc import get_abs_path
+from components.utils.misc import get_abs_path, set_console_title
 from components.wrapper import run, set_builtin
 from components.datatypes.all import String
-from components.utils.misc import set_console_title
 
 VERSION = [1, 6, 0]
 
@@ -32,6 +31,9 @@ def start():
             except KeyboardInterrupt:
                 print("\nExiting...")
                 break
+            
+            except Exception as e:
+                print(f"An critical error occurred while executing the command:\n{str(e)}\n")
                     
     elif is_running_a_script:
         fn = argv[1]
@@ -50,6 +52,9 @@ def start():
             if error: print(error.as_string())
         except KeyboardInterrupt:
             print("\nExiting...")
+            
+        except Exception as e:
+            print(f"An critical error occurred while running the script:\n{str(e)}\n")
         
     elif not is_running_a_script and theres_args:
         if argv[1] == "--version":
