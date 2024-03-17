@@ -42,14 +42,16 @@ class ListNode(Node):
         return f"<{self.__class__.__name__}:{len(self.element_nodes)}>"
 
 class VarAccessNode(Node):
-    def __init__(self, var_name_tok: Token):
+    def __init__(self, var_name_tok: Token, var_extra_names_toks: list[Token]):
         self.var_name_tok = var_name_tok
+        self.var_extra_names_toks = var_extra_names_toks
         super().__init__(var_name_tok)
 
 class VarAssignNode(Node):
-    def __init__(self, var_name_tok: Token, value_node: Node, var_value_type_tok: Value, var_assign_type_tok: Token, method: str, lifetime: int):
+    def __init__(self, var_name_tok: Token, var_extra_names_toks: list[Token], value_node: Node, var_value_type_tok: Value, var_assign_type_tok: Token, method: str, lifetime: int):
         self.method = method
         self.var_name_tok = var_name_tok
+        self.var_extra_names_toks = var_extra_names_toks
         self.var_value_type_tok = var_value_type_tok
         self.lifetime = lifetime
         self.var_assign_type_tok = var_assign_type_tok
@@ -59,8 +61,9 @@ class VarAssignNode(Node):
         self.pos_end = self.value_node.pos_end
 
 class VarReassignNode(Node):
-    def __init__(self, var_name_tok: Token, value_node: Node, var_assign_type_tok: Token):
+    def __init__(self, var_name_tok: Token, var_extra_names_toks: list[Token], value_node: Node, var_assign_type_tok: Token):
         self.var_name_tok = var_name_tok
+        self.var_extra_names_toks = var_extra_names_toks
         self.value_node = value_node
         self.var_assign_type_tok = var_assign_type_tok
         super().__init__(var_name_tok)
@@ -110,14 +113,16 @@ class WhileNode(Node):
         self.pos_end = self.body_node.pos_end
 
 class ClassNode(Node):
-    def __init__(self, class_name_tok: Token, body_node: ListNode, pos_start: Position, pos_end: Position):
+    def __init__(self, class_name_tok: Token, class_extra_names_toks: list[Token], body_node: ListNode, pos_start: Position, pos_end: Position):
         self.class_name_tok = class_name_tok
+        self.class_extra_names_toks = class_extra_names_toks
         self.body_node = body_node
         super().__init__(class_name_tok, pos_start, pos_end)
         
 class FuncDefNode(Node):
-    def __init__(self, func_name_tok: Token, arg_name_toks: list[Token], arg_type_toks: list[Token], arg_default_value_toks: list[Token], body_node: ListNode, should_auto_return: bool):
+    def __init__(self, func_name_tok: Token, func_extra_names_toks: list[Token], arg_name_toks: list[Token], arg_type_toks: list[Token], arg_default_value_toks: list[Token], body_node: ListNode, should_auto_return: bool):
         self.func_name_tok = func_name_tok
+        self.func_extra_names_toks = func_extra_names_toks
         self.arg_name_toks = arg_name_toks
         self.arg_type_toks = arg_type_toks
         self.arg_default_value_toks = arg_default_value_toks

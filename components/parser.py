@@ -82,7 +82,29 @@ class Parser:
                 "Token cannot appear after previous tokens"
             ))
         return res
+    
+    def get_full_identifier(self, res: ParseResult):
+        identifier_name = self.current_tok
+        debug_message.set_message(f"IDENTIFIER: {identifier_name}")
+        self.register_advance(res)
+        
+        extra_identifiers = []
+        
+        while self.current_tok.type == TokenType.DOT:
+            self.register_advance(res)
 
+            if self.current_tok.type != TokenType.IDENTIFIER:
+                return None, None, res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    expected(TokenType.IDENTIFIER)
+                ))
+                
+            extra_identifiers.append(self.current_tok)
+            self.register_advance(res)
+        
+        debug_message.set_message(f"IDENTIFIER: EXTRAS: {extra_identifiers}")
+        return identifier_name, extra_identifiers, None
+            
     ###################################
 
     def statements(self):
@@ -183,9 +205,10 @@ class Parser:
                     expected(TokenType.IDENTIFIER)
                 ))
                 
-            var_name_tok = self.current_tok
+            var_name_tok, var_extra_names_toks, error = self.get_full_identifier(res)
             
-            self.register_advance(res)
+            if error:
+                return res.failure(error)
         
             if self.current_tok.type == TokenType.COLON:
                 self.register_advance(res)
@@ -241,13 +264,14 @@ class Parser:
             elif var_keyword_tok.value == Keyword.SETSCOPEDVAR:
                 var_method = "set_as_scoped"
 
-            return res.success(VarAssignNode(var_name_tok, expr, var_value_type_tok, var_assign_type_tok, var_method, var_lifetime))
+            return res.success(VarAssignNode(var_name_tok, var_extra_names_toks, expr, var_value_type_tok, var_assign_type_tok, var_method, var_lifetime))
 
         if self.current_tok.type == TokenType.IDENTIFIER:                
-            var_name_tok = self.current_tok
+            var_name_tok, var_extra_names_toks, error = self.get_full_identifier(res)
             
-            self.register_advance(res)
-
+            if error:
+                return res.failure(error)
+            
             if self.current_tok.type in (TokenType.EQUALS, TokenType.PLUSE, TokenType.MINUSE, TokenType.MULE, TokenType.DIVE, TokenType.POWERE, TokenType.DIVRESTE):
                 var_assign_type_tok = self.current_tok
 
@@ -257,7 +281,7 @@ class Parser:
                 if res.error:
                     return res
 
-                return res.success(VarReassignNode(var_name_tok, expr, var_assign_type_tok))
+                return res.success(VarReassignNode(var_name_tok, var_extra_names_toks, expr, var_assign_type_tok))
             
             elif self.current_tok.type == TokenType.COLON:
                 return res.failure(InvalidSyntaxError(
@@ -266,6 +290,8 @@ class Parser:
                 ))
             
             else:
+                # if var_extra_names_toks == []:
+                    
                 self.reverse()
         
         node = res.register(self.bin_op(
@@ -332,11 +358,7 @@ class Parser:
 
     def power(self):
         debug_message.set_message("")
-        return self.bin_op(self.dot, (TokenType.POWER, ), self.factor)
-    
-    def dot(self):
-        debug_message.set_message("")
-        return self.bin_op(self.call, (TokenType.DOT, ), self.power)
+        return self.bin_op(self.call, (TokenType.POWER, ), self.factor)
 
     def call(self):
         debug_message.set_message("")
@@ -383,23 +405,32 @@ class Parser:
         return res.success(atom)
 
     def atom(self):
-        debug_message.set_message("")
+        debug_message.set_message("CHECKING TOKEN")
         res = ParseResult()
         tok = self.current_tok
-
+        
         if tok.type in (TokenType.INT, TokenType.FLOAT):
+            debug_message.set_message("NUMBER")
             self.register_advance(res)
             return res.success(NumberNode(tok))
 
         elif tok.type == TokenType.STRING:
+            debug_message.set_message("STRING")
             self.register_advance(res)
             return res.success(StringNode(tok))
 
         elif tok.type == TokenType.IDENTIFIER:
-            self.register_advance(res)
-            return res.success(VarAccessNode(tok))
+            debug_message.set_message("IDENTIFIER")
+            
+            tok, var_extra_names_toks, error = self.get_full_identifier(res)
+            
+            if error:
+                return res.failure(error)
+            
+            return res.success(VarAccessNode(tok, var_extra_names_toks))
 
         elif tok.type == TokenType.LPAREN:
+            debug_message.set_message("PARENTHESES")
             self.register_advance(res)
             
             expr = res.register(self.expr())
@@ -417,41 +448,48 @@ class Parser:
                 ))
 
         elif tok.type == TokenType.LSQUARE:
+            debug_message.set_message("SQUARE PARENTHESES")
             list_expr = res.register(self.list_expr())
             if res.error:
                 return res
             return res.success(list_expr)
 
         elif tok.matches(TokenType.KEYWORD, Keyword.IF):
+            debug_message.set_message("IF")
             if_expr = res.register(self.if_expr())
             if res.error:
                 return res
             return res.success(if_expr)
 
         elif tok.matches(TokenType.KEYWORD, Keyword.FOR):
+            debug_message.set_message("FOR")
             for_expr = res.register(self.for_expr())
             if res.error:
                 return res
             return res.success(for_expr)
 
         elif tok.matches(TokenType.KEYWORD, Keyword.WHILE):
+            debug_message.set_message("WHILE")
             while_expr = res.register(self.while_expr())
             if res.error:
                 return res
             return res.success(while_expr)
 
         elif tok.matches(TokenType.KEYWORD, Keyword.SETFUNCTION):
+            debug_message.set_message("SET FUNCTION")
             func_def = res.register(self.func_def())
             if res.error:
                 return res
             return res.success(func_def)
 
         elif tok.matches(TokenType.KEYWORD, Keyword.SETCLASS):
+            debug_message.set_message("SET CLASS")
             class_set = res.register(self.class_set())
             if res.error:
                 return res
             return res.success(class_set)
         
+        debug_message.set_message("INVALID TOKEN")
         return res.failure(InvalidSyntaxError(
             tok.pos_start, tok.pos_end,
             expected(TokenType.INT, TokenType.FLOAT, TokenType.IDENTIFIER,
@@ -822,9 +860,10 @@ class Parser:
                 expected(TokenType.IDENTIFIER)
             ))
 
-        class_name_tok = self.current_tok
+        class_name_tok, class_extra_names_toks, error = self.get_full_identifier(res)
 
-        self.register_advance(res)
+        if error:
+            return res.failure(error)
 
         if self.current_tok.type != TokenType.LBRACE:
             return res.failure(InvalidSyntaxError(
@@ -847,7 +886,7 @@ class Parser:
 
         self.register_advance(res)
         
-        return res.success(ClassNode(class_name_tok, body, pos_start, self.current_tok.pos_end))
+        return res.success(ClassNode(class_name_tok, class_extra_names_toks, body, pos_start, self.current_tok.pos_end))
 
     def func_def(self):
         debug_message.set_message("")
@@ -863,9 +902,10 @@ class Parser:
         self.register_advance(res)
 
         if self.current_tok.type == TokenType.IDENTIFIER:
-            func_name_tok = self.current_tok
+            func_name_tok, func_extra_names_toks, error = self.get_full_identifier(res)
             
-            self.register_advance(res)
+            if error:
+                return res.failure(error)
             
             if self.current_tok.type != TokenType.LPAREN:
                 return res.failure(InvalidSyntaxError(
@@ -874,6 +914,7 @@ class Parser:
                 ))
         else:
             func_name_tok = None
+            func_extra_names_toks = []
             if self.current_tok.type != TokenType.LPAREN:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start, self.current_tok.pos_end,
@@ -966,6 +1007,7 @@ class Parser:
 
             return res.success(FuncDefNode(
                 func_name_tok,
+                func_extra_names_toks,
                 arg_name_toks,
                 arg_type_toks,
                 arg_default_value_toks,
@@ -995,6 +1037,7 @@ class Parser:
 
         return res.success(FuncDefNode(
             func_name_tok,
+            func_extra_names_toks,
             arg_name_toks,
             arg_type_toks,
             arg_default_value_toks,
