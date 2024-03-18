@@ -16,6 +16,7 @@ class Class(Value):
         new_context.symbol_table = SymbolTable(new_context.parent.symbol_table)
         return new_context
     
+    # LEFTOVER OF OLD METHOD, STILL HERE FOR REFERENCING
     def dotted(self, other: VarAccessNode | CallNode):
         from ..interpreter import Interpreter
 

@@ -7,6 +7,7 @@ from .null import Null
 from .function import Function, BaseFunction
 from .builtin_function import BuiltInFunction
 from .class_ import Class
+from .object import Object
 
 def make_value_type(name: str):
     map = {

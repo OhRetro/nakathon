@@ -219,13 +219,14 @@ class BuiltInFunction(BaseFunction):
         cwd = exec_ctx.symbol_table.get("NAKATHON_CWD").value
         namespace = exec_ctx.symbol_table.get("namespace").value.replace(" ", "_")
 
-        if namespace == "":
-            namespace = fn.replace("\\", "/").split("/")[-1].removesuffix(".nkt")
-        
         fn += ".nkt" if not fn.endswith(".nkt") else ""
         
         full_path = os_join(cwd, fn).replace("\\", "/")
         import_cwd = get_abs_path(full_path)
+        target_file = full_path.split("/")[-1]
+        
+        if namespace == "":
+            namespace = target_file.removesuffix(".nkt")
         
         try:
             with open(full_path, "r", encoding="utf-8") as f:
@@ -237,7 +238,10 @@ class BuiltInFunction(BaseFunction):
                 exec_ctx
             ))
 
-        _, error, context = run(fn, script, "<Import>", True, True, cwd=import_cwd)
+        _, error, context = run(fn, script, 
+                                f"<Importing \"{target_file}\" as \"{namespace}>\"" if namespace != "*" 
+                                else f"<Importing \"{target_file}\" without a namespace>", 
+                                True, True, cwd=import_cwd)
         
         if error:
             return RunTimeResult().failure(RunTimeError(
@@ -264,6 +268,7 @@ class BuiltInFunction(BaseFunction):
 
         full_path = os_join(cwd, fn).replace("\\", "/")
         run_cwd = get_abs_path(full_path)
+        target_file = full_path.split("/")[-1]
         
         try:
             with open(full_path, "r", encoding="utf-8") as f:
@@ -275,7 +280,7 @@ class BuiltInFunction(BaseFunction):
                 exec_ctx
             ))
 
-        _, error, _ = run(fn, script, "<Run>", True, True, cwd=run_cwd)
+        _, error, _ = run(fn, script, f"<Running {target_file}>", True, True, cwd=run_cwd)
 
         if error:
             return RunTimeResult().failure(RunTimeError(

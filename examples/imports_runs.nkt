@@ -2,24 +2,24 @@
 # Using Run will run the script in a isolated context, 
 # meaning that variables and functions from the script won't carry over,
 # but using Import will carry over variables and functions;
-# also the imported variables and functions will have an prefix;
-# the default prefix will be the name of the imported script
+# also the imported variables and functions will have an namespace;
+# the default namespace will be the name of the imported script
 # examples below
 
 # Syntax may change in the future
 
-# No prefix specified
-Import("imports_example") # -> imports_example_
+# No namespace specified
+Import("imports_example") # -> imports_example.
 
-imports_example_Hello("Gabriel")
+imports_example.Hello("Gabriel")
 
-# prefix specified
-Import("imports_example", "ie") # -> ie_
+# namespace specified
+Import("imports_example", "ie") # -> ie.
 
-ie_Hello("Naka")
+ie.Hello("Naka")
 
 # Everthing imported
-Import("imports_example", "*") # -> No prefix is added
+Import("imports_example", "*") # -> No namespace is added
 
 Hello("OhRetro")
 

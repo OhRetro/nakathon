@@ -112,17 +112,22 @@ class WhileNode(Node):
         super().__init__(condition_node, should_return_null = should_return_null)
         self.pos_end = self.body_node.pos_end
 
+class ObjectNode(Node):
+    def __init__(self, element_nodes: list[Node]):
+        super().__init__()
+        self.element_nodes = element_nodes
+
 class ClassNode(Node):
-    def __init__(self, class_name_tok: Token, class_extra_names_toks: list[Token], body_node: ListNode, pos_start: Position, pos_end: Position):
+    def __init__(self, class_name_tok: Token, body_node: ListNode, pos_start: Position, pos_end: Position):
         self.class_name_tok = class_name_tok
-        self.class_extra_names_toks = class_extra_names_toks
         self.body_node = body_node
         super().__init__(class_name_tok, pos_start, pos_end)
         
+        self.child = None
+        
 class FuncDefNode(Node):
-    def __init__(self, func_name_tok: Token, func_extra_names_toks: list[Token], arg_name_toks: list[Token], arg_type_toks: list[Token], arg_default_value_toks: list[Token], body_node: ListNode, should_auto_return: bool):
+    def __init__(self, func_name_tok: Token, arg_name_toks: list[Token], arg_type_toks: list[Token], arg_default_value_toks: list[Token], body_node: ListNode, should_auto_return: bool):
         self.func_name_tok = func_name_tok
-        self.func_extra_names_toks = func_extra_names_toks
         self.arg_name_toks = arg_name_toks
         self.arg_type_toks = arg_type_toks
         self.arg_default_value_toks = arg_default_value_toks

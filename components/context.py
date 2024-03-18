@@ -26,9 +26,9 @@ class Context:
             "immutable_symbols"
         ]
         
-        for symbols in symbols_list:
-            for k, v in getattr(other.symbol_table, symbols).items():
-                getattr(self.symbol_table, symbols)[f"{namespace}_{k}"] = v
+        for symbol in symbols_list:
+            for k, v in getattr(other.symbol_table, symbol).items():
+                self.symbol_table._set_symbol(f"{namespace}.{k}", v[0], v[1], symbol)
                 
     def __repr__(self) -> str:
         return f"<Context:{self.display_name}, Parent:{self.parent}>"

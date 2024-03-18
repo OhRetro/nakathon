@@ -1,10 +1,10 @@
 from .datatypes.all import (
     Number, Function, String, List, Null,
-    BaseFunction, Class,
+    BaseFunction, Class, Object,
     make_value, make_value_type
 )
 from .context import Context
-from .node import (Node, NumberNode, StringNode, ClassNode,
+from .node import (Node, NumberNode, StringNode, ClassNode, ObjectNode,
                    ListNode, VarAccessNode, VarAssignNode, VarReassignNode,
                    BinOpNode, UnaryOpNode, IfNode, ForNode, WhileNode,
                    FuncDefNode, CallNode, ReturnNode, ContinueNode, BreakNode)
@@ -75,7 +75,7 @@ class Interpreter:
                 IS_NOT_DEFINED_ERROR.format(var_full_name),
                 context
             ))
-
+            
         value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
 
@@ -122,6 +122,9 @@ class Interpreter:
         var_full_name: str = var_name_tok.value
         for extra_name_tok in var_extra_names_toks:
             var_full_name += f".{extra_name_tok.value}"
+            
+        if var_extra_names_toks != []:
+            ...
         
         var_type = make_value_type(node.var_value_type_tok.value)
         var_assign = node.var_assign_type_tok
@@ -347,7 +350,20 @@ class Interpreter:
             List(elements).set_context(context).set_pos(
                 node.pos_start, node.pos_end)
         )
-        
+
+    def visit_ObjectNode(self, node: ObjectNode, context: Context):
+        res = RunTimeResult()
+        elements = []
+
+        for element_node in node.element_nodes:
+            elements.append(res.register(self.visit(element_node, context)))
+            if res.should_return():
+                return res
+
+        return res.success(
+            Object(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+        )
+
     def visit_ClassNode(self, node: ClassNode, context: Context):
         res = RunTimeResult()
         
@@ -362,17 +378,20 @@ class Interpreter:
     def visit_FuncDefNode(self, node: FuncDefNode, context: Context):
         res = RunTimeResult()
 
-        func_name = node.func_name_tok.value if node.func_name_tok else None
+        func_name_tok = node.func_name_tok
+        
+        func_full_name: str = func_name_tok.value if func_name_tok else None
+            
         body_node = node.body_node
         
         arg_names = [arg_name.value for arg_name in node.arg_name_toks]
         arg_types = [make_value_type(arg_type.value) for arg_type in node.arg_type_toks]
         arg_default_values = [make_value(arg_default_value.value) for arg_default_value in node.arg_default_value_toks]
         
-        func_value = Function(func_name, body_node, arg_names, arg_types, arg_default_values, node.should_auto_return).set_context(context).set_pos(node.pos_start, node.pos_end)
+        func_value = Function(func_full_name, body_node, arg_names, arg_types, arg_default_values, node.should_auto_return).set_context(context).set_pos(node.pos_start, node.pos_end)
 
-        if node.func_name_tok:
-            context.symbol_table.set(func_name, func_value, Function)
+        if func_name_tok:
+            context.symbol_table.set(func_full_name, func_value, Function)
 
         return res.success(func_value)
 

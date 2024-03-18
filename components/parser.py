@@ -76,6 +76,7 @@ class Parser:
 
     def parse(self):
         res = self.statements()
+        
         if not res.error and self.current_tok.type != TokenType.EOF:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, self.current_tok.pos_end,
@@ -136,6 +137,7 @@ class Parser:
             if not more_statements:
                 break
             statement = res.try_register(self.statement())
+            
             if not statement:
                 self.reverse(res.to_reverse_count)
                 more_statements = False
@@ -170,7 +172,7 @@ class Parser:
             self.register_advance(res)
             
             return res.success(BreakNode(pos_start, self.current_tok.pos_start.copy()))
-
+        
         expr = res.register(self.expr())
         if res.error:
             return res.failure(InvalidSyntaxError(
@@ -266,7 +268,7 @@ class Parser:
 
             return res.success(VarAssignNode(var_name_tok, var_extra_names_toks, expr, var_value_type_tok, var_assign_type_tok, var_method, var_lifetime))
 
-        if self.current_tok.type == TokenType.IDENTIFIER:                
+        elif self.current_tok.type == TokenType.IDENTIFIER:                
             var_name_tok, var_extra_names_toks, error = self.get_full_identifier(res)
             
             if error:
@@ -289,9 +291,11 @@ class Parser:
                     CANNOT_DECLARE_TYPE_AFTER_DECLARED_ERROR
                 ))
             
-            else:
-                # if var_extra_names_toks == []:
-                    
+            # PART 1 OF ACCESSING VARIABLES THE OTHER PART IS ON ATOM
+            elif var_extra_names_toks != []:
+                return res.success(VarAccessNode(var_name_tok, var_extra_names_toks))
+
+            elif var_extra_names_toks == []:
                 self.reverse()
         
         node = res.register(self.bin_op(
@@ -362,10 +366,25 @@ class Parser:
 
     def call(self):
         debug_message.set_message("")
+        
         res = ParseResult()
+        
         atom = res.register(self.atom())
+        
         if res.error:
             return res
+        
+        while self.current_tok.type == TokenType.DOT:
+            child: ClassNode = atom
+            res.register_advancement()
+            self.advance()
+
+            child_ = res.register(self.call())
+            if res.error:
+                return res
+
+            child.child = child_
+            child = child_
 
         if self.current_tok.type == TokenType.LPAREN:
             self.register_advance(res)
@@ -399,7 +418,7 @@ class Parser:
                     ))
 
                 self.register_advance(res)
-                
+
             return res.success(CallNode(atom, arg_nodes))
         
         return res.success(atom)
@@ -419,9 +438,8 @@ class Parser:
             self.register_advance(res)
             return res.success(StringNode(tok))
 
+        # PART 2 OF ACCESSING VARIABLES THE PART 1 IS ON EXPR
         elif tok.type == TokenType.IDENTIFIER:
-            debug_message.set_message("IDENTIFIER")
-            
             tok, var_extra_names_toks, error = self.get_full_identifier(res)
             
             if error:
@@ -490,6 +508,7 @@ class Parser:
             return res.success(class_set)
         
         debug_message.set_message("INVALID TOKEN")
+        
         return res.failure(InvalidSyntaxError(
             tok.pos_start, tok.pos_end,
             expected(TokenType.INT, TokenType.FLOAT, TokenType.IDENTIFIER,
@@ -860,7 +879,7 @@ class Parser:
                 expected(TokenType.IDENTIFIER)
             ))
 
-        class_name_tok, class_extra_names_toks, error = self.get_full_identifier(res)
+        class_name_tok, _, error = self.get_full_identifier(res)
 
         if error:
             return res.failure(error)
@@ -886,7 +905,7 @@ class Parser:
 
         self.register_advance(res)
         
-        return res.success(ClassNode(class_name_tok, class_extra_names_toks, body, pos_start, self.current_tok.pos_end))
+        return res.success(ClassNode(class_name_tok, body, pos_start, self.current_tok.pos_end))
 
     def func_def(self):
         debug_message.set_message("")
@@ -902,7 +921,7 @@ class Parser:
         self.register_advance(res)
 
         if self.current_tok.type == TokenType.IDENTIFIER:
-            func_name_tok, func_extra_names_toks, error = self.get_full_identifier(res)
+            func_name_tok, _, error = self.get_full_identifier(res)
             
             if error:
                 return res.failure(error)
@@ -914,7 +933,6 @@ class Parser:
                 ))
         else:
             func_name_tok = None
-            func_extra_names_toks = []
             if self.current_tok.type != TokenType.LPAREN:
                 return res.failure(InvalidSyntaxError(
                     self.current_tok.pos_start, self.current_tok.pos_end,
@@ -1007,7 +1025,6 @@ class Parser:
 
             return res.success(FuncDefNode(
                 func_name_tok,
-                func_extra_names_toks,
                 arg_name_toks,
                 arg_type_toks,
                 arg_default_value_toks,
@@ -1037,7 +1054,6 @@ class Parser:
 
         return res.success(FuncDefNode(
             func_name_tok,
-            func_extra_names_toks,
             arg_name_toks,
             arg_type_toks,
             arg_default_value_toks,
