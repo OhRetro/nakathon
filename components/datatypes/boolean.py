@@ -1,4 +1,4 @@
-from .value import Value
+from .Value import Value
 
 class Boolean(Value):
     def __init__(self, value: bool):

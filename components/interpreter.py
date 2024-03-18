@@ -1,6 +1,6 @@
 from .datatypes.all import (
     Number, Function, String, List, Null,
-    BaseFunction, Class, Object,
+    BaseFunction, Class, Object, Value, Instance,
     make_value, make_value_type
 )
 from .context import Context
@@ -32,19 +32,19 @@ class Interpreter:
 
     ###################################
 
-    def visit_NumberNode(self, node: NumberNode, context: Context):
+    def visit_NumberNode(self, node: NumberNode, context: Context) -> Number:
         return RunTimeResult().success(
             Number(node.tok.value).set_context(
                 context).set_pos(node.pos_start, node.pos_end)
         )
 
-    def visit_StringNode(self, node: StringNode, context: Context):
+    def visit_StringNode(self, node: StringNode, context: Context) -> String:
         return RunTimeResult().success(
             String(node.tok.value).set_context(
                 context).set_pos(node.pos_start, node.pos_end)
         )
 
-    def visit_ListNode(self, node: ListNode, context: Context):
+    def visit_ListNode(self, node: ListNode, context: Context) -> List:
         res = RunTimeResult()
         elements = []
 
@@ -58,7 +58,7 @@ class Interpreter:
                 node.pos_start, node.pos_end)
         )
 
-    def visit_VarAccessNode(self, node: VarAccessNode, context: Context):
+    def visit_VarAccessNode(self, node: VarAccessNode, context: Context) -> Value:
         res = RunTimeResult()
         var_name_tok = node.var_name_tok
         var_extra_names_toks = node.var_extra_names_toks
@@ -79,6 +79,20 @@ class Interpreter:
         value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
 
+    #! Code from the Radon Project, I will do my own implementation, using as a reference
+    def visit_ObjectNode(self, node: ObjectNode, context: Context) -> Object:
+        res = RunTimeResult()
+        elements = []
+
+        for element_node in node.element_nodes:
+            elements.append(res.register(self.visit(element_node, context)))
+            if res.should_return():
+                return res
+
+        return res.success(
+            Object(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+        )
+        
     def visit_VarAssignNode(self, node: VarAssignNode, context: Context):
         return self._var_assign(node, context, node.method, node.lifetime)
     
@@ -88,8 +102,17 @@ class Interpreter:
         var_extra_names_toks = node.var_extra_names_toks
         
         var_full_name: str = var_name_tok.value
-        for extra_name_tok in var_extra_names_toks:
-            var_full_name += f".{extra_name_tok.value}"
+        
+        if var_extra_names_toks != []:  
+            for extra_name_tok in var_extra_names_toks:
+                if not context.symbol_table.exists(var_full_name):
+                    return res.failure(RunTimeError(
+                        node.pos_start, node.pos_end,
+                        IS_NOT_DEFINED_ERROR.format(var_full_name),
+                        context
+                    ))
+                    
+                var_full_name += f".{extra_name_tok.value}"
         
         var_symbols_table = context.symbol_table.exists_in(var_full_name)
         
@@ -120,11 +143,17 @@ class Interpreter:
         var_extra_names_toks = node.var_extra_names_toks
         
         var_full_name: str = var_name_tok.value
-        for extra_name_tok in var_extra_names_toks:
-            var_full_name += f".{extra_name_tok.value}"
             
         if var_extra_names_toks != []:
-            ...
+            for extra_name_tok in var_extra_names_toks:
+                if not context.symbol_table.exists(var_full_name):
+                    return res.failure(RunTimeError(
+                        node.pos_start, node.pos_end,
+                        IS_NOT_DEFINED_ERROR.format(var_full_name),
+                        context
+                    ))
+                    
+                var_full_name += f".{extra_name_tok.value}"
         
         var_type = make_value_type(node.var_value_type_tok.value)
         var_assign = node.var_assign_type_tok
@@ -349,19 +378,6 @@ class Interpreter:
             Null.null if node.should_return_null else
             List(elements).set_context(context).set_pos(
                 node.pos_start, node.pos_end)
-        )
-
-    def visit_ObjectNode(self, node: ObjectNode, context: Context):
-        res = RunTimeResult()
-        elements = []
-
-        for element_node in node.element_nodes:
-            elements.append(res.register(self.visit(element_node, context)))
-            if res.should_return():
-                return res
-
-        return res.success(
-            Object(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
 
     def visit_ClassNode(self, node: ClassNode, context: Context):

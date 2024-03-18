@@ -1,5 +1,5 @@
-from .value import Value
-from .boolean import Boolean
+from .Value import Value
+from .Boolean import Boolean
 from ..context import Context
 from ..error import RunTimeError
 from ..utils.strings_template import DIVISION_BY_ZERO_ERROR

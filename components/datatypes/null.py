@@ -1,5 +1,5 @@
-from .value import Value
-from . boolean import Boolean
+from .Value import Value
+from .Boolean import Boolean
 
 class Null(Value):
     def __init__(self):

@@ -1,5 +1,5 @@
 from .utils.debug import DebugMessage
-from .datatypes.value import Value
+from .datatypes.Value import Value
 from copy import deepcopy
 
 debug_message = DebugMessage("").set_auto_display(True)

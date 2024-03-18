@@ -23,7 +23,7 @@ class DebugMessage:
     def __init__(self, message: str, auto_display_on_message_set: bool = False):
         curframe = i_currentframe()
         calframe = i_getouterframes(curframe, 2)
-        self.caller = calframe[1][1].replace("\\", "/").split("/")[-1]
+        self.caller = calframe[1][1].replace("\\", "/").split("/")[-1].lower()
         
         self.set_auto_display(auto_display_on_message_set)
         self.set_enabled(COMPONENTS_ENABLED.get(self.caller, DEFAULT_ENABLED) if not ALL_USES_DEFAULT else DEFAULT_ENABLED)

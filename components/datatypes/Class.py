@@ -1,4 +1,4 @@
-from .value import Value
+from .Value import Value
 from ..node import ListNode, VarAccessNode, CallNode
 from ..runtime import RunTimeResult
 from ..context import Context
@@ -45,7 +45,7 @@ class Class(Value):
                 return None, res.error
             
             return res.value, None
-        
+
     def copy(self):
         copy = Class(self.name, self.body_node)
         copy.set_pos(self.pos_start, self.pos_end)

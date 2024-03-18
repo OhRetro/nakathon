@@ -5,7 +5,7 @@ from components.interpreter import Interpreter
 from components.context import Context
 from components.symbol_table import SymbolTable
 from components.datatypes.all import Value, Boolean, Null, String
-from components.datatypes.builtin_function import define_builtin_functions
+from components.datatypes.BuiltInFunction import define_builtin_functions
 from components.utils.debug import DebugMessage
 
 debug_message = DebugMessage("").set_auto_display(True)

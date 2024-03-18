@@ -1,7 +1,7 @@
 Run("conditions.nkt")
 Run("for_while_loop.nkt")
 Run("functions.nkt")
-Run("imports_runs.nkt")
+#Run("imports_runs.nkt")
 Run("inputs.nkt")
 Run("randoms.nkt")
 Run("variables.nkt")

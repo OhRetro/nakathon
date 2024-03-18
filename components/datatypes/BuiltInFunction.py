@@ -3,20 +3,20 @@ from os.path import join as os_join
 from random import randint, random, uniform
 from enum import Enum
 
-from ..utils.misc import get_abs_path
-from .value import Value
-from .number import Number
-from .boolean import Boolean
-from .null import Null
-from .string import String
-from .list import List
-from .function import BaseFunction, Function, make_args_struct
+from .Value import Value
+from .Number import Number
+from .Boolean import Boolean
+from .Null import Null
+from .String import String
+from .List import List
+from .Function import BaseFunction, Function, make_args_struct
 from ..symbol_table import SymbolTable
 from ..node import Node
 from ..context import Context
 from ..runtime import RunTimeResult
 from ..error import RunTimeError
 from ..utils.strings_template import OUT_OF_BOUNDS_ERROR
+from ..utils.misc import get_abs_path
 
 class BuiltInFunctionNames(Enum):
     PRINT = "Print"

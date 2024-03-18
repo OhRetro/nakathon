@@ -1,5 +1,5 @@
 from .token import Token
-from .datatypes.value import Value
+from .datatypes.Value import Value
 from .utils.debug import DebugMessage
 from .position import Position
 
@@ -122,7 +122,6 @@ class ClassNode(Node):
         self.class_name_tok = class_name_tok
         self.body_node = body_node
         super().__init__(class_name_tok, pos_start, pos_end)
-        
         self.child = None
         
 class FuncDefNode(Node):

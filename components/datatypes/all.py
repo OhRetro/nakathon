@@ -1,13 +1,14 @@
-from .value import Value
-from .number import Number
-from .string import String
-from .list import List
-from .boolean import Boolean
-from .null import Null
-from .function import Function, BaseFunction
-from .builtin_function import BuiltInFunction
-from .class_ import Class
-from .object import Object
+from .Value import Value
+from .Number import Number
+from .String import String
+from .List import List
+from .Boolean import Boolean
+from .Null import Null
+from .Function import Function, BaseFunction
+from .BuiltInFunction import BuiltInFunction
+from .Class import Class
+from .Object import Object
+from .Instance import Instance
 
 def make_value_type(name: str):
     map = {

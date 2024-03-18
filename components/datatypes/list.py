@@ -1,5 +1,5 @@
-from .value import Value
-from .number import Number
+from .Value import Value
+from .Number import Number
 from ..token import TokenType
 from ..error import RunTimeError
 from ..utils.strings_template import OUT_OF_BOUNDS_ERROR

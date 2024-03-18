@@ -1,5 +1,5 @@
-from .value import Value
-from .number import Number
+from .Value import Value
+from .Number import Number
 from ..token import TokenType
 
 class String(Value):

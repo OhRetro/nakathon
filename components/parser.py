@@ -376,8 +376,7 @@ class Parser:
         
         while self.current_tok.type == TokenType.DOT:
             child: ClassNode = atom
-            res.register_advancement()
-            self.advance()
+            self.register_advance(res)
 
             child_ = res.register(self.call())
             if res.error:
@@ -921,10 +920,15 @@ class Parser:
         self.register_advance(res)
 
         if self.current_tok.type == TokenType.IDENTIFIER:
-            func_name_tok, _, error = self.get_full_identifier(res)
+            func_name_tok, _extra_names, error = self.get_full_identifier(res)
             
             if error:
                 return res.failure(error)
+            elif _extra_names != []:
+                return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start, self.current_tok.pos_end,
+                    "Illegal identifier for function"
+                ))
             
             if self.current_tok.type != TokenType.LPAREN:
                 return res.failure(InvalidSyntaxError(
