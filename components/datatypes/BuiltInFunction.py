@@ -47,6 +47,8 @@ class BuiltInFunctionNames(Enum):
     IMPORT = "Import"
     RUN = "Run"
     EXIT = "Exit"
+    
+    SHOWCTX = None
 
 class BuiltInFunction(BaseFunction):
     def __init__(self, name: str, display_name: str):
@@ -239,7 +241,7 @@ class BuiltInFunction(BaseFunction):
             ))
 
         _, error, context = run(fn, script, 
-                                f"<Importing \"{target_file}\" as \"{namespace}>\"" if namespace != "*" 
+                                f"<Importing \"{target_file}\" as \"{namespace}\">" if namespace != "*" 
                                 else f"<Importing \"{target_file}\" without a namespace>", 
                                 True, True, cwd=import_cwd)
         
@@ -304,8 +306,32 @@ class BuiltInFunction(BaseFunction):
         exit(code_number.value)
     execute_EXIT.args = [make_args_struct("code_number", Number, Number(0))]
     
+    def execute_SHOWCTX(self, exec_ctx: Context):
+        symbol_id: str = exec_ctx.symbol_table.get("symbol_id").value
+        symbols_list = {
+            "n": exec_ctx.symbol_table.parent.symbols,
+            "i": exec_ctx.symbol_table.parent.immutable_symbols,
+            "t": exec_ctx.symbol_table.parent.temporary_symbols,
+            "s": exec_ctx.symbol_table.parent.scoped_symbols
+        }
+        
+        if symbol_id != "*" and symbol_id in symbols_list:
+            print("{")
+            for k, v in symbols_list.get(symbol_id).items():
+                print(f"   {k} = {v[0]}")
+            print("}")
+        else:
+            for _, symbol in symbols_list.items():
+                print("{")
+                for k, v in symbol.items():
+                    print(f"   {k} = {v[0]}")
+                print("}")
+                
+        return RunTimeResult().success(Null.null)
+    execute_SHOWCTX.args = [make_args_struct("symbol_id", String, String("*"))]
+    
 def define_builtin_functions(symbol_table: SymbolTable):
     for name in BuiltInFunctionNames:
-        symbol_table.set_as_builtin(f"NAKATHON_{name.name}", BuiltInFunction(name.name, f"NAKATHON_{name.name}"), BuiltInFunction)
-        symbol_table.set(name.value, BuiltInFunction(name.name, name.value), Function)
+        func_name = name.value if name.value else f"NAKATHON_{name.name}"
+        symbol_table.set_as_builtin(func_name, BuiltInFunction(name.name, func_name), BuiltInFunction)
         

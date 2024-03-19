@@ -1,6 +1,9 @@
 from .Value import Value
+from .Function import Function
+from .Instance import Instance
 from ..node import ListNode, VarAccessNode, CallNode
 from ..runtime import RunTimeResult
+from ..error import RunTimeError
 from ..context import Context
 from ..symbol_table import SymbolTable
 
@@ -16,7 +19,7 @@ class Class(Value):
         new_context.symbol_table = SymbolTable(new_context.parent.symbol_table)
         return new_context
     
-    # LEFTOVER OF OLD METHOD, STILL HERE FOR REFERENCING
+    #! LEFTOVER OF OLD METHOD, STILL HERE FOR REFERENCING
     def dotted(self, other: VarAccessNode | CallNode):
         from ..interpreter import Interpreter
 
@@ -51,4 +54,3 @@ class Class(Value):
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy
-    

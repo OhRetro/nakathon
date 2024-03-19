@@ -50,4 +50,6 @@ class DebugMessage:
         self.auto_display = enabled
         return self
     
-
+def qd(message: str = "duck"):
+    _dm = DebugMessage(message, 1)
+    del _dm

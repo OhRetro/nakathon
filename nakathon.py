@@ -3,12 +3,12 @@ from components.utils.misc import get_abs_path, set_console_title
 from components.wrapper import run, set_builtin
 from components.datatypes.all import String
 
-VERSION = [1, 6, 0]
+__version__ = [1, 6, 0]
 
 def start():
     theres_args = len(argv) > 1
     is_running_a_script = theres_args and not argv[1].startswith("--")
-    _version = ".".join([str(x) for x in VERSION])
+    _version = ".".join([str(x) for x in __version__])
     
     set_builtin("NAKATHON_VERSION", String(f"v{_version}"))
 

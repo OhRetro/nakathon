@@ -25,6 +25,7 @@ class Interpreter:
         method_name = f'visit_{type(node).__name__}'
         debug_message.set_message(f"VISIT: {method_name}")
         method = getattr(self, method_name, self.no_visit_method)
+        
         return method(node, context)
 
     def no_visit_method(self, node: Node, context: Context):
@@ -58,6 +59,20 @@ class Interpreter:
                 node.pos_start, node.pos_end)
         )
 
+    #! Code from the Radon Project, I will do my own implementation, using as a reference
+    # def visit_ObjectNode(self, node: ObjectNode, context: Context) -> Object:
+    #     res = RunTimeResult()
+    #     elements = []
+
+    #     for element_node in node.element_nodes:
+    #         elements.append(res.register(self.visit(element_node, context)))
+    #         if res.should_return():
+    #             return res
+
+    #     return res.success(
+    #         Object(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+    #     )
+        
     def visit_VarAccessNode(self, node: VarAccessNode, context: Context) -> Value:
         res = RunTimeResult()
         var_name_tok = node.var_name_tok
@@ -78,20 +93,6 @@ class Interpreter:
             
         value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
-
-    #! Code from the Radon Project, I will do my own implementation, using as a reference
-    def visit_ObjectNode(self, node: ObjectNode, context: Context) -> Object:
-        res = RunTimeResult()
-        elements = []
-
-        for element_node in node.element_nodes:
-            elements.append(res.register(self.visit(element_node, context)))
-            if res.should_return():
-                return res
-
-        return res.success(
-            Object(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
-        )
         
     def visit_VarAssignNode(self, node: VarAssignNode, context: Context):
         return self._var_assign(node, context, node.method, node.lifetime)
@@ -254,6 +255,10 @@ class Interpreter:
             result, error = left.anded_by(right)
         elif node.op_tok.matches(TokenType.KEYWORD, Keyword.OR):
             result, error = left.ored_by(right)
+            
+        #! OLD METHOD OF ACCESSING VARIABLES WITH DOTS
+        # elif node.op_tok.type == TokenType.DOT:
+        #     result, error = left.dotted(right)
 
         if error:
             return res.failure(error)

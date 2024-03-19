@@ -1,9 +1,9 @@
 from sys import argv
-from nakathon import VERSION
+from nakathon import __version__ as nkt_version
 from components.tools.make_readme import make_readme
 from components.tools.make_executable import make_executable
 
-_version = ".".join([str(x) for x in VERSION])
+_version = ".".join([str(x) for x in nkt_version])
 
 tool_map = {
     "readme": (make_readme, ()),

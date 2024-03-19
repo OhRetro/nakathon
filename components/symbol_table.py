@@ -35,7 +35,7 @@ class SymbolTable:
     def _exists(self, name: str, symbols_name: str, extra_condition: bool = True):
         return name in getattr(self, symbols_name) and extra_condition
 
-    def exists_in(self, name: str, calling_from_parent: bool = False):
+    def exists_in(self, name: str, calling_from_parent: bool = False) -> str:
         debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': CHECKING SYMBOL TYPE")
         symbol_table_name = None
         
@@ -55,7 +55,7 @@ class SymbolTable:
             
         return symbol_table_name
             
-    def exists(self, name: str, calling_from_parent: bool = False):
+    def exists(self, name: str, calling_from_parent: bool = False) -> bool:
         exists = False
         if not calling_from_parent: debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': EXISTS: CHECKING")
 
@@ -119,10 +119,10 @@ class SymbolTable:
                 
         return value, type
 
-    def get(self, name: str, calling_from_parent: bool = False):
+    def get(self, name: str, calling_from_parent: bool = False) -> Value:
         return self._get(name, calling_from_parent)[0]
     
-    def get_type(self, name: str, calling_from_parent: bool = False):
+    def get_type(self, name: str, calling_from_parent: bool = False) -> Value:
         return self._get(name, calling_from_parent)[1]
     
     def _set_symbol(self, name: str, value: Value, type: Value, symbols_name: str, **kwargs):

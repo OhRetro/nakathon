@@ -2,7 +2,7 @@ from typing import Callable
 from .error import InvalidSyntaxError
 from .token import Token, TokenType
 from .keyword import Keyword
-from .node import (NumberNode, StringNode, BinOpNode, ClassNode,
+from .node import (Node, NumberNode, StringNode, BinOpNode, ClassNode,
                    UnaryOpNode, VarAccessNode, VarAssignNode, VarReassignNode,
                    CallNode, ForNode, FuncDefNode, IfNode,
                    WhileNode, ListNode, ReturnNode, ContinueNode, BreakNode)
@@ -49,7 +49,6 @@ class ParseResult:
     def __repr__(self) -> str:
         return f"<ParseResult:({self.node}, {self.error})>"
 
-
 class Parser:
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
@@ -61,7 +60,7 @@ class Parser:
         self.update_current_tok()
         return self.current_tok
 
-    def reverse(self, amount=1):
+    def reverse(self, amount: int = 1):
         self.tok_idx -= amount
         self.update_current_tok()
         return self.current_tok
@@ -293,7 +292,8 @@ class Parser:
             
             # PART 1 OF ACCESSING VARIABLES THE OTHER PART IS ON ATOM
             elif var_extra_names_toks != []:
-                return res.success(VarAccessNode(var_name_tok, var_extra_names_toks))
+                #return res.success(VarAccessNode(var_name_tok, var_extra_names_toks))
+                self.reverse()
 
             elif var_extra_names_toks == []:
                 self.reverse()
@@ -375,7 +375,7 @@ class Parser:
             return res
         
         while self.current_tok.type == TokenType.DOT:
-            child: ClassNode = atom
+            child: Node = atom
             self.register_advance(res)
 
             child_ = res.register(self.call())
@@ -439,12 +439,14 @@ class Parser:
 
         # PART 2 OF ACCESSING VARIABLES THE PART 1 IS ON EXPR
         elif tok.type == TokenType.IDENTIFIER:
-            tok, var_extra_names_toks, error = self.get_full_identifier(res)
+            # tok, var_extra_names_toks, error = self.get_full_identifier(res)
             
-            if error:
-                return res.failure(error)
+            # if error:
+            #     return res.failure(error)
             
-            return res.success(VarAccessNode(tok, var_extra_names_toks))
+            # return res.success(VarAccessNode(tok, var_extra_names_toks))
+            self.register_advance(res)
+            return res.success(VarAccessNode(tok))
 
         elif tok.type == TokenType.LPAREN:
             debug_message.set_message("PARENTHESES")
@@ -878,10 +880,8 @@ class Parser:
                 expected(TokenType.IDENTIFIER)
             ))
 
-        class_name_tok, _, error = self.get_full_identifier(res)
-
-        if error:
-            return res.failure(error)
+        class_name_tok = self.current_tok
+        self.register_advance(res)
 
         if self.current_tok.type != TokenType.LBRACE:
             return res.failure(InvalidSyntaxError(
@@ -920,15 +920,8 @@ class Parser:
         self.register_advance(res)
 
         if self.current_tok.type == TokenType.IDENTIFIER:
-            func_name_tok, _extra_names, error = self.get_full_identifier(res)
-            
-            if error:
-                return res.failure(error)
-            elif _extra_names != []:
-                return res.failure(InvalidSyntaxError(
-                    self.current_tok.pos_start, self.current_tok.pos_end,
-                    "Illegal identifier for function"
-                ))
+            func_name_tok = self.current_tok
+            self.register_advance(res)
             
             if self.current_tok.type != TokenType.LPAREN:
                 return res.failure(InvalidSyntaxError(
