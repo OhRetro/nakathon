@@ -8,13 +8,13 @@ class Boolean(Value):
         if isinstance(other, Boolean):
             return Boolean(self.value and other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def ored_by(self, other):
         if isinstance(other, Boolean):
             return Boolean(self.value or other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def is_true(self):
         return self.value is True

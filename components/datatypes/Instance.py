@@ -1,4 +1,5 @@
 from .Value import Value
+from ..node import VarAccessNode, CallNode
 
 #! Code from the Radon Project, I will do my own implementation, using as a reference
 class Instance(Value):
@@ -7,6 +8,10 @@ class Instance(Value):
         self.symbol_table = symbol_table
         super().__init__()
 
+    #! LEFTOVER OF OLD METHOD, STILL HERE FOR REFERENCING
+    def dotted(self, other: VarAccessNode | CallNode):
+        return self.parent_class.dotted(other)
+        
     def copy(self):
         copy = Instance(self.parent_class, self.symbol_table)
         copy.set_pos(self.pos_start, self.pos_end)
@@ -14,4 +19,4 @@ class Instance(Value):
         return copy
 
     def __repr__(self):
-        return f"<Instance:{self.parent_class.name}>"
+        return f"<Instance:{self.parent_class}>"

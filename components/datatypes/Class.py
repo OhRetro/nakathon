@@ -1,7 +1,7 @@
 from .Value import Value
 from .Function import Function
 from .Instance import Instance
-from ..node import VarAccessNode, CallNode
+from ..node import VarAccessNode, CallNode, ListNode
 from ..runtime import RunTimeResult
 from ..error import RunTimeError
 from ..context import Context
@@ -9,10 +9,10 @@ from ..symbol_table import SymbolTable
 from ..keyword import Keyword
 
 class Class(Value):
-    def __init__(self, name: str, symbol_table: SymbolTable):
+    def __init__(self, name: str, body_node: ListNode, symbol_table: SymbolTable):
         self.name = name
+        self.body_node = body_node
         self.symbol_table = symbol_table
-        # self.body_node = body_node
         super().__init__(name)
 
     def generate_new_context(self):
@@ -34,6 +34,7 @@ class Class(Value):
             class_symbol_name = other.var_name_tok.value
           
             ret_value = value.context.symbol_table.get(class_symbol_name)
+            #ret_value = self.symbol_table.get(class_symbol_name)
 
             return ret_value, None
 
@@ -46,9 +47,14 @@ class Class(Value):
             res = func.execute(args)
 
             if res.error:
+                print("a")
                 return None, res.error
             
             return res.value, None
+        
+        else:
+            print("Unexpected")
+            print(type(other))
 
     #! Code based from the Radon Project, I'm doing my own implementation, using as a reference
     #! If anything https://en.wikipedia.org/wiki/Ship_of_Theseus
@@ -61,6 +67,7 @@ class Class(Value):
         inst = Instance(self, SymbolTable(self.symbol_table))
 
         exec_ctx.symbol_table = inst.symbol_table
+ 
         for name in self.symbol_table.symbols:
             inst.symbol_table.set(name, self.symbol_table.get(name).copy(), Value)
 
@@ -87,7 +94,7 @@ class Class(Value):
         return res.success(inst.set_context(self.context).set_pos(self.pos_start, self.pos_end))
     
     def copy(self):
-        copy = Class(self.name, self.symbol_table)
+        copy = Class(self.name, self.body_node, self.symbol_table)
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy

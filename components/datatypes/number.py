@@ -24,19 +24,19 @@ class Number(Value):
         if isinstance(other, Number):
             return Number(self.value + other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def subbed_by(self, other):
         if isinstance(other, Number):
             return Number(self.value - other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def multed_by(self, other):
         if isinstance(other, Number):
             return Number(self.value * other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def dived_by(self, other):
         if isinstance(other, Number):
@@ -51,13 +51,13 @@ class Number(Value):
             
             return Number(int(ret_value) if str(ret_value).endswith(".0") else ret_value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def powed_by(self, other):
         if isinstance(other, Number):
             return Number(self.value ** other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def rest_of_dived_by(self, other):
         if isinstance(other, Number):
@@ -69,55 +69,55 @@ class Number(Value):
                 )
             return Number(self.value % other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def get_comparison_eq(self, other):
         if isinstance(other, Value):
             return Boolean(self.value == other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def get_comparison_ne(self, other):
         if isinstance(other, Value):
             return Boolean(self.value != other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def get_comparison_lt(self, other):
         if isinstance(other, Number):
             return Boolean(self.value < other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def get_comparison_gt(self, other):
         if isinstance(other, Number):
             return Boolean(self.value > other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def get_comparison_lte(self, other):
         if isinstance(other, Number):
             return Boolean(self.value <= other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def get_comparison_gte(self, other):
         if isinstance(other, Number):
             return Boolean(self.value >= other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def anded_by(self, other):
         if isinstance(other, Value):
             return Boolean(self.value and other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def ored_by(self, other):
         if isinstance(other, Value):
             return Boolean(self.value or other.value).set_context(self.context), None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
 
     def notted(self):
         return Boolean(True if self.value == 0 else False).set_context(self.context), None

@@ -90,17 +90,17 @@ class Parser:
         
         extra_identifiers = []
         
-        while self.current_tok.type == TokenType.DOT:
-            self.register_advance(res)
+        # while self.current_tok.type == TokenType.DOT:
+        #     self.register_advance(res)
 
-            if self.current_tok.type != TokenType.IDENTIFIER:
-                return None, None, res.failure(InvalidSyntaxError(
-                    self.current_tok.pos_start, self.current_tok.pos_end,
-                    expected(TokenType.IDENTIFIER)
-                ))
+        #     if self.current_tok.type != TokenType.IDENTIFIER:
+        #         return None, None, res.failure(InvalidSyntaxError(
+        #             self.current_tok.pos_start, self.current_tok.pos_end,
+        #             expected(TokenType.IDENTIFIER)
+        #         ))
             
-            extra_identifiers.append(self.current_tok)
-            self.register_advance(res)
+        #     extra_identifiers.append(self.current_tok)
+        #     self.register_advance(res)
         
         debug_message.set_message(f"IDENTIFIER: EXTRAS: {extra_identifiers}")
         return identifier_name, extra_identifiers, None
@@ -366,13 +366,13 @@ class Parser:
 
     def power(self):
         debug_message.set_message("")
-        return self.bin_op(self.call, (TokenType.POWER, ), self.factor)
-        #return self.bin_op(self.dot, (TokenType.POWER, ), self.factor)
+        #return self.bin_op(self.call, (TokenType.POWER, ), self.factor)
+        return self.bin_op(self.dot, (TokenType.POWER, ), self.factor)
 
     #! OLD METHOD
-    # def dot(self):
-    #     debug_message.set_message("")
-    #     return self.bin_op(self.call, (TokenType.DOT, ), self.power)
+    def dot(self):
+        debug_message.set_message("")
+        return self.bin_op(self.call, (TokenType.DOT, ), self.power)
     
     def call(self):
         debug_message.set_message("")
@@ -384,16 +384,16 @@ class Parser:
         if res.error:
             return res
         
-        while self.current_tok.type == TokenType.DOT:
-            child: Node = atom
-            self.register_advance(res)
+        # while self.current_tok.type == TokenType.DOT:
+        #     child: Node = atom
+        #     self.register_advance(res)
 
-            child_ = res.register(self.call())
-            if res.error:
-                return res
+        #     child_ = res.register(self.call())
+        #     if res.error:
+        #         return res
 
-            child.child = child_
-            child = child_
+        #     child.child = child_
+        #     child = child_
 
         if self.current_tok.type == TokenType.LPAREN:
             self.register_advance(res)

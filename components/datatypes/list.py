@@ -28,7 +28,7 @@ class List(Value):
                     self.context
                 )
 
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
         
     def multed_by(self, other):
         if isinstance(other, List):
@@ -36,7 +36,7 @@ class List(Value):
             new_list.elements.extend(other.elements)
             return new_list, None
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
       
     def dived_by(self, other):
         if isinstance(other, Number):            
@@ -49,7 +49,7 @@ class List(Value):
                     self.context
                 )
         
-        return self.illegal_operation(other)
+        return self._illegal_operation(other)
     
     def copy(self):
         copy = List(self.elements)
