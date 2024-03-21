@@ -1,17 +1,18 @@
 from .Value import Value
 from .Function import Function
 from .Instance import Instance
-from ..node import ListNode, VarAccessNode, CallNode
+from ..node import VarAccessNode, CallNode
 from ..runtime import RunTimeResult
 from ..error import RunTimeError
 from ..context import Context
 from ..symbol_table import SymbolTable
+from ..keyword import Keyword
 
 class Class(Value):
-    def __init__(self, name: str, body_node: ListNode):
+    def __init__(self, name: str, symbol_table: SymbolTable):
         self.name = name
-        self.body_node = body_node
-        self.symbol_table = None
+        self.symbol_table = symbol_table
+        # self.body_node = body_node
         super().__init__(name)
 
     def generate_new_context(self):
@@ -49,8 +50,44 @@ class Class(Value):
             
             return res.value, None
 
+    #! Code based from the Radon Project, I'm doing my own implementation, using as a reference
+    #! If anything https://en.wikipedia.org/wiki/Ship_of_Theseus
+    def execute(self, args):
+        res = RunTimeResult()
+
+        exec_ctx = Context(self.name, self.context, self.pos_start)
+
+        # TODO: Some issue here when direct accessing class methods without instantiation
+        inst = Instance(self, SymbolTable(self.symbol_table))
+
+        exec_ctx.symbol_table = inst.symbol_table
+        for name in self.symbol_table.symbols:
+            inst.symbol_table.set(name, self.symbol_table.get(name).copy(), Value)
+
+        for name in inst.symbol_table.symbols:
+            inst.symbol_table.get(name).set_context(exec_ctx)
+
+        inst.symbol_table.set_as_builtin(Keyword.SELFREF, inst, Instance)
+
+        _constructor = "__setup__"
+        method = inst.symbol_table.get(_constructor) if inst.symbol_table.exists(_constructor) else None
+
+        if method != None and isinstance(method, Function):
+            res.register(method.execute(args))
+            if res.should_return():
+                return res
+        
+        elif method != None and not isinstance(method, Function):
+            return res.failure(RunTimeError(
+                self.pos_start, self.pos_end,
+                f"The __setup__ in '{self.name}' must be a function",
+                self.context
+            ))
+
+        return res.success(inst.set_context(self.context).set_pos(self.pos_start, self.pos_end))
+    
     def copy(self):
-        copy = Class(self.name, self.body_node)
+        copy = Class(self.name, self.symbol_table)
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy

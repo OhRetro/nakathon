@@ -46,6 +46,7 @@ def start():
 
         try:
             _, error, _ = run(fn, script, "<External>", True, cwd=get_abs_path(fn))
+            
             if error: print(error.as_string())
         except KeyboardInterrupt:
             print("\nExiting...")

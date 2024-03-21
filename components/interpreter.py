@@ -1,3 +1,4 @@
+from .symbol_table import SymbolTable
 from .datatypes.all import (
     Number, Function, String, List, Null,
     BaseFunction, Class, Object, Value, Instance,
@@ -58,20 +59,6 @@ class Interpreter:
             List(elements).set_context(context).set_pos(
                 node.pos_start, node.pos_end)
         )
-
-    #! Code from the Radon Project, I will do my own implementation, using as a reference
-    # def visit_ObjectNode(self, node: ObjectNode, context: Context) -> Object:
-    #     res = RunTimeResult()
-    #     elements = []
-
-    #     for element_node in node.element_nodes:
-    #         elements.append(res.register(self.visit(element_node, context)))
-    #         if res.should_return():
-    #             return res
-
-    #     return res.success(
-    #         Object(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
-    #     )
         
     def visit_VarAccessNode(self, node: VarAccessNode, context: Context) -> Value:
         res = RunTimeResult()
@@ -79,8 +66,8 @@ class Interpreter:
         var_extra_names_toks = node.var_extra_names_toks
         
         var_full_name: str = var_name_tok.value
-        for extra_name_tok in var_extra_names_toks:
-            var_full_name += f".{extra_name_tok.value}"
+        # for extra_name_tok in var_extra_names_toks:
+        #     var_full_name += f".{extra_name_tok.value}"
         
         value = context.symbol_table.get(var_full_name)
         
@@ -90,7 +77,25 @@ class Interpreter:
                 IS_NOT_DEFINED_ERROR.format(var_full_name),
                 context
             ))
-            
+
+        if node.child:
+            if not isinstance(value, Instance) and not isinstance(value, Class):
+                return res.failure(RunTimeError(
+                    node.pos_start, node.pos_end,
+                    f"Value must be instance of class or class",
+                    context
+                ))
+
+            new_context = Context(value.parent_class.name,
+                                  context, node.pos_start)
+            new_context.symbol_table = value.symbol_table
+
+            child = res.register(self.visit(node.child, new_context))
+            if res.error:
+                return res
+
+            value = child
+        
         value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
         
@@ -145,16 +150,48 @@ class Interpreter:
         
         var_full_name: str = var_name_tok.value
             
+        # if var_extra_names_toks != []:
+        #     for extra_name_tok in var_extra_names_toks:
+        #         if not context.symbol_table.exists(var_full_name):
+        #             return res.failure(RunTimeError(
+        #                 node.pos_start, node.pos_end,
+        #                 IS_NOT_DEFINED_ERROR.format(var_full_name),
+        #                 context
+        #             ))
+                    
+        #         var_full_name += f".{extra_name_tok.value}"
+        
         if var_extra_names_toks != []:
-            for extra_name_tok in var_extra_names_toks:
-                if not context.symbol_table.exists(var_full_name):
+            nd = context.symbol_table.get(var_full_name)
+            prev = None
+
+            if not nd:
+                return res.failure(RunTimeError(
+                    node.pos_start, node.pos_end,
+                    IS_NOT_DEFINED_ERROR.format(var_full_name),
+                    context
+                ))
+
+            for index, name_tok in enumerate(node.var_extra_names_toks):
+                var_full_name = name_tok.value
+
+                if not isinstance(nd, Class) and not isinstance(nd, Instance):
+                    return res.failure(RunTimeError(
+                        node.pos_start, node.pos_end,
+                        "Value must be instance of class or class",
+                        context
+                    ))
+
+                prev = nd
+                print(nd)
+                nd = nd.parent_class.symbol_table.get(var_full_name) if nd.parent_class.symbol_table.exists(var_full_name) else None
+
+                if not nd and index != len(node.var_extra_names_toks)-1:
                     return res.failure(RunTimeError(
                         node.pos_start, node.pos_end,
                         IS_NOT_DEFINED_ERROR.format(var_full_name),
                         context
                     ))
-                    
-                var_full_name += f".{extra_name_tok.value}"
         
         var_type = make_value_type(node.var_value_type_tok.value)
         var_assign = node.var_assign_type_tok
@@ -198,7 +235,11 @@ class Interpreter:
                 context
             ))
         
-        success, fail_type = getattr(context.symbol_table, method)(var_full_name, value, var_type) if lifetime is None else getattr(context.symbol_table, method)(var_full_name, value, var_type, lifetime)
+
+        if var_extra_names_toks != []:
+            success, fail_type = getattr(prev.parent_class.symbol_table, method)(var_full_name, value, var_type) if lifetime is None else getattr(prev.symbol_table, method)(var_full_name, value, var_type, lifetime)
+        else:    
+            success, fail_type = getattr(context.symbol_table, method)(var_full_name, value, var_type) if lifetime is None else getattr(context.symbol_table, method)(var_full_name, value, var_type, lifetime)
         
         if success: return res.success(value)
         elif fail_type == "const": 
@@ -391,9 +432,15 @@ class Interpreter:
         class_name = node.class_name_tok.value
         body_node = node.body_node
         
-        class_value = Class(class_name, body_node).set_context(context).set_pos(node.pos_start, node.pos_end)
-        
-        context.symbol_table.set(class_name, class_value, Class)
+        ctx = Context(class_name, context, node.pos_start)
+        ctx.symbol_table = SymbolTable(context.symbol_table)
+
+        res.register(self.visit(body_node, ctx))
+        if res.should_return():
+            return res
+
+        class_value = Class(class_name, ctx.symbol_table).set_context(context).set_pos(node.pos_start, node.pos_end)
+        context.symbol_table.set_as_immutable(class_name, class_value, Class)
         return res.success(class_value)
     
     def visit_FuncDefNode(self, node: FuncDefNode, context: Context):

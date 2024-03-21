@@ -98,7 +98,7 @@ class Parser:
                     self.current_tok.pos_start, self.current_tok.pos_end,
                     expected(TokenType.IDENTIFIER)
                 ))
-                
+            
             extra_identifiers.append(self.current_tok)
             self.register_advance(res)
         
@@ -112,11 +112,12 @@ class Parser:
         res = ParseResult()
         statements = []
         pos_start = self.current_tok.pos_start.copy()
-
+        
         while self.current_tok.type in (TokenType.NEWLINE, TokenType.SEMICOLON):
             self.register_advance(res)
 
         statement = res.register(self.statement())
+        
         if res.error:
             return res
         statements.append(statement)
@@ -142,7 +143,7 @@ class Parser:
                 more_statements = False
                 continue
             statements.append(statement)
-
+        
         return res.success(ListNode(
             statements,
             pos_start,
@@ -173,6 +174,7 @@ class Parser:
             return res.success(BreakNode(pos_start, self.current_tok.pos_start.copy()))
         
         expr = res.register(self.expr())
+        
         if res.error:
             return res.failure(InvalidSyntaxError(
                 self.current_tok.pos_start, self.current_tok.pos_end,
@@ -269,7 +271,7 @@ class Parser:
 
         elif self.current_tok.type == TokenType.IDENTIFIER:                
             var_name_tok, var_extra_names_toks, error = self.get_full_identifier(res)
-            
+
             if error:
                 return res.failure(error)
             
@@ -292,10 +294,12 @@ class Parser:
             
             # PART 1 OF ACCESSING VARIABLES THE OTHER PART IS ON ATOM
             elif var_extra_names_toks != []:
-                #return res.success(VarAccessNode(var_name_tok, var_extra_names_toks))
-                self.reverse()
+                return res.success(VarAccessNode(var_name_tok, var_extra_names_toks))
+                #__1 = 1
 
-            elif var_extra_names_toks == []:
+            # elif var_extra_names_toks == []:
+            #     self.reverse()
+            else:
                 self.reverse()
         
         node = res.register(self.bin_op(
@@ -363,7 +367,13 @@ class Parser:
     def power(self):
         debug_message.set_message("")
         return self.bin_op(self.call, (TokenType.POWER, ), self.factor)
+        #return self.bin_op(self.dot, (TokenType.POWER, ), self.factor)
 
+    #! OLD METHOD
+    # def dot(self):
+    #     debug_message.set_message("")
+    #     return self.bin_op(self.call, (TokenType.DOT, ), self.power)
+    
     def call(self):
         debug_message.set_message("")
         
@@ -439,14 +449,14 @@ class Parser:
 
         # PART 2 OF ACCESSING VARIABLES THE PART 1 IS ON EXPR
         elif tok.type == TokenType.IDENTIFIER:
-            # tok, var_extra_names_toks, error = self.get_full_identifier(res)
+            tok, var_extra_names_toks, error = self.get_full_identifier(res)
             
-            # if error:
-            #     return res.failure(error)
+            if error:
+                return res.failure(error)
             
-            # return res.success(VarAccessNode(tok, var_extra_names_toks))
-            self.register_advance(res)
-            return res.success(VarAccessNode(tok))
+            return res.success(VarAccessNode(tok, var_extra_names_toks))
+            # self.register_advance(res)
+            # return res.success(VarAccessNode(tok))
 
         elif tok.type == TokenType.LPAREN:
             debug_message.set_message("PARENTHESES")

@@ -2,13 +2,13 @@ from .Value import Value
 
 #! Code from the Radon Project, I will do my own implementation, using as a reference
 class Instance(Value):
-    def __init__(self, parent_class):
+    def __init__(self, parent_class, symbol_table):
         self.parent_class = parent_class
-        self.symbol_table = None
+        self.symbol_table = symbol_table
         super().__init__()
 
     def copy(self):
-        copy = Instance(self.parent_class)
+        copy = Instance(self.parent_class, self.symbol_table)
         copy.set_pos(self.pos_start, self.pos_end)
         copy.set_context(self.context)
         return copy
