@@ -6,7 +6,7 @@ class Instance(Value):
     def __init__(self, parent_class, symbol_table):
         self.parent_class = parent_class
         self.symbol_table = symbol_table
-        super().__init__()
+        super().__init__(parent_class)
 
     #! LEFTOVER OF OLD METHOD, STILL HERE FOR REFERENCING
     def dotted(self, other: VarAccessNode | CallNode):
@@ -15,5 +15,5 @@ class Instance(Value):
     def copy(self):
         return self
 
-    def __repr__(self):
-        return f"<Instance:{self.parent_class}>"
+    # def __repr__(self):
+    #     return f"<Instance:{self.parent_class}>"

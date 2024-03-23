@@ -14,7 +14,7 @@ class BaseFunction(Value):
     def __init__(self, name: str, display_name: str = None):
         self.name = name or "<anonymous>"
         self.display_name = display_name
-        super().__init__()
+        super().__init__(name)
         
     def _get_name(self) -> str:
         return self.display_name or self.name
@@ -88,8 +88,8 @@ class BaseFunction(Value):
 
         return res.success(None)
 
-    def __repr__(self):
-        return f"<{self.__class__.__qualname__}:{self.name}>"
+    # def __repr__(self):
+    #     return f"<{self.__class__.__qualname__}:{self.name}>"
 
 class Function(BaseFunction):
     def __init__(self, name: str, body_node: ListNode, arg_names: list[str], arg_types: list[Value], arg_default_values: list[Value], should_auto_return: bool = False):

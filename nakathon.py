@@ -21,13 +21,14 @@ def start():
                 text = input("Nakathon Shell > ")
                 if not text.strip(): continue 
                 result, error, _ = run("<stdin>", text, "<Shell>")
-                    
+                
                 if error: print(error.as_string())
                 elif result: 
                     if len(result.elements) == 1:
                         print(repr(result.elements[0]))
                     else:
                         print(repr(result))
+                        
             except KeyboardInterrupt:
                 print("\nExiting...")
                 break
@@ -46,8 +47,9 @@ def start():
 
         try:
             _, error, _ = run(fn, script, "<Script>", True, cwd=get_abs_path(fn))
-            #print(error)
+            
             if error: print(error.as_string())
+            
         except KeyboardInterrupt:
             print("\nExiting...")
         

@@ -32,6 +32,15 @@ class SymbolTable:
             for k, v in getattr(other, symbols).items():
                 getattr(self, symbols)[k] = v
 
+    def copy_symbol(self, name: str):
+        symbol_type_id = self.exists_in(name)
+        
+        if not symbol_type_id or symbol_type_id in {"temporary_symbols", "scoped_symbols"}: 
+            # I don't know how to handle this situation properly
+            return None
+        
+        return (self.get(name).copy(), self.get_type(name))
+
     def _exists(self, name: str, symbols_name: str, extra_condition: bool = True):
         return name in getattr(self, symbols_name) and extra_condition
 

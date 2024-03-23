@@ -109,28 +109,28 @@ class Interpreter:
         
         var_full_name: str = var_name_tok.value
         
-        if var_extra_names_toks != []:  
-            for extra_name_tok in var_extra_names_toks:
-                if not context.symbol_table.exists(var_full_name):
-                    return res.failure(RunTimeError(
-                        node.pos_start, node.pos_end,
-                        IS_NOT_DEFINED_ERROR.format(var_full_name),
-                        context
-                    ))
+        # if var_extra_names_toks != []:  
+        #     for extra_name_tok in var_extra_names_toks:
+        #         if not context.symbol_table.exists(var_full_name):
+        #             return res.failure(RunTimeError(
+        #                 node.pos_start, node.pos_end,
+        #                 IS_NOT_DEFINED_ERROR.format(var_full_name),
+        #                 context
+        #             ))
                     
-                var_full_name += f".{extra_name_tok.value}"
+        #         var_full_name += f".{extra_name_tok.value}"
         
-        var_symbols_table = context.symbol_table.exists_in(var_full_name)
+        var_symbol_type = context.symbol_table.exists_in(var_full_name)
         
-        if var_symbols_table is not None:
+        if var_symbol_type is not None:
             var_type = context.symbol_table.get_type(var_full_name)
 
-            method = f"set_as_{var_symbols_table.removesuffix('_symbols')}" if var_symbols_table != "symbols" else "set"
+            method = f"set_as_{var_symbol_type.removesuffix('_symbols')}" if var_symbol_type != "symbols" else "set"
             
             lifetime = None
             
-            if var_symbols_table == "temporary_symbols":
-                lifetime = getattr(context.symbol_table, var_symbols_table)[var_full_name][2]
+            if var_symbol_type == "temporary_symbols":
+                lifetime = getattr(context.symbol_table, var_symbol_type)[var_full_name][2]
                 lifetime += -1
                 
             type_token = Token(TokenType.IDENTIFIER, var_type.__qualname__)
@@ -480,6 +480,7 @@ class Interpreter:
         
         if res.should_return():
             return res
+        
         return_value = return_value.copy().set_pos(
             node.pos_start, node.pos_end).set_context(context)
         

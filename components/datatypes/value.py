@@ -87,7 +87,7 @@ class Value:
     
     def _illegal_operation(self, other = None):
         if not other: other = self
-        return None, self._illegal_operation_error(other)
+        return self._illegal_operation_error(other)
     
     def __print_repr__(self) -> str:
         return repr(self)

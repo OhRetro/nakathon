@@ -66,23 +66,25 @@ class Class(Value):
 
         exec_ctx.symbol_table = inst.symbol_table
  
-        for name in self.symbol_table.symbols:
-            inst.symbol_table.set(name, self.symbol_table.get(name).copy(), Value)
+        # for name in self.symbol_table.symbols:
+        #     value, type_ = self.symbol_table.copy_symbol(name)
+        #     inst.symbol_table.set(name, value.set_context(exec_ctx), type_)
 
-        for name in inst.symbol_table.symbols:
-            inst.symbol_table.get(name).set_context(exec_ctx)
+        # for name in inst.symbol_table.symbols:
+        #     inst.symbol_table.get(name).set_context(exec_ctx)
 
-        inst.symbol_table.set_as_builtin(Keyword.SELFREF.value, inst, Instance)
 
-        _constructor = "__setup__"
-        method = inst.symbol_table.get(_constructor) if inst.symbol_table.exists(_constructor) else None
+        constructor_name = "__setup__"
+        constructor_method = inst.symbol_table.get(constructor_name) if inst.symbol_table.exists(constructor_name) else None
 
-        if method != None and isinstance(method, Function):
-            res.register(method.execute(args))
+        if constructor_method and isinstance(constructor_method, Function):
+            inst.symbol_table.set_as_builtin(Keyword.SELFREF.value, inst, Instance)
+            
+            res.register(constructor_method.execute(args))
             if res.should_return():
                 return res
         
-        elif method != None and not isinstance(method, Function):
+        elif constructor_method and not isinstance(constructor_method, Function):
             return res.failure(RunTimeError(
                 self.pos_start, self.pos_end,
                 f"The __setup__ in '{self.name}' must be a function",
