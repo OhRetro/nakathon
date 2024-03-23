@@ -73,8 +73,8 @@ class BaseFunction(Value):
             arg_default_value: Value = try_get(arg_default_values, i)
             arg_value.set_context(exec_ctx)
             exec_ctx.symbol_table.set(arg_name, arg_value, arg_type)
-            exec_ctx.symbol_table.set(f"{arg_name}.TYPE", arg_type, arg_type)
-            exec_ctx.symbol_table.set(f"{arg_name}.DEFAULT", arg_default_value, arg_type)
+            exec_ctx.symbol_table.set_as_immutable(f"{arg_name}.TYPE", arg_type, arg_type)
+            exec_ctx.symbol_table.set_as_immutable(f"{arg_name}.DEFAULT", arg_default_value, arg_type)
 
     def check_and_populate_args(self, arg_names: list[str], arg_values: list[Value], arg_types: list[Value], arg_default_values: list[Value], exec_ctx: Context):
         res = RunTimeResult()

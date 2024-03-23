@@ -308,25 +308,49 @@ class BuiltInFunction(BaseFunction):
     
     def execute_SHOWCTX(self, exec_ctx: Context):
         symbol_id: str = exec_ctx.symbol_table.get("symbol_id").value
-        symbols_list = {
-            "n": exec_ctx.symbol_table.parent.symbols,
-            "i": exec_ctx.symbol_table.parent.immutable_symbols,
-            "t": exec_ctx.symbol_table.parent.temporary_symbols,
-            "s": exec_ctx.symbol_table.parent.scoped_symbols
-        }
         
-        if symbol_id != "*" and symbol_id in symbols_list:
-            print("{")
-            for k, v in symbols_list.get(symbol_id).items():
-                print(f"   {k} = {v[0]}")
-            print("}")
-        else:
-            for _, symbol in symbols_list.items():
-                print("{")
-                for k, v in symbol.items():
-                    print(f"   {k} = {v[0]}")
-                print("}")
+        def _method(context: Context, symbol_id: str):
+            print(f"{context.display_name}:")
+            symbols_list = {
+                "n": "symbols",
+                "i": "immutable_symbols",
+                "t": "temporary_symbols",
+                "s": "scoped_symbols"
+            }
+            
+            def _method1(symbol_table: SymbolTable, symbol_name: str):
+                print(f"\t{symbol_name}:")
                 
+                symbol = getattr(symbol_table, symbol_name)
+                
+                _out_text = []
+                
+                for k, v in symbol.items():
+                    _out_text.append(f"{k} = {v[0]}")
+                
+                if not _out_text:
+                    print("\t{}")
+                else:
+                    print("\t{")
+                    for text in _out_text:
+                        print(f"\t\t{text}")
+                    print("\t}")
+                
+                # if symbol_table.parent:
+                #     _method1(symbol_table.parent, symbol_name)
+
+            if symbol_id in symbols_list and symbol_id != "*":
+                _method1(context.symbol_table, symbols_list.get(symbol_id))
+            else:
+                for _, v in symbols_list.items():
+                    _method1(context.symbol_table, v)
+                    
+            if context.parent:
+                print("")
+                _method(context.parent, symbol_id)
+
+        _method(exec_ctx, symbol_id)        
+        
         return RunTimeResult().success(Null.null)
     execute_SHOWCTX.args = [make_args_struct("symbol_id", String, String("*"))]
     

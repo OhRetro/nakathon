@@ -1,7 +1,7 @@
 from .Value import Value
 from .Function import Function
 from .Instance import Instance
-from ..node import VarAccessNode, CallNode, ListNode
+from ..node import VarAccessNode, CallNode, ListNode, Node
 from ..runtime import RunTimeResult
 from ..error import RunTimeError
 from ..context import Context
@@ -22,22 +22,22 @@ class Class(Value):
     
     #! LEFTOVER OF OLD METHOD, STILL HERE FOR REFERENCING
     def dotted(self, other: VarAccessNode | CallNode):
-        from ..interpreter import Interpreter
+        # from ..interpreter import Interpreter
 
         res = RunTimeResult()
-        interpreter = Interpreter()
-        exec_ctx = self.generate_new_context()
+        # interpreter = Interpreter()
+        # exec_ctx = self.generate_new_context()
         
         if isinstance(other, VarAccessNode):
-            value: Value = res.register(interpreter.visit(self.body_node, exec_ctx))
+            # value: Value = res.register(interpreter.visit(self.body_node, exec_ctx))
 
             class_symbol_name = other.var_name_tok.value
           
-            ret_value = value.context.symbol_table.get(class_symbol_name)
-            #ret_value = self.symbol_table.get(class_symbol_name)
-
+            # ret_value = value.context.symbol_table.get(class_symbol_name)
+            ret_value = self.symbol_table.get(class_symbol_name)
+            
             return ret_value, None
-
+        
         elif isinstance(other, CallNode):
             from .all import make_value
             
@@ -47,14 +47,12 @@ class Class(Value):
             res = func.execute(args)
 
             if res.error:
-                print("a")
                 return None, res.error
             
             return res.value, None
         
         else:
-            print("Unexpected")
-            print(type(other))
+            return self._illegal_operation(other)
 
     #! Code based from the Radon Project, I'm doing my own implementation, using as a reference
     #! If anything https://en.wikipedia.org/wiki/Ship_of_Theseus
@@ -74,7 +72,7 @@ class Class(Value):
         for name in inst.symbol_table.symbols:
             inst.symbol_table.get(name).set_context(exec_ctx)
 
-        inst.symbol_table.set_as_builtin(Keyword.SELFREF, inst, Instance)
+        inst.symbol_table.set_as_builtin(Keyword.SELFREF.value, inst, Instance)
 
         _constructor = "__setup__"
         method = inst.symbol_table.get(_constructor) if inst.symbol_table.exists(_constructor) else None

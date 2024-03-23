@@ -70,7 +70,7 @@ class Value:
         from ..runtime import RunTimeResult
         return RunTimeResult().failure(self._illegal_operation())
 
-    def copy(self, method: int = 0):
+    def copy(self):
         raise Exception(NO_METHOD_DEFINED_ERROR.format("copy"))
 
     def is_true(self):

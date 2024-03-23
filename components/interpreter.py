@@ -434,19 +434,13 @@ class Interpreter:
         ctx = Context(class_name, context, node.pos_start)
         ctx.symbol_table = SymbolTable(context.symbol_table)
 
+        res.register(self.visit(body_node, ctx))
+        if res.should_return():
+            return res
+
         class_value = Class(class_name, body_node, ctx.symbol_table).set_context(context).set_pos(node.pos_start, node.pos_end)
-        
-        context.symbol_table.set(class_name, class_value, Class)
+        context.symbol_table.set_as_immutable(class_name, class_value, Class)
         return res.success(class_value)
-            
-
-        # res.register(self.visit(body_node, ctx))
-        # if res.should_return():
-        #     return res
-
-        # class_value = Class(class_name, ctx.symbol_table).set_context(context).set_pos(node.pos_start, node.pos_end)
-        # context.symbol_table.set_as_immutable(class_name, class_value, Class)
-        # return res.success(class_value)
     
     def visit_FuncDefNode(self, node: FuncDefNode, context: Context):
         res = RunTimeResult()

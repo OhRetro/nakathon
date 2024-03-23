@@ -1,8 +1,9 @@
 from .Value import Value
+from ..node import ListNode
 
 class Object(Value):
-    def __init__(self, elements: list):
-        super().__init__()
+    def __init__(self, elements: ListNode):
+        super().__init__(elements)
         self.elements = elements
 
     def copy(self):
@@ -11,8 +12,8 @@ class Object(Value):
         copy.set_context(self.context)
         return copy
 
-    def __str__(self):
-        return "object"
+    # def __str__(self):
+    #     return "object"
 
-    def __repr__(self):
-        return "placeholder"
+    # def __repr__(self):
+    #     return "placeholder"
