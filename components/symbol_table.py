@@ -44,25 +44,30 @@ class SymbolTable:
     def _exists(self, name: str, symbols_name: str, extra_condition: bool = True):
         return name in getattr(self, symbols_name) and extra_condition
 
-    def exists_in(self, name: str, calling_from_parent: bool = False) -> str:
+    def exists_in(self, name: str, calling_from_parent: bool = False):
         debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': CHECKING SYMBOL TYPE")
-        symbol_table_name = None
+        symbol_type_name = None
+        symbol_table_inst = self
         
         if name in self.symbols:
-            symbol_table_name = "symbols"
+            symbol_type_name = "symbols"
+            
         elif name in self.immutable_symbols:
-            symbol_table_name = "immutable_symbols"
-        elif name in self.temporary_symbols:
-            symbol_table_name = "temporary_symbols"
+            symbol_type_name = "immutable_symbols"
+            
+        elif name in self.temporary_symbols and not calling_from_parent:
+            symbol_type_name = "temporary_symbols"
+            
         elif name in self.scoped_symbols and not calling_from_parent:
-            symbol_table_name = "scoped_symbols"
+            symbol_type_name = "scoped_symbols"
+            
         elif name in self.builtin_symbols:
-            symbol_table_name = "builtin_symbols"
+            symbol_type_name = "builtin_symbols"
             
-        if symbol_table_name is None and self.parent:
-            symbol_table_name = self.parent.exists_in(name, True)
+        if symbol_type_name is None and self.parent:
+            symbol_type_name, symbol_table_inst = self.parent.exists_in(name, True)
             
-        return symbol_table_name
+        return symbol_type_name, symbol_table_inst
             
     def exists(self, name: str, calling_from_parent: bool = False) -> bool:
         exists = False
@@ -191,7 +196,7 @@ class SymbolTable:
             
     def copy(self):
         copy = SymbolTable(self)
-        copy.symbols = deepcopy(self.symbols)
-        copy.immutable_symbols = deepcopy(self.immutable_symbols)
+        copy.symbols = self.symbols
+        copy.immutable_symbols = self.immutable_symbols
         return copy
             

@@ -60,14 +60,30 @@ class Interpreter:
                 node.pos_start, node.pos_end)
         )
         
-    def visit_VarAccessNode(self, node: VarAccessNode, context: Context) -> Value:
+    def _make_var_name(self, node: VarAccessNode, context: Context):
         res = RunTimeResult()
+        
         var_name_tok = node.var_name_tok
-        var_extra_names_toks = node.var_extra_names_toks
+        # var_extra_names_toks = node.var_extra_names_toks
         
         var_full_name: str = var_name_tok.value
-        # for extra_name_tok in var_extra_names_toks:
-        #     var_full_name += f".{extra_name_tok.value}"
+        # if var_extra_names_toks != []:  
+        #     for extra_name_tok in var_extra_names_toks:
+        #         if not context.symbol_table.exists(var_full_name):
+        #             return res.failure(RunTimeError(
+        #                 node.pos_start, node.pos_end,
+        #                 IS_NOT_DEFINED_ERROR.format(var_full_name),
+        #                 context
+        #             ))
+                    
+        #         var_full_name += f".{extra_name_tok.value}"
+                
+        return var_full_name
+        
+    def visit_VarAccessNode(self, node: VarAccessNode, context: Context) -> Value:
+        res = RunTimeResult()
+        
+        var_full_name: str = self._make_var_name(node, context)
         
         value = context.symbol_table.get(var_full_name)
         
@@ -107,35 +123,24 @@ class Interpreter:
         var_name_tok = node.var_name_tok
         var_extra_names_toks = node.var_extra_names_toks
         
-        var_full_name: str = var_name_tok.value
+        var_full_name: str = self._make_var_name(node, context)
         
-        # if var_extra_names_toks != []:  
-        #     for extra_name_tok in var_extra_names_toks:
-        #         if not context.symbol_table.exists(var_full_name):
-        #             return res.failure(RunTimeError(
-        #                 node.pos_start, node.pos_end,
-        #                 IS_NOT_DEFINED_ERROR.format(var_full_name),
-        #                 context
-        #             ))
-                    
-        #         var_full_name += f".{extra_name_tok.value}"
+        var_symbol_value_type, context_inst = context.exists_in(var_full_name)
         
-        var_symbol_type = context.symbol_table.exists_in(var_full_name)
-        
-        if var_symbol_type is not None:
-            var_type = context.symbol_table.get_type(var_full_name)
+        if var_symbol_value_type is not None:
+            var_type = context_inst.symbol_table.get_type(var_full_name)
 
-            method = f"set_as_{var_symbol_type.removesuffix('_symbols')}" if var_symbol_type != "symbols" else "set"
+            method = f"set_as_{var_symbol_value_type.removesuffix('_symbols')}" if var_symbol_value_type != "symbols" else "set"
             
             lifetime = None
             
-            if var_symbol_type == "temporary_symbols":
-                lifetime = getattr(context.symbol_table, var_symbol_type)[var_full_name][2]
+            if var_symbol_value_type == "temporary_symbols":
+                lifetime = getattr(context_inst.symbol_table, var_symbol_value_type)[var_full_name][2]
                 lifetime += -1
                 
             type_token = Token(TokenType.IDENTIFIER, var_type.__qualname__)
-                
-            return self._var_assign(VarAssignNode(var_name_tok, var_extra_names_toks, node.value_node, type_token, node.var_assign_type_tok, method, lifetime), context, method, lifetime)
+            #! problem here
+            return self.visit(VarAssignNode(var_name_tok, var_extra_names_toks, node.value_node, type_token, node.var_assign_type_tok, method, lifetime), context_inst)
         else:
             return res.failure(RunTimeError(
                 node.pos_start, node.pos_end,
@@ -145,53 +150,8 @@ class Interpreter:
     
     def _var_assign(self, node: VarAssignNode, context: Context, method: str, lifetime: int = None):
         res = RunTimeResult()
-        var_name_tok = node.var_name_tok
-        var_extra_names_toks = node.var_extra_names_toks
         
-        var_full_name: str = var_name_tok.value
-            
-        # if var_extra_names_toks != []:
-        #     for extra_name_tok in var_extra_names_toks:
-        #         if not context.symbol_table.exists(var_full_name):
-        #             return res.failure(RunTimeError(
-        #                 node.pos_start, node.pos_end,
-        #                 IS_NOT_DEFINED_ERROR.format(var_full_name),
-        #                 context
-        #             ))
-                    
-        #         var_full_name += f".{extra_name_tok.value}"
-        
-        # if var_extra_names_toks != []:
-        #     nd = context.symbol_table.get(var_full_name)
-        #     prev = None
-
-        #     if not nd:
-        #         return res.failure(RunTimeError(
-        #             node.pos_start, node.pos_end,
-        #             IS_NOT_DEFINED_ERROR.format(var_full_name),
-        #             context
-        #         ))
-
-        #     for index, name_tok in enumerate(node.var_extra_names_toks):
-        #         var_full_name = name_tok.value
-
-        #         if not isinstance(nd, Class) and not isinstance(nd, Instance):
-        #             return res.failure(RunTimeError(
-        #                 node.pos_start, node.pos_end,
-        #                 "Value must be instance of class or class",
-        #                 context
-        #             ))
-
-        #         prev = nd
-        #         print(nd)
-        #         nd = nd.parent_class.symbol_table.get(var_full_name) if nd.parent_class.symbol_table.exists(var_full_name) else None
-
-        #         if not nd and index != len(node.var_extra_names_toks)-1:
-        #             return res.failure(RunTimeError(
-        #                 node.pos_start, node.pos_end,
-        #                 IS_NOT_DEFINED_ERROR.format(var_full_name),
-        #                 context
-        #             ))
+        var_full_name: str = self._make_var_name(node, context)
         
         var_type = make_value_type(node.var_value_type_tok.value)
         var_assign = node.var_assign_type_tok
@@ -234,11 +194,7 @@ class Interpreter:
                 VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR.format(var_full_name, var_type.__qualname__, value.__class__.__qualname__),
                 context
             ))
-        
-
-        # if var_extra_names_toks != []:
-        #     success, fail_type = getattr(prev.parent_class.symbol_table, method)(var_full_name, value, var_type) if lifetime is None else getattr(prev.symbol_table, method)(var_full_name, value, var_type, lifetime)
-        # else:    
+         
         success, fail_type = getattr(context.symbol_table, method)(var_full_name, value, var_type) if lifetime is None else getattr(context.symbol_table, method)(var_full_name, value, var_type, lifetime)
         
         if success: return res.success(value)
@@ -280,6 +236,7 @@ class Interpreter:
             result, error = left.powed_by(right)
         elif node.op_tok.type == TokenType.DIVREST:
             result, error = left.rest_of_dived_by(right)
+            
         elif node.op_tok.type == TokenType.EE:
             result, error = left.get_comparison_eq(right)
         elif node.op_tok.type == TokenType.NE:
@@ -296,7 +253,7 @@ class Interpreter:
             result, error = left.anded_by(right)
         elif node.op_tok.matches(TokenType.KEYWORD, Keyword.OR):
             result, error = left.ored_by(right)
-        #! OLD METHOD OF ACCESSING VARIABLES WITH DOTS
+            
         elif node.op_tok.type == TokenType.DOT:
             result, error = left.dotted(node.right_node)
 

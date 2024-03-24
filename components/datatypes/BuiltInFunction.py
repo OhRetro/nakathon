@@ -326,7 +326,7 @@ class BuiltInFunction(BaseFunction):
                 _out_text = []
                 
                 for k, v in symbol.items():
-                    _out_text.append(f"{k} = {v[0]}")
+                    _out_text.append(f"{k} = {v}")
                 
                 if not _out_text:
                     print("\t{}")

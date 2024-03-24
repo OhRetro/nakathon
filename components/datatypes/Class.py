@@ -1,7 +1,8 @@
 from .Value import Value
 from .Function import Function
+from .BuiltInFunction import BuiltInFunction
 from .Instance import Instance
-from ..node import VarAccessNode, CallNode, ListNode, Node
+from ..node import VarAccessNode, CallNode, ListNode
 from ..runtime import RunTimeResult
 from ..error import RunTimeError
 from ..context import Context
@@ -20,7 +21,6 @@ class Class(Value):
         new_context.symbol_table = SymbolTable(new_context.parent.symbol_table)
         return new_context
     
-    #! LEFTOVER OF OLD METHOD, STILL HERE FOR REFERENCING
     def dotted(self, other: VarAccessNode | CallNode):
         # from ..interpreter import Interpreter
 
@@ -54,8 +54,6 @@ class Class(Value):
         else:
             return self._illegal_operation(other)
 
-    #! Code based from the Radon Project, I'm doing my own implementation, using as a reference
-    #! If anything https://en.wikipedia.org/wiki/Ship_of_Theseus
     def execute(self, args):
         res = RunTimeResult()
 
@@ -66,13 +64,13 @@ class Class(Value):
 
         exec_ctx.symbol_table = inst.symbol_table
  
-        # for name in self.symbol_table.symbols:
-        #     value, type_ = self.symbol_table.copy_symbol(name)
-        #     inst.symbol_table.set(name, value.set_context(exec_ctx), type_)
+        for name in self.symbol_table.symbols:
+            value, type_ = self.symbol_table.copy_symbol(name)
+            inst.symbol_table.set(name, value.set_context(exec_ctx), type_)
 
-        # for name in inst.symbol_table.symbols:
-        #     inst.symbol_table.get(name).set_context(exec_ctx)
-
+        for name in self.symbol_table.immutable_symbols:
+            value, type_ = self.symbol_table.copy_symbol(name)
+            inst.symbol_table.set_as_immutable(name, value.set_context(exec_ctx), type_)
 
         constructor_name = "__setup__"
         constructor_method = inst.symbol_table.get(constructor_name) if inst.symbol_table.exists(constructor_name) else None

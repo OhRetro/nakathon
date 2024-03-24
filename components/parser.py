@@ -369,7 +369,6 @@ class Parser:
         #return self.bin_op(self.call, (TokenType.POWER, ), self.factor)
         return self.bin_op(self.dot, (TokenType.POWER, ), self.factor)
 
-    #! OLD METHOD
     def dot(self):
         debug_message.set_message("")
         return self.bin_op(self.call, (TokenType.DOT, ), self.power)
