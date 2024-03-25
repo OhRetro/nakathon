@@ -1,6 +1,5 @@
 from .Value import Value
 from .Function import Function
-from .BuiltInFunction import BuiltInFunction
 from .Instance import Instance
 from ..node import VarAccessNode, CallNode, ListNode
 from ..runtime import RunTimeResult
@@ -18,7 +17,7 @@ class Class(Value):
 
     def generate_new_context(self):
         new_context = Context(self.name, self.context, self.pos_start)
-        new_context.symbol_table = SymbolTable(new_context.parent.symbol_table)
+        new_context.symbol_table = SymbolTable(self.symbol_table)
         return new_context
     
     def dotted(self, other: VarAccessNode | CallNode):
@@ -57,10 +56,11 @@ class Class(Value):
     def execute(self, args):
         res = RunTimeResult()
 
-        exec_ctx = Context(self.name, self.context, self.pos_start)
+        exec_ctx = self.generate_new_context()
 
         # TODO: Some issue here when direct accessing class methods without instantiation
         inst = Instance(self, SymbolTable(self.symbol_table))
+        #inst = Instance(self, self.symbol_table)
 
         exec_ctx.symbol_table = inst.symbol_table
  
@@ -76,7 +76,7 @@ class Class(Value):
         constructor_method = inst.symbol_table.get(constructor_name) if inst.symbol_table.exists(constructor_name) else None
 
         if constructor_method and isinstance(constructor_method, Function):
-            inst.symbol_table.set_as_builtin(Keyword.SELFREF.value, inst, Instance)
+            # inst.symbol_table.set_as_builtin(Keyword.SELFREF.value, inst, Instance)
             
             res.register(constructor_method.execute(args))
             if res.should_return():

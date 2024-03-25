@@ -293,8 +293,8 @@ class Parser:
                 ))
             
             # PART 1 OF ACCESSING VARIABLES THE OTHER PART IS ON ATOM
-            elif var_extra_names_toks != []:
-                return res.success(VarAccessNode(var_name_tok, var_extra_names_toks))
+            # elif var_extra_names_toks != []:
+            #     return res.success(VarAccessNode(var_name_tok, var_extra_names_toks))
                 #__1 = 1
 
             # elif var_extra_names_toks == []:

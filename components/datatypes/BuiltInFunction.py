@@ -10,6 +10,7 @@ from .Null import Null
 from .String import String
 from .List import List
 from .Function import BaseFunction, Function, make_args_struct
+from .Class import Class, Instance
 from ..symbol_table import SymbolTable
 from ..node import Node
 from ..context import Context
@@ -257,6 +258,7 @@ class BuiltInFunction(BaseFunction):
             exec_ctx.parent.import_from(context, namespace)
         else:
             exec_ctx.parent.merge(context)
+            #return RunTimeResult().success(Instance(Class(namespace,None, context.symbol_table), context.symbol_table))
         
         return RunTimeResult().success(String(namespace))
     execute_IMPORT.args = [make_args_struct("filename", String), make_args_struct("namespace", String, String(""))]
@@ -310,7 +312,7 @@ class BuiltInFunction(BaseFunction):
         symbol_id: str = exec_ctx.symbol_table.get("symbol_id").value
         
         def _method(context: Context, symbol_id: str):
-            print(f"{context.display_name}:")
+            print(f"{context.display_name} (id: {context.id}):")
             symbols_list = {
                 "n": "symbols",
                 "i": "immutable_symbols",
@@ -319,7 +321,7 @@ class BuiltInFunction(BaseFunction):
             }
             
             def _method1(symbol_table: SymbolTable, symbol_name: str):
-                print(f"\t{symbol_name}:")
+                print(f"\t{symbol_name} (id: {symbol_table.id}):")
                 
                 symbol = getattr(symbol_table, symbol_name)
                 
@@ -349,7 +351,7 @@ class BuiltInFunction(BaseFunction):
                 print("")
                 _method(context.parent, symbol_id)
 
-        _method(exec_ctx, symbol_id)        
+        _method(exec_ctx.parent, symbol_id)        
         
         return RunTimeResult().success(Null.null)
     execute_SHOWCTX.args = [make_args_struct("symbol_id", String, String("*"))]

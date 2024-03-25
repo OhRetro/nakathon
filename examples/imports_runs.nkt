@@ -9,17 +9,17 @@
 # Syntax may change in the future
 
 # No namespace specified
-Import("imports_example") # -> imports_example.
+Import("module_example") # -> module_example.
 
-imports_example.Hello("Gabriel")
+module_example.Hello("Gabriel")
 
 # namespace specified
-Import("imports_example", "ie") # -> ie.
+Import("module_example", "ie") # -> ie.
 
 ie.Hello("Naka")
 
 # Everthing imported
-Import("imports_example", "*") # -> No namespace is added
+Import("module_example", "*") # -> No namespace is added
 
 Hello("OhRetro")
 

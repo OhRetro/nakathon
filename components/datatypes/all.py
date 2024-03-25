@@ -10,7 +10,7 @@ from .Class import Class
 from .Object import Object
 from .Instance import Instance
 
-def make_value_type(name: str):
+def make_value_type(name: str) -> Value:
     map = {
         "Value": Value,
         "Any": Value,

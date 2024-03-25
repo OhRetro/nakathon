@@ -12,7 +12,7 @@ def generate_md_file(content):
         print(f"Error: {e}")
 
 def simulate_code(command: str):
-    results, error = run("generate_readme.py", command, "Generating README.md")
+    results, error, _ = run("generate_readme.py", command, "Generating README.md")
     if results is not None:
         results = results.value[0].__repr__() if len(results.value) <= 1 else results.value
         
@@ -127,7 +127,7 @@ IsBoolean(value: Any)
 IsNull(value: Any)
 
 # List Functions, used to alter a list type (examples are down below)
-ListAppend(list: List, value: Value)
+ListAppend(list: List, value: Any)
 ListPop(list: List, index: Number)
 ListExtend(list: List, list: List)
 ListLen(list: List)
@@ -138,8 +138,8 @@ RandomInt(min: Number, max: Number)
 RandomFloat(min: Number, max: Number)
 
 # Misc Functions
-Import(filename: string, namespace: string)
-Run(filename: string)
+Import(filename: String, namespace: String)
+Run(filename: String)
 Exit(code_number: Number = 0)
 
 ```

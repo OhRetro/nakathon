@@ -1,6 +1,6 @@
 from .utils.debug import DebugMessage
 from .datatypes.Value import Value
-from copy import deepcopy
+# from copy import deepcopy
 
 debug_message = DebugMessage("").set_auto_display(True)
 symbol_table_count = 0
@@ -182,7 +182,55 @@ class SymbolTable:
 
     def set_as_builtin(self, name: str, value: Value, type: Value):
         return self._set_symbol(name, value, type, "builtin_symbols")
+
+    def _reset_symbol(self, name: str, value: Value, type: Value, symbols_name: str, **kwargs):
+        success = False
+        fail_type = "const"
+        debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': RESET: CHECKING")
         
+        if self._exists(name, symbols_name):
+            current_type = getattr(self, symbols_name)[name][1]
+            if type != current_type:
+                fail_type = "type"
+        
+        if not self._is_immutable_or_builtin_check(name) and fail_type == "const":
+            if symbols_name.startswith("temp"):
+                lifetime = kwargs.get("lifetime", 0)
+                if not self._exists(name, symbols_name):
+                    if lifetime > 0:
+                        getattr(self, symbols_name)[name] = (value, type, lifetime+1)
+                        success =  True
+                else:
+                    if lifetime <= 0: self.remove(name)
+                    else:
+                        getattr(self, symbols_name)[name] = (value, type, lifetime)
+                        success = True
+            else:
+                getattr(self, symbols_name)[name] = (value, type)
+                success = True
+                
+        debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': RESET: SUCCESSFUL: {success}")
+        return success, fail_type
+        
+        # else:
+        #     status = None
+            
+        #     if self.parent:
+        #         status = self.parent._reset_symbol(name, value, type, symbols_name, **kwargs)
+        #     else:
+        #         status = self._reset_symbol(name, value, type, symbols_name, **kwargs)
+            
+        #     return status
+    
+    def reset(self, name: str, value: Value, type: Value):
+        return self._reset_symbol(name, value, type, "symbols")
+        
+    def reset_temporary(self, name: str, value: Value, type: Value, lifetime: int):
+        return self._reset_symbol(name, value, type, "temporary_symbols", lifetime = lifetime)
+        
+    def reset_scoped(self, name: str, value: Value, type: Value):
+        return self._reset_symbol(name, value, type, "scoped_symbols")
+    
     def remove(self, name: str):
         debug_message.set_message(f"ST {self.id}: SYMBOL '{name}': DELETE")
         if name in self.symbols:
@@ -195,7 +243,7 @@ class SymbolTable:
             del self.scoped_symbols[name]
             
     def copy(self):
-        copy = SymbolTable(self)
+        copy = SymbolTable(self, self.context)
         copy.symbols = self.symbols
         copy.immutable_symbols = self.immutable_symbols
         return copy
