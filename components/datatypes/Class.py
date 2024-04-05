@@ -88,7 +88,7 @@ class Class(Value):
                 f"The __setup__ in '{self.name}' must be a function",
                 self.context
             ))
-
+        
         return res.success(inst.set_context(self.context).set_pos(self.pos_start, self.pos_end))
     
     def copy(self):

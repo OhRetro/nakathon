@@ -1,11 +1,10 @@
-from typing import Any
 from ..utils.debug import DebugMessage
 from ..utils.strings_template import ILLEGAL_OPERATION_ERROR, NO_METHOD_DEFINED_ERROR
 
 debug_message = DebugMessage("")
 
 class Value:
-    def __init__(self, value: Any = None):
+    def __init__(self, value = None):
         self.value = value
         self.set_pos()
         self.set_context()

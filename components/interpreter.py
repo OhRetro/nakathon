@@ -229,7 +229,14 @@ class Interpreter:
         if res.should_return():
             return res
         
-        if not isinstance(value, var_type) and not issubclass(value.__class__, BaseFunction):
+        if var_type is None:
+            return res.failure(RunTimeError(
+                node.pos_start, node.pos_end,
+                VAR_TYPE_INVALID_ERROR.format(var_full_name),
+                context
+            ))
+        
+        elif not isinstance(value, var_type) and not issubclass(value.__class__, BaseFunction):
             return res.failure(RunTimeError(
                 node.pos_start, node.pos_end,
                 VAR_TYPE_DECLARED_BUT_VALUE_TYPE_IS_NOT_SAME_ERROR.format(var_full_name, var_type.__qualname__, value.__class__.__qualname__),

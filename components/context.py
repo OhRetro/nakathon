@@ -19,6 +19,7 @@ class Context:
         
     def merge(self, other):
         self.symbol_table.merge(other.symbol_table)
+        return self
 
     def import_from(self, other, namespace: str):
         symbols_list = [
