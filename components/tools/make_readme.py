@@ -23,6 +23,8 @@ def build_src_and_output(command: str, show_output: bool = True):
     return f"{command} " + (f"# -> {command_result}" if show_output else "")
 
 content = f'''
+# **There's a better version than Nakathon, [NakaScript](https://github.com/OhRetro/naka-script).**
+
 <img 
     style="display: block; 
            margin-left: auto;
