@@ -1,3 +1,4 @@
+# **There's a better version than Nakathon, [NakaScript](https://github.com/OhRetro/naka-script).**
 
 <img 
     style="display: block; 
@@ -16,6 +17,7 @@ Syntax based on other languages like JavaScript, C# and etc. <br>
         VSCode Nakathon Syntax Highlight Extension
     </a>
 </p>
+
 
 ## Usage
 
